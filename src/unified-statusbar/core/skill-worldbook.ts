@@ -2,7 +2,7 @@ import { getSheetByName, getCellByHeader } from './data-manager';
 import { STANDARD_RECURSION } from './constants';
 import { readSkillTree } from './skill-store';
 import { rebuildSkillDesc } from './skill-desc';
-import { SKILL_TABLE_NAME, SKILL_COL, SKILL_MANAGED_PREFIX, SKILL_MANAGED_DISPLAY_NAME, type SkillTalentTree } from './skill-types';
+import { SKILL_TABLE_NAME, SKILL_COL, SKILL_MANAGED_PREFIX, SKILL_MANAGED_DISPLAY_NAME, type SkillProseMode, type SkillTalentTree } from './skill-types';
 import { isManagedSkillEntry, reconcileSingleManagedEntry } from './worldbook-entry';
 import { dsCachePos, registerManagedWbEntry } from './wb-position';
 import { requestWorldbookProjection } from './worldbook-projection-events';
@@ -17,7 +17,7 @@ type SkillTagColorSyncListener = () => void;
 let _colorSyncListener: SkillTagColorSyncListener | null = null;
 export function setSkillTagColorSyncListener(fn: SkillTagColorSyncListener | null): void { _colorSyncListener = fn; }
 
-function buildContent(): string {
+function buildContent(mode: SkillProseMode): string {
   const colorMap: Record<string, string> = {};
   let body = '';
   const sheet = getSheetByName(SKILL_TABLE_NAME);
@@ -41,7 +41,9 @@ function buildContent(): string {
       }
       lines.push(`· ${name}（${type}）：${description}`);
     }
-    if (lines.length) {
+    if (lines.length && mode === 'reference') {
+      body = `【主角当前技能】\n以下是主角已掌握的能力，仅作人物设定参考：只在剧情自然需要、且符合当前情境与文风时才体现，不必刻意寻找使用机会，也不需要任何标注。\n${lines.join('\n')}`;
+    } else if (lines.length && mode === 'tag') {
       body = `【主角当前技能】\n格式要求：当正文中出现受技能效果影响的情况时，在受影响内容前加上前缀[技能发动：技能名]（技能名必须与下方清单中的技能名完全一致，不得改写、不得添加类别或括号）。\n当主角在剧情中初次学会一项下方清单之外的全新技能时，在学会的情节之后另起一行用标签记录：[技能新增]技能名|类别|技能描述。类别只能是「主动」或「被动」；技能描述为 10-50 字、一句具体可演绎的效果；同名技能不得重复记录，清单中已有的技能一律不再记录。\n${lines.join('\n')}`;
     }
   }
@@ -104,8 +106,8 @@ export function reconcileSkillWorldbookEntries(entries: any[], content: string):
   return reconcileSingleManagedEntry(entries, { content, isMine: isManagedSkillEntry, makeEntry: makeNewEntry });
 }
 
-export function getSkillWorldbookContent(): string {
-  return buildContent();
+export function getSkillWorldbookContent(mode: SkillProseMode): string {
+  return buildContent(mode);
 }
 
 // O6 签名闸门：技能投影是唯一每表格推送 tick 都无条件派发的投影（char-relations 同链有签名

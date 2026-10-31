@@ -11,6 +11,7 @@ import { getConfig, normalizeImageGenerationIntervalSeconds, normalizeWardrobeMo
 import { normalizeImageGenerationConfig, resolveImageTaskConfig, resolvePromptPresetSlice, type ImageTaskType } from '../core/image-generation-config';
 import { ensureSkillTable, setSkillTableEnabled } from '../core/skill-table-ensure';
 import { ensureSkillRegexInjection, removeSkillRegexScripts } from '../core/skill-regex';
+import type { SkillProseMode } from '../core/skill-types';
 import { type StyleType, type AiRetryScope, STYLE_LABELS, type PositionMode, type WidthMode, type CollapseBtnStyle, COLLAPSE_BTN_STYLE_LABELS, POSITION_LABELS, WIDTH_LABELS, CUSTOM_HEIGHT_DEFAULT, CUSTOM_SIZE_PERCENT_MIN, INVESTIGATION_DEFAULT_CONTEXT_COUNT, type SceneApiPreset, type SceneProfile, PROMPT_POST_PROCESSING_OPTIONS, PROMPT_POST_PROCESSING_DEFAULT, GACHA_COST, GACHA10_COST, PORTRAIT_DEFAULT_CONTEXT_COUNT } from '../core/constants';
 import { NOVELAI_MODELS, NOVELAI_SAMPLERS, NOVELAI_SCHEDULERS, ASPECT_RATIO_OPTIONS, UC_PRESET_OPTIONS, RESOLUTION_PRESETS, normalizePortraitImageGen, DEFAULT_PROMPT_PRESET_ID, getDefaultPromptPresets, normalizePromptPresets, resolveActivePreset, applyPresetToConfig, applyPresetOpenAiToConfig, applyPresetComfyToConfig, nextPresetId, resolvePresetNovelAiParams, resolvePresetOpenAiParams, resolvePresetComfyUiParams, buildPresetNovelAiParamsFrom, buildPresetOpenAiParamsFrom, buildPresetComfyUiParamsFrom, normalizePresetNovelAiParams, normalizePresetOpenAiParams, normalizePresetComfyUiParams, type PortraitApiFormat, type PortraitPromptPreset } from '../core/portrait-config';
 import { generateImage } from '../core/image-gen';
@@ -1562,6 +1563,15 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   html += '<div class="summary-desc">技能表 + AI 天赋树 + 经验值激活</div>';
   html += '</summary>';
   html += '<div class="feature-body' + (config.skillEnabled ? '' : ' ub-disabled') + '">';
+  html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
+  html += '<span class="settings-label" style="font-size:11px;">正文里的技能（当前：' + (config.skillProseMode === 'tag' ? '要求标注' : config.skillProseMode === 'off' ? '不注入' : '仅作参考') + '）</span>';
+  html += '<div style="display:flex;gap:6px;width:100%;">';
+  html += '<button id="skillProseTag" class="settings-btn' + (config.skillProseMode === 'tag' ? ' seg-active' : '') + '" style="flex:1;padding:6px 10px;font-size:12px;" title="要求主 AI 在正文里写 [技能发动：技能名]，标签会渲染成技能卡片">要求标注</button>';
+  html += '<button id="skillProseReference" class="settings-btn' + (config.skillProseMode === 'reference' ? ' seg-active' : '') + '" style="flex:1;padding:6px 10px;font-size:12px;" title="只作为人物设定供参考，不要求标注；技能经验仍由填表按正文累计">仅作参考</button>';
+  html += '<button id="skillProseOff" class="settings-btn' + (config.skillProseMode === 'off' ? ' seg-active' : '') + '" style="flex:1;padding:6px 10px;font-size:12px;" title="完全不向正文注入技能条目；技能表与天赋树保留，界面不变">不注入</button>';
+  html += '</div>';
+  html += '<span class="summary-desc" style="font-size:10px;">仅影响发给正文 AI 的技能条目；技能表、天赋树、经验值不受影响</span>';
+  html += '</div>';
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:2px;">';
   html += '<span class="settings-label" style="font-size:11px;">AI 生成剧情上下文条数 (' + config.skillContextCount + ')</span>';
   html += '<div style="display:flex;align-items:center;gap:6px;width:100%;">';
@@ -4243,6 +4253,26 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
       if (_onConfigChanged) _onConfigChanged();
       return;
     }
+    // 正文里的技能：三档（要求标注 / 仅作参考 / 不注入）
+    if (id === 'skillProseTag' || el.closest('#skillProseTag') ||
+        id === 'skillProseReference' || el.closest('#skillProseReference') ||
+        id === 'skillProseOff' || el.closest('#skillProseOff')) {
+      const next: SkillProseMode = (id === 'skillProseTag' || el.closest('#skillProseTag')) ? 'tag'
+        : (id === 'skillProseOff' || el.closest('#skillProseOff')) ? 'off' : 'reference';
+      if (next === config.skillProseMode) return;
+      config.skillProseMode = next;
+      setConfig('skillProseMode', next);
+      setSegActive(['skillProseTag', 'skillProseReference', 'skillProseOff'], next, (bid) =>
+        bid === 'skillProseTag' ? 'tag' : bid === 'skillProseOff' ? 'off' : 'reference');
+      const _label = document.getElementById('skillProseTag')?.closest('.settings-row')?.querySelector('.settings-label');
+      if (_label) _label.textContent = '正文里的技能（当前：' + (next === 'tag' ? '要求标注' : next === 'off' ? '不注入' : '仅作参考') + '）';
+      // 签名闸门只看技能表与聊天键，模式变化会被 syncSkillWorldbook 早退；走开关通道强制 reconcile
+      // （off 产出空内容 → 条目删除；tag/reference → 条目整条替换）
+      void setWorldbookProjectionEnabled('skills', config.skillEnabled);
+      if (_onConfigChanged) _onConfigChanged();
+      return;
+    }
+
     // 清空当前对话所有天赋树
     if (id === 'skillClearTrees' || el.closest('#skillClearTrees')) {
       const { clearAllSkillTrees } = await import('../core/skill-store');

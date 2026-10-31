@@ -13,6 +13,9 @@ export const SKILL_COL = {
 export const SKILL_MANAGED_PREFIX = 'UBS-技能-主角当前技能';
 export const SKILL_MANAGED_DISPLAY_NAME = 'UBS-技能-主角当前技能';
 
+/** 「主角当前技能」条目的正文模式：tag=要求正文标注发动/新增；reference=仅作设定参考；off=不注入正文 */
+export type SkillProseMode = 'tag' | 'reference' | 'off';
+
 export const SKILL_TREE_SCHEMA = 'skill_talent_tree';
 export const SKILL_TREE_INDEX_SCHEMA = 'skill_tree_index';
 export const SKILL_STORY_KEY_PREFIX = 'skill.tree:';

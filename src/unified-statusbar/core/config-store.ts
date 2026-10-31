@@ -7,6 +7,7 @@
 // 注意：本文件仅负责「设置偏好」的持久化；_lsGet/_lsSet 提供给外部存放「临时 UI 状态」
 // （如按钮拖拽位置、展开折叠态），这些状态本就是临时的，仍用 localStorage，不需要跨浏览器同步。
 import { type StyleType, type PositionMode, type WidthMode, type CollapseBtnStyle, type AiRetryScope, CUSTOM_WIDTH_DEFAULT, CUSTOM_HEIGHT_DEFAULT, CUSTOM_SIZE_PERCENT_MIN, INVESTIGATION_DEFAULT_CONTEXT_COUNT, INVESTIGATION_DEFAULT_MAX_SUMMARY_COUNT, CALENDAR_DEFAULT_CONTEXT_COUNT, type ApiMode, type CustomApiPreset, type SceneMode, type SceneProfile, type SceneApiPreset, SCENE_PROFILE_DEFAULT, API_MODE_DEFAULT, normalizePromptPostProcessing, MAP_DEFAULT_CONTEXT_COUNT, MAP_DEFAULT_MAX_ENTRIES, SKILL_DEFAULT_CONTEXT_COUNT, SKILL_DEFAULT_MAX_WB_ENTRIES, SHOP_STORY_DEFAULT_CONTEXT_COUNT, PORTRAIT_DEFAULT_CONTEXT_COUNT, CONTEXT_STRIP_TAGS_DEFAULT, AI_RETRY_MAX_DEFAULT, normalizeAiRetryMax, normalizeAiRetryScopes, type JailbreakSlotState, createJailbreakSlotState } from './constants';
+import type { SkillProseMode } from './skill-types';
 import { readLocalJson } from './safe-json';
 import { normalizeJailbreakSlotState } from './jailbreak-presets';
 import { NSFW_GUIDANCE_DEFAULT_CONTEXT_COUNT, NSFW_GUIDANCE_DEFAULT_MAX_CHARS, NSFW_GUIDANCE_DEFAULT_MAX_WORLD_BOOK_ENTRIES, NSFW_GUIDANCE_MAX_WORLD_BOOK_ENTRIES } from './constants';
@@ -192,6 +193,8 @@ export interface StatusBarConfig {
   mapContextCount: number;
   mapMaxEntries: number;
   skillEnabled: boolean;
+  /** 「主角当前技能」条目的正文模式：tag=要求正文标注发动/新增（旧行为）；reference=仅作设定参考（默认）；off=不注入正文。仅 skillEnabled 开启时生效。 */
+  skillProseMode: SkillProseMode;
   skillContextCount: number;
   skillMaxWorldbookEntries: number;
   /** 地图自动更新模式：off=不自动更新 / new-location=到达新地点时 / location-change=地点变换时 / every-turn=每轮都更新 */
@@ -435,6 +438,7 @@ const DEFAULT_CONFIG: StatusBarConfig = {
   mapContextCount: MAP_DEFAULT_CONTEXT_COUNT,
   mapMaxEntries: MAP_DEFAULT_MAX_ENTRIES,
   skillEnabled: false,
+  skillProseMode: 'reference',
   skillContextCount: SKILL_DEFAULT_CONTEXT_COUNT,
   skillMaxWorldbookEntries: SKILL_DEFAULT_MAX_WB_ENTRIES,
   mapAutoUpdateMode: 'off',
@@ -1171,6 +1175,7 @@ export function getConfig(): StatusBarConfig {
     mapContextCount: typeof cfg.mapContextCount === 'number' && cfg.mapContextCount > 0 ? Math.floor(cfg.mapContextCount) : MAP_DEFAULT_CONTEXT_COUNT,
     mapMaxEntries: typeof cfg.mapMaxEntries === 'number' && cfg.mapMaxEntries > 0 ? Math.floor(cfg.mapMaxEntries) : MAP_DEFAULT_MAX_ENTRIES,
     skillEnabled: cfg.skillEnabled === true,
+    skillProseMode: cfg.skillProseMode === 'tag' || cfg.skillProseMode === 'off' ? cfg.skillProseMode : 'reference',
     skillContextCount: typeof cfg.skillContextCount === 'number' && cfg.skillContextCount > 0 ? Math.min(20, Math.max(1, Math.floor(cfg.skillContextCount))) : SKILL_DEFAULT_CONTEXT_COUNT,
     skillMaxWorldbookEntries: typeof cfg.skillMaxWorldbookEntries === 'number' && cfg.skillMaxWorldbookEntries > 0 ? Math.min(50, Math.max(1, Math.floor(cfg.skillMaxWorldbookEntries))) : SKILL_DEFAULT_MAX_WB_ENTRIES,
     mapAutoUpdateMode: (() => {

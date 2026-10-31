@@ -98,7 +98,7 @@ export function initializeWorldbookProjectionRuntime(): void {
         isEnabled: () => getConfig().skillEnabled === true,
         reconcile: entries => reconcileSkillWorldbookEntries(
           entries,
-          getConfig().skillEnabled ? getSkillWorldbookContent() : '',
+          getConfig().skillEnabled ? getSkillWorldbookContent(getConfig().skillProseMode) : '',
         ),
       },
       {
