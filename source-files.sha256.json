@@ -67,7 +67,7 @@
     "src/unified-statusbar/core/chronicle-reader.ts": "178c784a9ffb5dca4078d511e0554a0fc5bfb2c411f3658d208a417a21681580",
     "src/unified-statusbar/core/chronicle-rows.ts": "def5c681e3310fda1a998762f71101bd3b0b62309b09a97a6231b502ffca71f6",
     "src/unified-statusbar/core/comfyui-client.ts": "8e4a64208de2a1cf335172fde8bcff5807bcbc7cee098554ca3baec69cc53224",
-    "src/unified-statusbar/core/config-store.ts": "64536feafbc397829a5b009d8da50799c27dd3b291c5cbbd598fcf9a9a4f9e39",
+    "src/unified-statusbar/core/config-store.ts": "627825124d92d10ca67b6ea0611f3e81f19521106fff6581e2e5c7746401557e",
     "src/unified-statusbar/core/constants.ts": "855850ce782caffed53b506da747ab2d927600c8b924ef28ad23439af7abb71a",
     "src/unified-statusbar/core/context-strip.ts": "093dcb9b50d78d9c4d4546c7a7a4b42ed4918d8cc37e873a068cdaedc99b3ba4",
     "src/unified-statusbar/core/cross-window.ts": "3d7c56f4c425bafaf49ac0ffc8fb46e25745236a8e32ce7d4a48eff3ba17ec7f",

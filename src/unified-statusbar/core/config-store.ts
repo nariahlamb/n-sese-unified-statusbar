@@ -361,7 +361,7 @@ const DEFAULT_CONFIG: StatusBarConfig = {
   playCollapsed: false,
   darkTheme: false,
   panelColorMode: 'plugin',
-  nsfwPlayEnabled: true,
+  nsfwPlayEnabled: false,
   nsfwPlayAutoClear: false,
   nsfwPlayWorldbookPosition: 'at_depth',
   nsfwPlayWorldbookDepth: 0,
@@ -1075,7 +1075,7 @@ export function getConfig(): StatusBarConfig {
     playCollapsed: cfg.playCollapsed === true,
     darkTheme: cfg.darkTheme === true,
     panelColorMode: cfg.panelColorMode === 'tavern' ? 'tavern' : 'plugin',
-    nsfwPlayEnabled: cfg.nsfwPlayEnabled !== false,
+    nsfwPlayEnabled: cfg.nsfwPlayEnabled === true,
     nsfwPlayAutoClear: cfg.nsfwPlayAutoClear === true,
     nsfwPlayWorldbookPosition: (function() {
       const v = cfg.nsfwPlayWorldbookPosition;
