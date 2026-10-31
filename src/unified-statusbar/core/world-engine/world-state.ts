@@ -1,6 +1,6 @@
 // core/world-engine/world-state.ts
 // 世界状态机：双轨合并判定、聚焦子集选择、认知边界门控、流言生命周期与阈值判定（全部纯函数，可单测）。
-import { THREAD_FOCUS_MAX, type Rumor, type EvolveKind, type EvolveConfig, type WorldState, type CharProfile } from './world-types';
+import { THREAD_FOCUS_MAX, SEED_LEVEL_MAX, SEED_LEVEL_STEP_MAX, SEED_STATUS_ORDER, DIM_GROWTH_DELTA_MAX, GUIDANCE_MAX, GUIDANCE_TEXT_MAX, type Rumor, type EvolveKind, type EvolveConfig, type WorldState, type CharProfile, type WorldSeed, type SeedStatus, type DimensionKind, type GuidanceSignal } from './world-types';
 import { plainClone } from '../deep-clone';
 import { compareDateKey, parseDateKey, makeDate, monthDayOfDateKey } from '../calendar-core';
 import { escapeHtml } from '../html-escape';
@@ -131,23 +131,68 @@ export function syncWorldRoster(
 /** 传闻等级中文标签（幕后密档/结果弹窗展示用；vague 未传开、heard 已传开、known 人尽皆知）。 */
 export const RUMOR_LEVEL_LABEL: Record<string, string> = { vague: '流言', heard: '传闻', known: '实锤' };
 
-/** 认知边界总闸：frontDigest 只含主角可知集合（known/heard 传闻 + AI 通道入镜事件）。
- *  在场角色的动向不进台前：主角在场直接可见，主线剧情承载，不以「入镜」标签混入台前
- *  （「入镜」是入镜事件（Intrusion）的专有语义：三字段+队列+弹窗，见 world-intrusion）。 */
+/** 主角所在地区有这条活跃/收束中的伏线 = 撞上（地区为空不算）。 */
+export function isSeedCollided(seed: WorldSeed, playerRegion: string): boolean {
+  return Boolean(playerRegion) && seed.region === playerRegion
+    && (seed.status === 'active' || seed.status === 'converging');
+}
+
+/** 撞上主角的伏线必须有一条指向它的 encounter 信号；缺了补最简引导（不让整轮作废）。
+ *  碰撞信号排前、不占 GUIDANCE_MAX 常规名额。纯函数。 */
+export function repairCollisionSignals(signals: GuidanceSignal[], seeds: WorldSeed[], playerRegion: string): GuidanceSignal[] {
+  const collided = seeds.filter(s => isSeedCollided(s, playerRegion));
+  const collidedIds = new Set(collided.map(s => s.id));
+  const pinned: GuidanceSignal[] = [];
+  for (const s of collided) {
+    const own = signals.find(g => g.voice === 'encounter' && g.sourceId === s.id);
+    pinned.push(own || {
+      voice: 'encounter',
+      sourceId: s.id,
+      text: `附近与「${s.title}」有关的人和事可能出现 → 可顺势引出这条线`.slice(0, GUIDANCE_TEXT_MAX),
+    });
+  }
+  const rest = signals.filter(g => !(g.voice === 'encounter' && collidedIds.has(g.sourceId))).slice(0, GUIDANCE_MAX);
+  return [...pinned, ...rest];
+}
+
+const SEED_STATUS_LABEL: Record<SeedStatus, string> = {
+  established: '初现', incubating: '酝酿', active: '正在发生', converging: '将要收场', resolved: '已收场', retired: '已结束',
+};
+
+export const DIGEST_SECTION_HERE = '〔此地此刻〕';
+export const DIGEST_SECTION_RUMOR = '〔风闻轶事〕';
+export const DIGEST_SECTION_UNDER = '〔世界暗流〕';
+
+/** 认知边界总闸：frontDigest 只含主角可知或可碰到的内容，分三段：
+ *  此地此刻 = encounter 信号；风闻轶事 = known/heard 传闻 + rumor 信号；世界暗流 = ambient 信号 + 众所周知的未收场伏线。
+ *  AI 通道入镜行放在段外末尾（窗口/助手用），注入层 buildWorldDigestContent 会剔掉，不预泄露。
+ *  在场角色的动向不进台前：主角在场直接可见，主线剧情承载。 */
 export function buildFrontDigest(state: WorldState, dateKey: string): string {
-  const lines: string[] = [];
+  const signals = state.guidance?.signals || [];
+  const here = signals.filter(g => g.voice === 'encounter').map(g => `- ${g.text}`);
+  const rumor: string[] = [];
   for (const r of state.rumors) {
     if (r.level === 'vague') continue;
-    lines.push(`【传闻·${r.topic}】${r.content}`);
+    rumor.push(`【传闻·${r.topic}】${r.content}`);
   }
-// v1.1（P4）+WS10：AI 通道入镜 = aiTriggered character_arrival 以「【X 入镜】标题　钩子」进台前（窗口展示用）。
-// 状态不影响台前（pending/acted 都在台前）；暂缓（defer）与触发（acted）不撤销台前——删除/到期才随台前重建消失。
-for (const it of state.pendingIntrusions) {
-  if (it.kind === 'character_arrival' && it.aiTriggered && (it.title || it.hook)) {
-    const titlePart = it.title ? `${it.title}　` : '';
-    lines.push(`【${it.refId} 入镜】${titlePart}${it.hook || ''}`);
+  for (const g of signals) if (g.voice === 'rumor') rumor.push(`- ${g.text}`);
+  const under = signals.filter(g => g.voice === 'ambient').map(g => `- ${g.text}`);
+  for (const s of state.seeds || []) {
+    if (s.visibility !== 'public' || isSeedTerminal(s.status)) continue;
+    under.push(`- ${s.title}（${SEED_STATUS_LABEL[s.status]}）`);
   }
-}
+  const lines: string[] = [];
+  if (here.length) lines.push(DIGEST_SECTION_HERE, ...here);
+  if (rumor.length) lines.push(DIGEST_SECTION_RUMOR, ...rumor);
+  if (under.length) lines.push(DIGEST_SECTION_UNDER, ...under);
+  // v1.1（P4）+WS10：AI 通道入镜 = aiTriggered character_arrival 以「【X 入镜】标题　钩子」进台前（窗口展示用）。
+  // 状态不影响台前（pending/acted 都在台前）；暂缓（defer）与触发（acted）不撤销台前——删除/到期才随台前重建消失。
+  for (const it of state.pendingIntrusions) {
+    if (it.kind === 'character_arrival' && it.aiTriggered && (it.title || it.hook)) {
+      const titlePart = it.title ? `${it.title}　` : '';
+      lines.push(`【${it.refId} 入镜】${titlePart}${it.hook || ''}`);
+    }
+  }
   if (lines.length === 0) return '';
   return `【世界动态 ${dateKey}】\n` + lines.join('\n');
 }
@@ -283,6 +328,169 @@ export function advanceCharThread(
   const inc = Math.round(TWIST_INCREMENTS[spec.tw][spec.kind === 'big' ? 'big' : 'small'] * (spec.mult ?? 1));
   const g = Math.max(0, Number(p.goalProgress) || 0);
   return { ...p, goalProgress: Math.min(100, g + inc) };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 伏线状态机 / 局势刻度 / 地区口径
+// 冷却与频率取自格林推演 progression-plan：撞上主角的伏线只看冷却，其余看催化频率。
+// ═══════════════════════════════════════════════════════════════
+
+export type SeedCircle = 'core' | 'medium' | 'edge';
+
+export const SEED_FREQUENCY_DAYS: Record<SeedCircle, number> = { core: 3, medium: 3, edge: 15 };
+export const SEED_COOLDOWN_DAYS: Record<SeedCircle, number> = { core: 1, medium: 3, edge: 7 };
+
+export function isSeedTerminal(status: SeedStatus): boolean {
+  return status === 'resolved' || status === 'retired';
+}
+
+export function isSeedExpired(seed: WorldSeed, today: string): boolean {
+  return Boolean(seed.expiresAtDay) && compareDateKey(today, seed.expiresAtDay) > 0;
+}
+
+export function seedCircle(seed: WorldSeed, hasCollision: boolean): SeedCircle {
+  if (hasCollision || seed.visibility === 'public') return 'core';
+  if (seed.visibility === 'limited') return 'medium';
+  return 'edge';
+}
+
+export interface SeedAdvanceCtx {
+  /** 当前日期键。 */
+  today: string;
+  /** 距上次演化的游戏内天数。 */
+  daysAdvanced: number;
+  /** 主角所在地区是否撞上这条伏线。 */
+  hasCollision: boolean;
+}
+
+export type SeedGateReason = 'ok' | 'terminal' | 'expired' | 'no-time' | 'no-catalyst' | 'cooldown';
+
+export interface SeedGateVerdict {
+  allowed: boolean;
+  circle: SeedCircle;
+  reason: SeedGateReason;
+}
+
+/** 本轮这条伏线能否被催化（状态前进一档 / 波及面扩大）。 */
+export function seedGate(seed: WorldSeed, ctx: SeedAdvanceCtx): SeedGateVerdict {
+  const circle = seedCircle(seed, ctx.hasCollision);
+  const verdict = (allowed: boolean, reason: SeedGateReason): SeedGateVerdict => ({ allowed, circle, reason });
+  if (isSeedTerminal(seed.status)) return verdict(false, 'terminal');
+  if (isSeedExpired(seed, ctx.today)) return verdict(false, 'expired');
+  if (!(ctx.daysAdvanced > 0)) return verdict(false, 'no-time');
+  if (!String(seed.catalyst || '').trim()) return verdict(false, 'no-catalyst');
+  if (seed.lastAdvanceDay) {
+    const need = ctx.hasCollision ? SEED_COOLDOWN_DAYS[circle] : SEED_FREQUENCY_DAYS[circle];
+    if (gapDaysBetween(seed.lastAdvanceDay, ctx.today) < need) return verdict(false, 'cooldown');
+  }
+  return verdict(true, 'ok');
+}
+
+export interface SeedProposal {
+  status?: SeedStatus;
+  level?: number;
+  retiredReason?: string;
+}
+
+export type SeedRejectReason = Exclude<SeedGateReason, 'ok'> | 'backward' | 'skip-clamped' | 'level-clamped';
+
+export interface SeedAdvanceResult {
+  seed: WorldSeed;
+  changed: boolean;
+  /** 被拒绝或被削弱的提议（供日志/纪要展示）。 */
+  rejected: SeedRejectReason[];
+}
+
+/** 按闸门应用 AI 对伏线的状态/波及面提议（纯函数）：
+ *  - 状态只进不退；跳级按前进一档算；前进需过 seedGate
+ *  - retired 可从任何未终结状态进入（被别处解决/失效/并线），不受冷却限制
+ *  - 波及面扩大需过 seedGate 且单轮 ≤ SEED_LEVEL_STEP_MAX；收缩不限
+ *  - 终结状态不再变化 */
+export function advanceSeed(seed: WorldSeed, proposal: SeedProposal, ctx: SeedAdvanceCtx): SeedAdvanceResult {
+  const rejected: SeedRejectReason[] = [];
+  const gate = seedGate(seed, ctx);
+  const next: WorldSeed = { ...seed };
+  let changed = false;
+
+  if (isSeedTerminal(seed.status)) {
+    const wants = (proposal.status && proposal.status !== seed.status)
+      || (typeof proposal.level === 'number' && Math.round(proposal.level) !== seed.level);
+    return { seed, changed: false, rejected: wants ? ['terminal'] : [] };
+  }
+
+  if (proposal.status === 'retired') {
+    next.status = 'retired';
+    next.retiredReason = String(proposal.retiredReason || '').trim() || 'invalidated';
+    changed = true;
+  } else if (proposal.status && proposal.status !== seed.status) {
+    const from = SEED_STATUS_ORDER.indexOf(seed.status);
+    const to = SEED_STATUS_ORDER.indexOf(proposal.status);
+    if (to < from) {
+      rejected.push('backward');
+    } else if (!gate.allowed) {
+      rejected.push(gate.reason as SeedRejectReason);
+    } else {
+      if (to > from + 1) rejected.push('skip-clamped');
+      next.status = SEED_STATUS_ORDER[from + 1];
+      next.lastAdvanceDay = ctx.today;
+      changed = true;
+    }
+  }
+
+  if (typeof proposal.level === 'number' && Number.isFinite(proposal.level)) {
+    const target = Math.max(0, Math.min(SEED_LEVEL_MAX, Math.round(proposal.level)));
+    const cur = Number(seed.level) || 0;
+    if (target < cur) {
+      next.level = target;
+      changed = true;
+    } else if (target > cur) {
+      if (!gate.allowed) {
+        if (!rejected.includes(gate.reason as SeedRejectReason)) rejected.push(gate.reason as SeedRejectReason);
+      } else {
+        if (target > cur + SEED_LEVEL_STEP_MAX) rejected.push('level-clamped');
+        next.level = Math.min(target, cur + SEED_LEVEL_STEP_MAX);
+        changed = true;
+      }
+    }
+  }
+
+  if (changed) next.revision = (Number(seed.revision) || 0) + 1;
+  return { seed: changed ? next : seed, changed, rejected };
+}
+
+export interface MissedSeedNote {
+  seedId: string;
+  title: string;
+  /** 「[错过] …」纪要文本。 */
+  summary: string;
+}
+
+/** 到期未收场的伏线转 retired（retiredReason='missed'），返回要追加的错过纪要。
+ *  到期当天仍算未过期，过了期限日才结算。纯函数。 */
+export function sweepExpiredSeeds(state: WorldState, today: string): { state: WorldState; missed: MissedSeedNote[] } {
+  const next: WorldState = plainClone(state);
+  const missed: MissedSeedNote[] = [];
+  next.seeds = (next.seeds || []).map(seed => {
+    if (isSeedTerminal(seed.status) || !isSeedExpired(seed, today)) return seed;
+    const outcome = String(seed.missedOutcome || '').trim() || `${seed.title}不了了之`;
+    missed.push({ seedId: seed.id, title: seed.title, summary: `[错过] ${outcome}` });
+    return { ...seed, status: 'retired' as const, retiredReason: 'missed', revision: (Number(seed.revision) || 0) + 1 };
+  });
+  return { state: next, missed };
+}
+
+/** 刻度单轮变化量：压力型不限；积累型涨幅 ≤ DIM_GROWTH_DELTA_MAX（跌幅不限）。非数字按 0。 */
+export function clampDimensionDelta(kind: DimensionKind, delta: number): number {
+  const d = Math.round(Number(delta));
+  if (!Number.isFinite(d)) return 0;
+  if (kind === 'growth') return Math.min(d, DIM_GROWTH_DELTA_MAX);
+  return d;
+}
+
+/** 「当前详细地点」取层级首段作为地区键（与 map-system 按 '-' 切分同口径）。 */
+export function normalizeRegion(locationText: string): string {
+  const head = String(locationText || '').split('-').map(s => s.trim()).find(Boolean) || '';
+  return head.replace(/\s+/g, ' ');
 }
 
 /** 创建去重闸：中文虚词表（tokensOf 剔除用）。 */

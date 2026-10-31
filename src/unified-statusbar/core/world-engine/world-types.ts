@@ -23,6 +23,87 @@ export const DEFAULT_CHRONICLE_TOTAL = 50; // v2：世界演化注入的纪要�
 /** 演化自动更新最小回复字数：最新 AI 回复字符数低于该值跳过自动演化（设置面板可配，默认 200）。 */
 export const DEFAULT_EVOLVE_MIN_REPLY = 200;
 
+// ─── 伏线 / 局势刻度 / 引导信号 ───
+
+export const SEED_MAX = 30;
+/** 单轮最多新建伏线数。 */
+export const SEED_NEW_PER_ROUND = 3;
+/** 演化请求里最多带的伏线数。 */
+export const SEED_PROMPT_MAX = 12;
+/** 波及面上限：0 一人 / 1 小圈子 / 2 一地 / 3 一域 / 4 天下。 */
+export const SEED_LEVEL_MAX = 4;
+export const SEED_LEVEL_STEP_MAX = 1;
+/** 积累型刻度单轮最大涨幅（压力型不限）。 */
+export const DIM_GROWTH_DELTA_MAX = 8;
+export const DIMENSION_MAX = 8;
+export const GUIDANCE_MAX = 4;
+export const GUIDANCE_TEXT_MAX = 80;
+export const EXP_MAX = 30;
+export const KNOWN_FACTS_MAX = 5;
+/** 世界动态注入条目正文总长上限（字符）。 */
+export const WORLD_DIGEST_CHARS_MAX = 1200;
+
+export type SeedStatus = 'established' | 'incubating' | 'active' | 'converging' | 'resolved' | 'retired';
+/** 伏线主线顺序（retired 是旁路终态，不在序列里）。 */
+export const SEED_STATUS_ORDER: readonly SeedStatus[] = ['established', 'incubating', 'active', 'converging', 'resolved'];
+export type SeedVisibility = 'hidden' | 'limited' | 'public';
+
+export interface WorldSeed {
+  /** seed-<创建时日期键>-<序号> */
+  id: string;
+  title: string;
+  status: SeedStatus;
+  level: number;
+  visibility: SeedVisibility;
+  /** 引信：什么条件会让它往前走。 */
+  catalyst: string;
+  /** 地点层级首段（normalizeRegion 口径）。 */
+  region: string;
+  /** 只引用 profiles 里已有的角色名。 */
+  actorIds: string[];
+  /** 期限日期键，可空；与 missedOutcome 成对出现。 */
+  expiresAtDay: string;
+  missedOutcome: string;
+  createdAtDay: string;
+  retiredReason?: string;
+  /** 上次推进状态的日期键（冷却用）。 */
+  lastAdvanceDay?: string;
+  revision: number;
+}
+
+export type DimensionKind = 'pressure' | 'growth';
+export type DimensionTrend = 'rising' | 'stable' | 'falling';
+
+export interface WorldDimension {
+  id: string;
+  name: string;
+  kind: DimensionKind;
+  /** 0-100 */
+  value: number;
+  trend: DimensionTrend;
+  rationale: string;
+  revision: number;
+}
+
+export type GuidanceVoice = 'encounter' | 'rumor' | 'ambient';
+
+export interface GuidanceSignal {
+  voice: GuidanceVoice;
+  /** 账本已有条目 id、角色名或 'clock'。 */
+  sourceId: string;
+  text: string;
+}
+
+export interface WorldGuidance {
+  signals: GuidanceSignal[];
+}
+
+export interface CharExperience {
+  text: string;
+  endedAtDay: string;
+  outcome: string;
+}
+
 // ─── 小手机联动（世界演化主动联系 + 社媒内容产出） ───
 
 /** 社媒评论（演化产出完整帖子的配套内容；落库经小手机侧 normalizeSocialComment 兜底）。 */
@@ -92,6 +173,11 @@ export interface WorldState {
   pendingIntrusions: Intrusion[];
   /** 演化停用名单（角色名）：幕后删除动向并停用演化时记入；仅当前聊天生效，syncWorldRoster 不再为其建侧写。 */
   evolveExcluded?: string[];
+  seeds?: WorldSeed[];
+  dimensions?: WorldDimension[];
+  guidance?: WorldGuidance;
+  /** 上次演化时的当前日期键。 */
+  lastClockDay?: string;
 }
 
 export interface CharProfile {
@@ -114,6 +200,16 @@ export interface CharProfile {
   arrivalConditionAt?: number;
   /** 最近一次自由入镜成功入队的轮次（F28）：冷却闸依据（同角色间隔 ≥ INTRUSION_COOLDOWN_ROUNDS）。 */
   lastArrivalRound?: number;
+  /** 「知道：…」/「不知道：…」，≤5 条，每条须对得上来历。 */
+  knownFacts?: string[];
+  /** 当前动向开始日期键。 */
+  actionStartedDay?: string;
+  /** 预计时长（相对表达）。 */
+  actionDuration?: string;
+  /** 结算后的一句话结果。 */
+  actionOutcome?: string;
+  /** 已结束动向归档，上限 EXP_MAX。 */
+  experiences?: CharExperience[];
   updatedAt: string;
   lastEvolveRound: number;
 }
@@ -130,6 +226,10 @@ export interface Rumor {
   /** 消散度 0-100（前端维护；AI 给减量；进台前那一刻重置 100、不随阶段变化刷新；归 0 即删除）。幕后 vague 无值/未激活时缺省。 */
   dissipation?: number;
   createdAt: string;
+  /** 传播地区（地点层级首段）。 */
+  region?: string;
+  /** 最早可被得知的日期键。 */
+  earliestRevealDay?: string;
 }
 
 /** 回廊增量：一轮演化里「什么变了」的结构化快照。
@@ -149,6 +249,8 @@ export interface ChronicleDelta {
   threads?: { name: string; from?: number; to?: number; goal?: string }[];
   /** 本轮新入镜事件；hook=该事件的钩子文本（状态里本就有，只是以前没发出来）。 */
   intrusions?: { refId: string; title?: string; hook?: string }[];
+  /** 伏线状态变化；本轮新建的无 from。 */
+  seeds?: { title: string; from?: SeedStatus; to: SeedStatus; reason?: string }[];
 }
 
 export interface ChronicleEntry {
@@ -210,5 +312,8 @@ export function emptyWorldState(): WorldState {
     frontDigest: '',
     pendingIntrusions: [],
     evolveExcluded: [],
+    seeds: [],
+    dimensions: [],
+    guidance: { signals: [] },
   };
 }

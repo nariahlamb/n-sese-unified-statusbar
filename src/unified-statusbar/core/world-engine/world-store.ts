@@ -2,7 +2,7 @@
 // 世界演化存储：journal `world` feature key，单对象整替换（write-behind）。
 
 import { readStoryFeature, writeStoryFeature, hasStoryFeature, getStoryJournalDataToken } from '../story-floor-store';
-import { WORLD_FEATURE_KEY, WORLD_SCHEMA_VERSION, INTRUSION_ACT_TTL, emptyWorldState, type WorldState } from './world-types';
+import { WORLD_FEATURE_KEY, WORLD_SCHEMA_VERSION, INTRUSION_ACT_TTL, emptyWorldState, type WorldState, type WorldSeed, type WorldDimension, type GuidanceSignal } from './world-types';
 
 // O25：整份世界状态深拷贝是渲染热路径上最重的一次性克隆（镜头之外入口判断在每主题渲染路径
 // 各调一次 loadWorldState）。调用面契约（O25 落地时逐点审计过）：所有突变方（triggerIntrusion /
@@ -16,6 +16,17 @@ export function loadWorldState(): WorldState {
   const token = getStoryJournalDataToken();
   if (_loadCache && _loadCacheToken === token) return _loadCache;
   const raw = readStoryFeature<Partial<WorldState> | null>(WORLD_FEATURE_KEY, null);
+  const state = normalizeWorldState(raw);
+  _loadCache = state;
+  _loadCacheToken = token;
+  return state;
+}
+
+const objectsOf = <T>(value: unknown): T[] | null =>
+  Array.isArray(value) ? value.filter(v => v && typeof v === 'object') as T[] : null;
+
+/** 存档原始对象 → 可用状态（纯函数，会就地剥离 raw 上的旧字段）。版本不符即视为无存档。 */
+export function normalizeWorldState(raw: Partial<WorldState> | null | undefined): WorldState {
   let state: WorldState;
   if (!raw || raw.version !== WORLD_SCHEMA_VERSION) {
     state = emptyWorldState();
@@ -44,10 +55,12 @@ export function loadWorldState(): WorldState {
       chronicle: Array.isArray(raw.chronicle) ? raw.chronicle : base.chronicle,
       pendingIntrusions,
       evolveExcluded: Array.isArray(raw.evolveExcluded) ? raw.evolveExcluded.filter(n => typeof n === 'string' && n) : base.evolveExcluded,
+      seeds: objectsOf<WorldSeed>(raw.seeds) ?? base.seeds,
+      dimensions: objectsOf<WorldDimension>(raw.dimensions) ?? base.dimensions,
+      guidance: { signals: objectsOf<GuidanceSignal>(raw.guidance?.signals) ?? [] },
     };
+    if (typeof raw.lastClockDay !== 'string') delete state.lastClockDay;
   }
-  _loadCache = state;
-  _loadCacheToken = token;
   return state;
 }
 

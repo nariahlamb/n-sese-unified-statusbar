@@ -9,8 +9,8 @@ import { dsCachePos, registerManagedWbEntry } from '../wb-position';
 import { hasWorldbookProjectionDispatcher, requestWorldbookProjection } from '../worldbook-projection-events';
 import { loadWorldState } from './world-store';
 import { hasWorldState } from './world-store';
-import { charThreadStage } from './world-state';
-import { WORLD_FEATURE_KEY, type CharProfile, type WorldState } from './world-types';
+import { charThreadStage, DIGEST_SECTION_HERE, DIGEST_SECTION_RUMOR, DIGEST_SECTION_UNDER } from './world-state';
+import { WORLD_FEATURE_KEY, WORLD_DIGEST_CHARS_MAX, type CharProfile, type WorldState } from './world-types';
 import { deleteStoryFeature } from '../story-floor-store';
 import { getConfig } from '../config-store';
 
@@ -32,11 +32,30 @@ registerManagedWbEntry({
 export function buildWorldDigestContent(frontDigest: string): string {
   if (!frontDigest.trim()) return '';
   // WS10：入镜事件内容不进世界书蓝灯（主角可知通道）——入镜由「钩子」（玩家发送进输入框）与
-  // 角色动态绿条目承载，蓝灯不预泄露。过滤所有「【X 入镜】」行（含在场角色动向行，活动恒空基本不出现）。
-  const filtered = frontDigest.split('\n').filter(l => !l.includes('入镜】')).join('\n').trim();
-  if (!filtered) return '';
-  return `【世界动态】以下为最近幕后演化后、主角可知的世界动态。\n\n${filtered}`;
+  // 角色动态绿条目承载，蓝灯不预泄露。过滤所有「【X 入镜】」行。
+  const lines = frontDigest.split('\n').filter(l => l.trim() && !l.includes('入镜】'));
+  const head = lines[0]?.startsWith('【世界动态') ? lines.shift()! : '';
+  const sections: { title: string; rows: string[] }[] = [];
+  for (const l of lines) {
+    if (DIGEST_SECTIONS.includes(l)) sections.push({ title: l, rows: [] });
+    else if (sections.length) sections[sections.length - 1].rows.push(l);
+    else sections.push({ title: '', rows: [l] });
+  }
+  const size = () => sections.reduce((n, s) => n + s.title.length + 1 + s.rows.reduce((m, r) => m + r.length + 1, 0), head.length);
+  while (size() > WORLD_DIGEST_CHARS_MAX) {
+    const longest = sections.filter(s => s.rows.length)
+      .sort((a, b) => b.rows.join('').length - a.rows.join('').length)[0];
+    if (!longest) break;
+    longest.rows.pop();
+  }
+  const body = sections.filter(s => s.rows.length)
+    .map(s => (s.title ? [s.title, ...s.rows] : s.rows).join('\n'))
+    .join('\n');
+  if (!body.trim()) return '';
+  return `【世界动态】以下为最近幕后演化后、主角可知或可碰到的世界动态。「此地此刻」是眼下可以自然引出的由头，只在剧情顺势时使用，不要强行插入。\n\n${head ? head + '\n' : ''}${body}`;
 }
+
+const DIGEST_SECTIONS = [DIGEST_SECTION_HERE, DIGEST_SECTION_RUMOR, DIGEST_SECTION_UNDER];
 
 function sameEntry(a: any, b: any): boolean {
   return a?.name === b.name

@@ -165,6 +165,9 @@ export function initWorldEvolution(): void {
     roster: readRosterCandidates,
     gap: describeTimeGap,
     latestReply: readLatestAiReply,
+    location: () => {
+      try { return String(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { return ''; }
+    },
     sources: readEvolutionSources,
   });
 
