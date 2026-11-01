@@ -326,8 +326,9 @@ export const minimalCSS = /* css */ `
 .settings-popup-title{font-family:var(--mn-font-hand);font-size:var(--ub-popup-font-title,15px);font-weight:700;letter-spacing:1px;color:var(--text-color);flex:1}
 .settings-popup-close{background:var(--bg-color);border:1.5px solid var(--border-color);color:var(--secondary-text);width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;font-family:var(--mn-font-body);border-radius:50%}
 .settings-popup-close:hover{border-color:var(--mn-sakura);color:var(--mn-sakura-ink)}
-.settings-tabs{display:flex;gap:5px;border-bottom:1.5px dashed var(--border-color);padding:7px 10px;background:var(--bg-color);overflow-x:auto}
-.settings-tab{flex:1;padding:5px 10px;border:1.5px solid var(--border-color);border-radius:14px;background:var(--mn-card);color:var(--secondary-text);font-size:13px;white-space:nowrap;font-family:var(--mn-font-hand);letter-spacing:.5px;cursor:pointer;transition:all .2s;position:relative;font-weight:600}
+.settings-tabs{display:flex;align-items:stretch;gap:5px;border-bottom:1.5px dashed var(--border-color);padding:7px 10px;background:var(--bg-color);overflow-x:auto}
+.settings-tabs::-webkit-scrollbar{display:none}
+.settings-tab{display:flex;align-items:center;justify-content:center;flex:1 1 0;min-width:0;min-height:32px;padding:4px 10px;border:1.5px solid var(--border-color);border-radius:16px;background:var(--mn-card);color:var(--secondary-text);font-size:13px;line-height:1.2;white-space:nowrap;text-align:center;font-family:var(--mn-font-hand);letter-spacing:.5px;cursor:pointer;transition:background-color .2s,border-color .2s,color .2s;position:relative;font-weight:600}
 .settings-tab:hover{color:var(--text-color);border-color:var(--mn-sakura)}
 .settings-tab.active{color:var(--accent-ink);background:var(--mn-sakura);border-color:var(--mn-sakura)}
 .settings-popup-body{padding:10px 12px;min-height:120px;overflow-y:auto;flex:1}
@@ -488,11 +489,11 @@ body.dark-mode .char-hub-theme-minimal .char-hub-ms-item.is-latest .char-hub-ms-
 .minimal-container .options-bar-title{padding-left:0;display:inline-flex;align-items:center;gap:6px;font-family:var(--mn-font-hand);font-size:14px;font-weight:700;letter-spacing:1px;opacity:1;text-transform:none;color:var(--text-color)}
 .minimal-container .options-bar-title::before{position:static;transform:none;width:8px;height:8px;border-radius:50%;background:var(--mn-sakura);opacity:1}
 .minimal-container .options-bar-items{display:flex;flex-direction:column;gap:6px}
-.minimal-container .option-item{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;text-align:left;border:1.5px solid var(--border-color);border-radius:var(--mn-radius);background:var(--mn-card);color:var(--text-color);box-shadow:var(--mn-shadow-soft)}
+.minimal-container .option-item{display:flex;align-items:center;gap:8px;padding:7px 10px;text-align:left;border:1.5px solid var(--border-color);border-radius:var(--mn-radius);background:var(--mn-card);color:var(--text-color);box-shadow:var(--mn-shadow-soft)}
 .minimal-container .option-item:last-child{border-bottom:1.5px solid var(--border-color)}
 .minimal-container .option-item:hover{border-color:var(--mn-sakura);border-left:1.5px solid var(--mn-sakura);padding-left:10px;background:var(--mn-sakura-soft)}
-.minimal-container .option-number{flex:0 0 auto;min-width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);font-weight:700;font-size:11px}
-.minimal-container .option-text{min-width:0;font-size:12.5px;line-height:1.6;overflow-wrap:anywhere}
+.minimal-container .option-number{flex:0 0 auto;min-width:1.2em;padding:0;background:none;border:0;border-radius:0;text-align:center;line-height:1.6;color:var(--mn-sakura-ink);font-weight:700;font-size:13px;font-family:var(--mn-font-body)}
+.minimal-container .option-text{min-width:0;flex:1;align-self:center;font-size:12.5px;line-height:1.6;overflow-wrap:anywhere}
 .minimal-container > .ub-ai-bar{margin:-12px -12px 10px;border-radius:var(--mn-radius-lg) var(--mn-radius-lg) 0 0}
 @media(max-width:600px){.minimal-container > .ub-ai-bar{margin:-10px -10px 8px}}
 `;
