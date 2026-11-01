@@ -47,10 +47,7 @@ const bridgeCoreCSS = /* css */ `
   --bridge-font-ui:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
   --bridge-font-data:"Bahnschrift","DIN Alternate","Impact","Noto Sans SC","PingFang SC","Microsoft YaHei UI",sans-serif;
   --bridge-radius:0px;
-  --bridge-clip-tag:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
-  --bridge-clip-btn:polygon(0 2px,calc(100% - 8px) 0,100% calc(100% - 3px),6px 100%);
-  --bridge-clip-btn-alt:polygon(7px 0,100% 2px,calc(100% - 5px) 100%,0 calc(100% - 2px));
-  --bridge-clip-badge:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
+  --bridge-tilt:skewX(0deg);
   --bg-color:var(--bridge-bg);
   --text-color:var(--bridge-text);
   --text:var(--bridge-text);
@@ -276,7 +273,6 @@ body.dark-mode,
   font:inherit;
   font-weight:900;
   cursor:pointer;
-  clip-path:var(--bridge-clip-btn);
   box-shadow:none;
 }
 .panel-popup-close:hover,
@@ -293,7 +289,7 @@ body.dark-mode,
 .detail-row .dl{min-width:4em;flex:0 0 auto;color:var(--bridge-muted);font-size:11.5px;font-weight:800}
 .detail-row .dv{min-width:0;flex:1;color:var(--bridge-text);overflow-wrap:anywhere}
 .detail-content{padding:8px 0}
-.detail-content .dl{display:inline-block;margin-bottom:6px;padding:0 8px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:0;font-size:11px;font-weight:800;clip-path:var(--bridge-clip-tag);box-shadow:2px 2px 0 var(--bridge-offset)}
+.detail-content .dl{display:inline-block;margin-bottom:6px;padding:0 8px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:0;font-size:11px;font-weight:800;transform:skewX(-10deg);box-shadow:2px 2px 0 var(--bridge-offset)}
 .detail-content .dc{color:var(--bridge-text);font-size:12.5px;line-height:1.75;overflow-wrap:anywhere}
 
 .settings-tabs{
@@ -318,7 +314,6 @@ body.dark-mode,
   font:800 12px/1.2 var(--bridge-font-ui);
   letter-spacing:.04em;
   cursor:pointer;
-  clip-path:var(--bridge-clip-tag);
 }
 .settings-tab:hover{color:var(--bridge-signal);border-color:var(--bridge-signal)}
 .settings-tab.active{color:var(--bridge-screen-text);background:var(--bridge-screen);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal)}
@@ -347,6 +342,7 @@ body.dark-mode,
   border-radius:11px;
   box-shadow:none;
   transform:none;
+  clip-path:none;
   cursor:pointer;
   transition:background-color .18s ease,border-color .18s ease;
 }
@@ -365,7 +361,7 @@ body.dark-mode,
   transition:transform .18s ease,background-color .18s ease,box-shadow .18s ease;
 }
 .bridge-window button.settings-toggle:hover,
-.bridge-container button.settings-toggle:hover{background:var(--bridge-panel-inset);border-color:var(--bridge-line-strong)}
+.bridge-container button.settings-toggle:hover{background:var(--bridge-panel-inset);border-color:var(--bridge-line-strong);box-shadow:none}
 .bridge-window button.settings-toggle:active,
 .bridge-container button.settings-toggle:active{transform:none;box-shadow:none}
 .settings-toggle.on,
@@ -394,7 +390,7 @@ body.dark-mode,
 .item-detail-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--bridge-line)}
 .item-detail-actions button{flex:1 1 120px;padding:7px 10px}
 .mission-objective{margin-top:7px;padding:6px 9px;color:var(--bridge-text);background:var(--bridge-panel);border-left:5px solid var(--bridge-signal);border-radius:0;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
-.mission-status{display:inline-block;margin-top:7px;padding:1px 8px;border:2px solid var(--bridge-line-strong);border-radius:0;font-size:11px;font-weight:700;clip-path:var(--bridge-clip-tag)}
+.mission-status{display:inline-block;margin-top:7px;padding:1px 8px;border:2px solid var(--bridge-line-strong);border-radius:0;font-size:11px;font-weight:700;transform:skewX(-10deg)}
 .mission-status.completed{color:var(--bridge-signal);border-color:var(--bridge-signal);background:var(--bridge-signal-soft)}
 .mission-status.pending{color:var(--bridge-muted)}
 /* 任务卡是块级容器，删除钮须绝对定位到右上角；带 button 与容器前缀以压过 .bridge-window button 及移动端 min-height:34px */
@@ -483,7 +479,7 @@ body.dark-mode,
   font-weight:800;
   line-height:1.6;
   letter-spacing:.04em;
-  clip-path:var(--bridge-clip-tag);
+  transform:skewX(-10deg);
   box-shadow:3px 3px 0 var(--bridge-offset);
   white-space:nowrap;
 }
@@ -509,8 +505,7 @@ body.dark-mode,
   padding:8px 9px;
   color:var(--bridge-text);
   background:
-    linear-gradient(135deg,var(--bridge-signal) 0 8px,transparent 8px),
-    linear-gradient(315deg,var(--bridge-line-strong) 0 8px,transparent 8px),
+    linear-gradient(315deg,var(--bridge-signal) 0 8px,transparent 8px),
     var(--bridge-panel);
   border:2px solid var(--bridge-line-strong);
   border-radius:0;
@@ -568,7 +563,7 @@ body.dark-mode,
   font-size:11px;
   font-weight:700;
   line-height:1.55;
-  clip-path:var(--bridge-clip-tag);
+  transform:skewX(-10deg);
 }
 
 .bridge-status-chip.is-alert{color:var(--bridge-alert);background:var(--bridge-alert-soft);border-color:var(--bridge-alert)}
@@ -587,7 +582,6 @@ body.dark-mode,
   font-family:inherit;
   font-weight:700;
   cursor:pointer;
-  clip-path:var(--bridge-clip-btn);
   box-shadow:3px 3px 0 var(--bridge-shadow-soft);
   transition:background-color .14s ease,border-color .14s ease,color .14s ease,transform .1s ease,box-shadow .1s ease;
 }
@@ -595,17 +589,17 @@ body.dark-mode,
 .bridge-btn:hover,
 .bridge-container button:hover,
 .bridge-window button:hover{
-  color:var(--bridge-screen-text);
+  color:var(--bridge-signal);
   background:
-    linear-gradient(135deg,transparent calc(100% - 6px),var(--bridge-screen-text) 0),
-    var(--bridge-screen);
-  border-color:var(--bridge-line-strong);
+    linear-gradient(135deg,transparent calc(100% - 6px),var(--bridge-signal) 0),
+    var(--bridge-signal-soft);
+  border-color:var(--bridge-signal);
   box-shadow:3px 3px 0 var(--bridge-offset);
 }
 
 .bridge-btn:active,
 .bridge-container button:active,
-.bridge-window button:active{transform:translate(2px,2px);box-shadow:none}
+.bridge-window button:active{transform:var(--bridge-tilt) translate(2px,2px);box-shadow:none}
 
 .bridge-btn:focus-visible,
 .bridge-container button:focus-visible,
@@ -691,7 +685,7 @@ body.dark-mode,
 .bridge-window .panel-popup-body{color:var(--bridge-text);background:var(--bridge-panel)}
 .bridge-window .panel-popup-close,
 .bridge-window .panel-popup-back,
-.bridge-window .panel-popup-warehouse-toggle{color:var(--bridge-signal-contrast);background:var(--bridge-signal);border:2px solid var(--bridge-line-strong);border-radius:0;clip-path:var(--bridge-clip-btn);box-shadow:none}
+.bridge-window .panel-popup-warehouse-toggle{color:var(--bridge-signal-contrast);background:var(--bridge-signal);border:2px solid var(--bridge-line-strong);border-radius:0;box-shadow:none}
 .bridge-window ::-webkit-scrollbar{width:6px;height:6px}
 .bridge-window ::-webkit-scrollbar-thumb{background:var(--bridge-line-strong);border-radius:0}
 .bridge-window ::-webkit-scrollbar-track{background:transparent}
@@ -704,7 +698,6 @@ body.dark-mode,
   background:var(--bridge-screen);
   border:2px solid var(--bridge-line-strong)!important;
   border-radius:0!important;
-  clip-path:var(--bridge-clip-badge)!important;
   box-shadow:4px 4px 0 var(--bridge-offset)!important;
 }
 #ac-statusbar-wrapper.ub-collapsed{display:none!important;visibility:hidden!important;pointer-events:none!important;overflow:hidden!important}
@@ -745,7 +738,6 @@ body.dark-mode,
   background:var(--bridge-signal);
   border:2px solid var(--bridge-line-strong);
   border-radius:0;
-  clip-path:var(--bridge-clip-tag);
   box-shadow:2px 2px 0 var(--bridge-shadow-soft);
   font-family:var(--bridge-font-data);
   font-weight:800;
@@ -832,7 +824,7 @@ body.dark-mode,
 .bridge-window .memo-time-badge,
 .bridge-window .item-type,
 .bridge-window .mission-status{color:var(--bridge-muted)}
-.item-wardrobe-badge{display:inline-flex;align-items:center;border-radius:0;background:var(--bridge-signal);color:var(--bridge-signal-contrast);padding:0 7px;font-size:10px;font-weight:800;line-height:1.7;flex-shrink:0;margin-left:4px;font-family:var(--bridge-font-ui);clip-path:var(--bridge-clip-tag)}
+.item-wardrobe-badge{display:inline-flex;align-items:center;border-radius:0;background:var(--bridge-signal);color:var(--bridge-signal-contrast);padding:0 7px;font-size:10px;font-weight:800;line-height:1.7;flex-shrink:0;margin-left:4px;font-family:var(--bridge-font-ui);transform:skewX(-10deg)}
 .bridge-window .panel-empty{padding:20px 14px;color:var(--bridge-muted);background:var(--bridge-panel-alt);border:2px dashed var(--bridge-line-strong);border-radius:0}
 
 .bridge-module-character .char-info-card{color:var(--bridge-text);background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-radius:0}
@@ -864,7 +856,7 @@ body.dark-mode,
 .bridge-module-options .options-bar-items{display:grid;grid-template-columns:1fr;gap:6px}
 .bridge-module-options .option-item{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;text-align:left;border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt)}
 .bridge-module-options .option-item:nth-child(even){border-left-color:var(--bridge-signal)}
-.bridge-module-options .option-number{flex:0 0 auto;padding:0 7px;border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-weight:900;clip-path:var(--bridge-clip-tag);box-shadow:2px 2px 0 var(--bridge-offset)}
+.bridge-module-options .option-number{flex:0 0 auto;padding:0 7px;border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-weight:900;transform:skewX(-10deg);box-shadow:2px 2px 0 var(--bridge-offset)}
 .bridge-module-options .option-text{min-width:0;font-size:12.5px;line-height:1.6}
 
 .bridge-module-guidance .play-img-wrap{color:var(--bridge-text);background:var(--bridge-panel-alt);border-color:var(--bridge-line-strong);border-radius:0}
@@ -890,9 +882,7 @@ body.dark-mode,
   padding:9px 10px 8px;
   border:2.5px solid var(--bridge-line-strong);
   border-top:6px solid var(--bridge-signal);
-  background:
-    linear-gradient(135deg,var(--bridge-signal) 0 12px,transparent 12px),
-    var(--bridge-panel);
+  background:var(--bridge-panel);
 }
 
 .bridge-head-line,
@@ -921,10 +911,10 @@ body.dark-mode,
   background:var(--bridge-screen);
   border:0;
   border-radius:0;
-  clip-path:var(--bridge-clip-tag);
   box-shadow:3px 3px 0 var(--bridge-offset);
   text-align:left;
 }
+.bridge-container .bridge-clock{--bridge-tilt:skewX(-10deg);transform:var(--bridge-tilt);margin-left:3px}
 .bridge-container .bridge-coordinate{
   align-self:flex-start;
   color:var(--bridge-text);
@@ -955,7 +945,8 @@ body.dark-mode,
   font-weight:900;
   letter-spacing:.04em;
   text-align:left;
-  clip-path:var(--bridge-clip-tag);
+  --bridge-tilt:skewX(-10deg);
+  transform:var(--bridge-tilt);
   box-shadow:3px 3px 0 var(--bridge-offset);
 }
 .bridge-container .bridge-protagonist-name:hover,
@@ -971,7 +962,7 @@ body.dark-mode,
   border-radius:0;
   font-size:12px;
   line-height:1.6;
-  clip-path:var(--bridge-clip-btn-alt);
+  transform:skewX(-10deg);
 }
 .bridge-energy strong{font-weight:800}
 .bridge-chip-key{color:var(--bridge-muted);font-size:11px;font-weight:700;white-space:nowrap}
@@ -983,7 +974,7 @@ body.dark-mode,
 .wardrobe-protagonist-summary:hover{border-color:var(--bridge-signal)}
 
 /* 钱包入口：暗金斜切块（数值类强调统一走 --bridge-alert） */
-.bridge-container .ub-wallet-entry{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;padding:1px 9px;color:var(--bridge-alert);background:var(--bridge-alert-soft);border:2px solid var(--bridge-alert);border-radius:0;font-size:12px;font-weight:800;line-height:1.6;cursor:pointer;text-align:left;clip-path:var(--bridge-clip-btn-alt);box-shadow:none}
+.bridge-container .ub-wallet-entry{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;padding:1px 9px;color:var(--bridge-alert);background:var(--bridge-alert-soft);border:2px solid var(--bridge-alert);border-radius:0;font-size:12px;font-weight:800;line-height:1.6;cursor:pointer;text-align:left;--bridge-tilt:skewX(-10deg);transform:var(--bridge-tilt);box-shadow:none}
 .bridge-container .ub-wallet-entry:hover{color:var(--bridge-alert);background:var(--bridge-alert-soft);border-color:var(--bridge-alert)}
 .ub-wallet-entry strong{display:flex;align-items:center;gap:4px;max-width:100%;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ub-wallet-entry strong b{font-weight:900;color:inherit}
@@ -1001,7 +992,6 @@ body.dark-mode,
   padding:1px 4px 4px 1px;
 }
 .bridge-quick-actions .bridge-btn{padding:6px 4px;font-size:12px;font-weight:900;line-height:1.3;letter-spacing:.04em;white-space:nowrap}
-.bridge-quick-actions .bridge-btn:nth-child(even){clip-path:var(--bridge-clip-btn-alt)}
 
 .bridge-role-selector{display:flex;flex-wrap:wrap;gap:6px;padding:1px 4px 4px 1px}
 .bridge-container .bridge-role-chip{
@@ -1015,7 +1005,8 @@ body.dark-mode,
   font-size:12.5px;
   font-weight:800;
   text-align:center;
-  clip-path:var(--bridge-clip-tag);
+  --bridge-tilt:skewX(-10deg);
+  transform:var(--bridge-tilt);
   box-shadow:3px 3px 0 var(--bridge-shadow-soft);
 }
 .bridge-container .bridge-role-chip.active{
@@ -1057,7 +1048,7 @@ body.dark-mode,
 .bridge-telemetry-item .bridge-readout{display:inline}
 .bridge-train-row{display:grid;grid-template-columns:auto minmax(60px,1fr) auto;gap:8px;align-items:center;margin:8px 0 2px}
 .bridge-train-row strong{font-size:12px;font-weight:900;color:var(--bridge-alert)}
-.bridge-meter{height:9px;overflow:hidden;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);border-radius:0;transform:skewX(-16deg)}
+.bridge-meter{height:9px;overflow:hidden;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);border-radius:0;transform:skewX(-10deg)}
 .bridge-meter span{display:block;height:100%;background:repeating-linear-gradient(135deg,var(--bridge-signal) 0 5px,color-mix(in srgb,var(--bridge-signal) 72%,#000) 5px 10px)}
 .bridge-detail-console{margin-top:8px;padding-top:8px;border-top:2px solid var(--bridge-line-strong)}
 .bridge-detail-tabs{margin-bottom:6px}
@@ -1078,12 +1069,12 @@ body.dark-mode,
 
 .bridge-container .options-bar{margin-top:0;padding:8px;background:var(--bridge-panel);border:2px solid var(--bridge-line-strong);border-radius:0;box-shadow:4px 4px 0 var(--bridge-shadow-soft)}
 .bridge-container .options-bar-header{justify-content:flex-start;margin-bottom:6px}
-.bridge-container .options-bar-title{display:inline-flex;align-items:center;gap:7px;padding:2px 12px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-left:4px solid var(--bridge-signal);font-size:13px;font-weight:900;letter-spacing:.06em;opacity:1;clip-path:var(--bridge-clip-tag);box-shadow:3px 3px 0 var(--bridge-offset)}
+.bridge-container .options-bar-title{display:inline-flex;align-items:center;gap:7px;padding:2px 12px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-left:4px solid var(--bridge-signal);font-size:13px;font-weight:900;letter-spacing:.06em;opacity:1;transform:skewX(-10deg);box-shadow:3px 3px 0 var(--bridge-offset)}
 .bridge-container .options-bar-title::before{position:static;width:5px;height:13px;background:var(--bridge-signal);opacity:1;transform:skewX(-14deg)}
 .bridge-container .options-bar-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .bridge-container .option-item{display:flex;align-items:flex-start;gap:7px;min-width:0;margin-right:4px;padding:7px 9px;background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);border-radius:0;text-align:left;box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
 .bridge-container .option-item:nth-child(even){border-left-color:var(--bridge-signal)}
-.bridge-container .option-number{flex:0 0 auto;padding:0 7px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:0;font-size:11px;font-weight:900;line-height:1.7;clip-path:var(--bridge-clip-tag);box-shadow:2px 2px 0 var(--bridge-offset)}
+.bridge-container .option-number{flex:0 0 auto;padding:0 7px;color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:0;font-size:11px;font-weight:900;line-height:1.7;transform:skewX(-10deg);box-shadow:2px 2px 0 var(--bridge-offset)}
 .bridge-container .option-text{min-width:0;color:var(--bridge-text);font-size:12.5px;font-weight:500;line-height:1.6;overflow-wrap:anywhere}
 
 .bridge-overlay{
@@ -1134,7 +1125,7 @@ body.dark-mode,
 .bridge-timeline .pe-intro-label{color:var(--bridge-signal);font-weight:900}
 .bridge-timeline .pe-intro-text{color:var(--bridge-text)}
 .bridge-timeline .pe-rail::before{width:2px;background:var(--bridge-line-strong)}
-.bridge-timeline .pe-date{display:inline-block;padding:0 8px;border-radius:0;color:var(--bridge-screen-text);background:var(--bridge-screen);font-weight:800;clip-path:var(--bridge-clip-tag)}
+.bridge-timeline .pe-date{display:inline-block;padding:0 8px;border-radius:0;color:var(--bridge-screen-text);background:var(--bridge-screen);font-weight:800;transform:skewX(-10deg)}
 .bridge-timeline .pe-dot{left:-21px;top:5px;width:10px;height:10px;border-radius:0;background:var(--bridge-signal);border:2px solid var(--bridge-line-strong);transform:rotate(45deg);box-shadow:none}
 .bridge-timeline .pe-card{border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
 
@@ -1201,7 +1192,7 @@ export const bridgeCSS = bridgeCoreCSS + /* css */ `
 .char-hub-theme-bridge .char-hub-card{background:var(--hub-panel);border:2px solid var(--bridge-line-strong)}
 .char-hub-theme-bridge .char-hub-profile-lede{border-inline-start-width:5px;background:repeating-linear-gradient(90deg,var(--hub-soft) 0 1px,transparent 1px 8px)}
 .char-hub-theme-bridge .char-hub-prose-card,.char-hub-theme-bridge .char-hub-logic{background:var(--hub-panel)}
-.char-hub-theme-bridge .char-hub-logic-index{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);clip-path:var(--bridge-clip-tag)}
+.char-hub-theme-bridge .char-hub-logic-index{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-10deg)}
 .char-hub-theme-bridge .char-hub-trait-balance{gap:8px}.char-hub-theme-bridge .char-hub-trait-column{background:var(--hub-panel)}
 .char-hub-theme-bridge .char-hub-relation-card{border-inline-start:5px solid var(--hub-accent);background:var(--hub-panel)}.char-hub-theme-bridge .char-hub-relation-avatar{border-radius:0;background:var(--hub-soft)}
 .char-hub-theme-bridge .char-hub-history-preview{gap:8px}.char-hub-theme-bridge .char-hub-history-background,.char-hub-theme-bridge .char-hub-history-latest{background:repeating-linear-gradient(90deg,var(--hub-soft) 0 1px,transparent 1px 12px),var(--hub-panel)}
@@ -1227,19 +1218,47 @@ export const bridgeCSS = bridgeCoreCSS + /* css */ `
 .panel-overlay.dark .char-hub-theme-bridge{--ms-cat-first:#7fa9ae;--ms-cat-relation:#c8a052;--ms-cat-status:#8f9cba}
 .chronicle-reader-theme-bridge .panel-popup-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal)}
 .chronicle-reader-theme-bridge .panel-popup-title{color:var(--bridge-screen-text)}
-.chronicle-reader-theme-bridge .chronicle-reader-tools button,.chronicle-reader-theme-bridge .chronicle-reader-sentinel{border:2px solid var(--bridge-line-strong);border-radius:0;clip-path:var(--bridge-clip-tag);box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
+.chronicle-reader-theme-bridge .chronicle-reader-tools button,.chronicle-reader-theme-bridge .chronicle-reader-sentinel{border:2px solid var(--bridge-line-strong);border-radius:0;box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
 .chronicle-reader-theme-bridge .chronicle-search{border:2px solid var(--bridge-line-strong);border-radius:0;box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
-.chronicle-reader-theme-bridge .chronicle-search button{border-radius:0;clip-path:var(--bridge-clip-btn)}
+.chronicle-reader-theme-bridge .chronicle-search button{border-radius:0}
 .chronicle-reader-theme-bridge .chronicle-timeline-rail::before{width:2px;background:var(--bridge-line-strong)}
 .chronicle-reader-theme-bridge .chronicle-timeline-node{width:11px;height:11px;border:2px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-signal);transform:translate(-50%,-50%) rotate(45deg);box-shadow:none}
-.chronicle-reader-theme-bridge .chronicle-timeline-time b{display:inline-block;padding:0 6px;color:var(--bridge-screen-text);background:var(--bridge-screen);clip-path:var(--bridge-clip-tag)}
+.chronicle-reader-theme-bridge .chronicle-timeline-time b{display:inline-block;padding:0 6px;color:var(--bridge-screen-text);background:var(--bridge-screen);transform:skewX(-10deg)}
 .chronicle-reader-theme-bridge .chronicle-timeline-content{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);background:var(--hub-panel);box-shadow:4px 4px 0 var(--bridge-shadow-soft)}
-.chronicle-reader-theme-bridge .chronicle-timeline-kicker{display:inline-block;padding:1px 8px;color:var(--bridge-screen-text);background:var(--bridge-screen);clip-path:var(--bridge-clip-tag)}
+.chronicle-reader-theme-bridge .chronicle-timeline-kicker{display:inline-block;padding:1px 8px;color:var(--bridge-screen-text);background:var(--bridge-screen);transform:skewX(-10deg)}
 .chronicle-reader-theme-bridge .chronicle-detail-text{border-inline-start:5px solid var(--bridge-signal);background:var(--hub-panel);box-shadow:4px 4px 0 var(--bridge-shadow-soft)}.chronicle-reader-theme-bridge .chronicle-detail-dialogue{background:var(--hub-panel);box-shadow:4px 4px 0 var(--bridge-shadow-soft)}
-.chronicle-reader-theme-bridge .chronicle-dialogue-line{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);background:var(--hub-panel)}.chronicle-reader-theme-bridge .chronicle-dialogue-speaker{border:0;border-left:3px solid var(--bridge-signal);border-radius:0;color:var(--bridge-screen-text);background:var(--bridge-screen);clip-path:var(--bridge-clip-tag);box-shadow:2px 2px 0 var(--bridge-offset)}
-.chronicle-reader-theme-bridge .cr-more-badge{border-radius:0;color:var(--bridge-signal-contrast);background:var(--bridge-signal);border-color:var(--bridge-line-strong);clip-path:var(--bridge-clip-tag)}
-.chronicle-reader-theme-bridge .chronicle-auto-tag{border:2px solid var(--bridge-line-strong);border-radius:0;clip-path:var(--bridge-clip-tag)}
+.chronicle-reader-theme-bridge .chronicle-dialogue-line{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);background:var(--hub-panel)}.chronicle-reader-theme-bridge .chronicle-dialogue-speaker{border:0;border-left:3px solid var(--bridge-signal);border-radius:0;color:var(--bridge-screen-text);background:var(--bridge-screen);transform:skewX(-10deg);box-shadow:2px 2px 0 var(--bridge-offset)}
+.chronicle-reader-theme-bridge .cr-more-badge{border-radius:0;color:var(--bridge-signal-contrast);background:var(--bridge-signal);border-color:var(--bridge-line-strong);transform:skewX(-10deg)}
+.chronicle-reader-theme-bridge .chronicle-auto-tag{border:2px solid var(--bridge-line-strong);border-radius:0;margin-left:3px;transform:skewX(-10deg)}
 .chronicle-reader-theme-bridge .chronicle-auto-tag.location{color:var(--bridge-screen-text);background:var(--bridge-screen);border-left:4px solid var(--bridge-signal)}
+/* ===== 形状规则：按钮/卡片 = 直角 + 右下红折角；标签/名牌/页签 = 同向 skewX(-10deg)。
+   不对带边框或阴影的元素用 clip-path：它会把边框和硬阴影一起剪掉。 ===== */
+.bridge-window button.settings-tab,
+.settings-popup button.settings-tab{
+  --bridge-tilt:skewX(-10deg);
+  transform:var(--bridge-tilt);
+  color:var(--bridge-text);
+  background:var(--bridge-panel);
+  border:2px solid var(--bridge-line-strong);
+  box-shadow:3px 3px 0 var(--bridge-shadow-soft);
+}
+.bridge-window button.settings-tab:hover{color:var(--bridge-signal);background:var(--bridge-signal-soft);border-color:var(--bridge-signal)}
+.bridge-window button.settings-tab.active,
+.bridge-window button.settings-tab.active:hover{color:var(--bridge-screen-text);background:var(--bridge-screen);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal)}
+.settings-tabs{gap:9px;padding:8px 12px 10px}
+.bridge-container .bridge-detail-tabs .bridge-btn{--bridge-tilt:skewX(-10deg);transform:var(--bridge-tilt);background:var(--bridge-panel)}
+.bridge-container .bridge-detail-tabs .bridge-btn.active-switch{background:var(--bridge-screen)}
+.bridge-container .bridge-detail-tabs{padding-left:3px}
+.bridge-container .option-item{background:var(--bridge-panel-alt)}
+.bridge-container .option-item:hover{color:var(--bridge-text);background:var(--bridge-signal-soft);border-color:var(--bridge-signal);border-left-color:var(--bridge-signal)}
+.bridge-container .bridge-role-chip:not(.active){background:var(--bridge-panel)}
+.bridge-container .bridge-role-chip.active{background:var(--bridge-screen)}
+.bridge-container .bridge-protagonist-name,.bridge-container .bridge-personnel-name{background:var(--bridge-screen);margin-left:3px}
+.bridge-container .bridge-protagonist-name:hover,.bridge-container .bridge-personnel-name:hover{background:var(--bridge-signal);color:var(--bridge-signal-contrast)}
+@media(max-width:599px){
+  .bridge-window,.settings-popup{--ub-popup-shadow:0 4px 0 var(--bridge-offset)}
+  .bridge-container{box-shadow:0 4px 0 var(--bridge-shadow-soft)}
+}
 /* ===== ★ 主角立绘摆位：证件照小方框（描边样式由 portrait-base bridge 段提供） ===== */
 .bridge-protagonist-row .portrait-box{flex:0 0 52px;width:52px;height:52px}
 `;

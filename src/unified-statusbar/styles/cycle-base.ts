@@ -450,7 +450,7 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
   background:var(--bridge-panel-alt);font-family:var(--bridge-font-ui);
 }
 .cycle-bar.bridge-cycle-indicator .cycle-label{color:var(--bridge-text);font-weight:700;}
-.cycle-bar.bridge-cycle-indicator .cycle-track{height:6px;border-radius:0;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);transform:skewX(-16deg)}
+.cycle-bar.bridge-cycle-indicator .cycle-track{height:6px;border-radius:0;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);transform:skewX(-10deg)}
 .cycle-bar.bridge-cycle-indicator .cycle-fill{border-radius:0;animation:none!important;background:var(--bridge-signal)!important;}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual{border-left-color:var(--bridge-danger,#a43b35);}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual .cycle-fill{background:var(--bridge-danger,#a43b35)!important;}

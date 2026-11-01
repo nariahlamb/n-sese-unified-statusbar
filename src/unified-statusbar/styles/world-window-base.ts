@@ -307,7 +307,7 @@ background:var(--ww-surf);color:var(--ww-ink);border:1px solid rgba(60,60,67,.12
 .ww-theme-bridge .ww-arrival-card,.ww-theme-bridge .ww-front-rumor,.ww-theme-bridge .ww-vault-card,.ww-theme-bridge .ww-rumor-card,.ww-theme-bridge .ww-arc-card{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-panel-alt)}
 .ww-theme-bridge .ww-front-rumor,.ww-theme-bridge .ww-arc-card:nth-child(even){border-left-color:var(--bridge-signal)}
 .ww-theme-bridge .ww-tab-btn.is-active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal)}
-.ww-theme-bridge .ww-arrival-badge,.ww-theme-bridge .ww-chron-kind,.ww-theme-bridge .ww-arc-kind{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);clip-path:var(--bridge-clip-tag,polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%))}
+.ww-theme-bridge .ww-arrival-badge,.ww-theme-bridge .ww-chron-kind,.ww-theme-bridge .ww-arc-kind{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-10deg)}
 .ww-theme-ancient .ww-tab-btn.is-active,.ww-theme-xianxia .ww-tab-btn.is-active,.ww-theme-sweet .ww-tab-btn.is-active{box-shadow:none;}
 
 /* ===== 深色模式：翻转同一组语义变量 ===== */

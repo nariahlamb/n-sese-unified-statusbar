@@ -848,8 +848,8 @@ export const calendarBaseCSS = /* css */ `
 .cal-theme-bridge .cal-detail{background:var(--bridge-panel-inset);border-top:2px solid var(--bridge-line-strong);}
 .calendar-popup.cal-theme-bridge .cal-detail-event{border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
 .cal-theme-bridge .cal-detail-event:nth-child(even){border-left-color:var(--bridge-signal);}
-.cal-theme-bridge .cal-detail-event-type{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);clip-path:var(--bridge-clip-tag,polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%));}
-.cal-theme-bridge .cal-detail-weather,.cal-theme-bridge .cal-ev-chip{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);clip-path:var(--bridge-clip-tag,polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%));}
+.cal-theme-bridge .cal-detail-event-type{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);transform:skewX(-10deg);}
+.cal-theme-bridge .cal-detail-weather,.cal-theme-bridge .cal-ev-chip{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-10deg);}
 .cal-theme-bridge .cal-ev-chip .ub-ic{color:var(--bridge-screen-muted);}
 .cal-theme-bridge .cal-cyc-chip b{font-family:var(--bridge-font-data);color:var(--bridge-alert);}
 .cal-theme-bridge .cal-cyc-chip.due.hot b{color:var(--bridge-danger);}

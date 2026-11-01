@@ -378,7 +378,7 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-empty{padding:12px;color:var(--secondary-text);}
 
 /* 怪盗手记：立绘与画廊 */
-.bridge-container .portrait-box{border-radius:0;border:2.5px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);background-image:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 6px,transparent 6px 12px);clip-path:var(--bridge-clip-badge);box-shadow:4px 4px 0 var(--bridge-offset),7px 7px 0 var(--bridge-shadow-soft);}
+.bridge-container .portrait-box{border-radius:0;border:2.5px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);background-image:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 6px,transparent 6px 12px);box-shadow:4px 4px 0 var(--bridge-offset),7px 7px 0 var(--bridge-shadow-soft);}
 .bridge-container .portrait-box.portrait-empty::before{content:"无立绘";color:var(--bridge-muted);font-family:var(--bridge-font-ui);font-size:11px;font-weight:700;letter-spacing:.06em;}
 .portrait-popup.bridge-module-imaging{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);}
 .bridge-module-imaging .portrait-popup-header{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
