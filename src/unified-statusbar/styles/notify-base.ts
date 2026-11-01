@@ -30,7 +30,7 @@ import { type NotifyAlign } from '../core/config-store';
 const THEME_RING: Record<StyleType, { rs: string; re: string; rg: string }> = {
   ancient: { rs: '#e2c36c', re: '#c24a3f', rg: 'rgba(201,168,76,.34)' },
   flirtatious: { rs: '#f293bd', re: '#9b61d4', rg: 'rgba(208,96,160,.38)' },
-  minimal: { rs: '#b8f5ff', re: '#669cff', rg: 'rgba(126,232,255,.34)' },
+  minimal: { rs: 'var(--mn-sakura)', re: 'var(--mn-honey)', rg: 'var(--mn-tape)' },
   sweet: { rs: '#ffb5c9', re: '#a98de6', rg: 'rgba(255,143,171,.4)' },
   xianxia: { rs: '#b6e2ce', re: '#c8a850', rg: 'rgba(104,176,144,.36)' },
   bridge: { rs: 'var(--bridge-signal)', re: 'var(--bridge-alert)', rg: 'var(--bridge-shadow-soft)' },
@@ -354,6 +354,28 @@ ${themeRingCss()}
 #toast-container.ub-notify-container .toast .toast-message button:focus-visible{
   outline:2px solid var(--ub-ntf-rs) !important; outline-offset:1px;
 }
+
+#toast-container.ub-notify-container.ub-theme-minimal{
+  --ubn-bg1:var(--mn-card);--ubn-bg2:var(--mn-paper);--ubn-ink:var(--text-color);--ubn-ink2:var(--text-color);
+  --ubn-inset:inset 0 0 0 0 transparent;--ubn-sh:var(--mn-shadow-soft);--ubn-sh-h:var(--mn-shadow);--ubn-hover:none;
+  --ubn-ok:var(--mn-matcha-ink);--ubn-ok-bg:var(--mn-matcha-soft);--ubn-ok-ring:var(--mn-matcha);
+  --ubn-info:var(--mn-sakura-ink);--ubn-info-bg:var(--mn-sakura-soft);--ubn-info-ring:var(--mn-sakura);
+  --ubn-warn:var(--mn-honey-ink);--ubn-warn-bg:var(--mn-honey-soft);--ubn-warn-ring:var(--mn-honey);
+  --ubn-err:var(--ub-danger);--ubn-err-bg:var(--mn-sakura-soft);--ubn-err-ring:var(--ub-danger);
+  --ubn-warn1:var(--mn-note);--ubn-warn2:var(--mn-honey-soft);--ubn-warn-ink:var(--mn-honey-ink);
+  --ubn-err1:var(--mn-sakura-soft);--ubn-err2:var(--mn-card);--ubn-err-ink:var(--ub-danger);
+  --ubn-ab-bd:var(--border-color);--ubn-ab-bg:var(--mn-card-2);--ubn-ab-ink:var(--text-color);--ubn-ab-ink2:var(--accent-ink);
+  --ubn-close-hover:var(--mn-sakura-soft);
+}
+#toast-container.ub-notify-container.ub-theme-minimal .toast,#toast-container.ub-notify-container.ub-theme-minimal .toast.acu-toast{
+  border:1.5px solid var(--border-color)!important;border-radius:var(--mn-radius)!important;
+  background:var(--mn-card)!important;box-shadow:var(--mn-shadow-soft)!important;
+  font-family:var(--mn-font-body)!important;
+}
+#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-warning{background:var(--mn-note)!important;border-color:var(--mn-honey)!important;--ub-ntf-rs:var(--mn-honey);--ub-ntf-re:var(--mn-honey);--ub-ntf-rg:var(--mn-honey-soft);}
+#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-error{background:var(--mn-sakura-soft)!important;border-color:var(--ub-danger)!important;--ub-ntf-rs:var(--ub-danger);--ub-ntf-re:var(--ub-danger);--ub-ntf-rg:var(--mn-sakura-soft);}
+#toast-container.ub-notify-container.ub-theme-minimal .toast .ub-ntf-bar,#toast-container.ub-notify-container.ub-theme-minimal .toast .toast-progress{border-radius:var(--mn-radius-sm);}
+#toast-container.ub-notify-container.ub-theme-minimal .toast .toast-message button:hover{background:var(--mn-sakura)!important;color:var(--accent-ink)!important;border-color:var(--mn-sakura)!important;}
 
 /* 怪盗手记：纸面通知与错位描边 */
 #toast-container.ub-notify-container.ub-theme-bridge{

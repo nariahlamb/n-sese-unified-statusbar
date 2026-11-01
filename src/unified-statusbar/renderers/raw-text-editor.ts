@@ -41,8 +41,15 @@ const URE_CSS = `<style>
 /* 瑟瑟 — 霓虹粉紫终端 */
 .ure-flirtatious{--ure-bg:#0d0a18;--ure-card:#171126;--ure-text:#f4edff;--ure-muted:#9a8cac;--ure-line:#4f356d;--ure-accent:#ff4f9f;--ure-accent-on:#1a0a14;--ure-font:"Courier New",ui-monospace,monospace;--ure-radius:2px}
 
-/* 萦绕 — 极简情报（深色靠 body.dark-mode） */
-.ure-minimal{--ure-bg:#ededeb;--ure-card:#fff;--ure-text:#171717;--ure-muted:#666;--ure-line:#aaa;--ure-accent:#b22038;--ure-accent-on:#fff;--ure-font:"Courier New",ui-monospace,monospace;--ure-radius:0}
+/* 奶油手账 — 原文编辑 */
+.ure-minimal,.ure-minimal .ure-dialog{--ure-bg:var(--mn-paper);--ure-card:var(--mn-card);--ure-text:var(--text-color);--ure-muted:var(--secondary-text);--ure-line:var(--border-color);--ure-accent:var(--mn-sakura);--ure-accent-on:var(--accent-ink);--ure-font:var(--mn-font-body);--ure-radius:var(--mn-radius)}
+.ure-minimal .ure-dialog{border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);box-shadow:var(--ub-popup-shadow)}
+.ure-minimal .ure-head,.ure-minimal .ure-foot{border-width:1.5px;border-style:dashed;padding:10px 12px}
+.ure-minimal .ure-title{font-family:var(--mn-font-hand);letter-spacing:.5px}
+.ure-minimal .ure-textarea{background:var(--mn-note);color:var(--text-color);border:1.5px solid var(--border-color);background-image:repeating-linear-gradient(transparent 0 1.65em,var(--mn-note-line) 1.65em 1.7em)}
+.ure-minimal .ure-btn{border-radius:var(--ub-btn-radius);letter-spacing:.5px}
+.ure-minimal .ure-btn:hover{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink)}
+.ure-minimal .ure-btn.primary:hover{background:var(--mn-sakura);color:var(--accent-ink)}
 
 /* 甜恋糖果 — 粉红 */
 .ure-sweet{--ure-bg:var(--sweet-bg,#fff0f5);--ure-card:var(--sweet-card,#fffafd);--ure-text:var(--sweet-text,#572d42);--ure-muted:var(--sweet-text-soft,#9b7386);--ure-line:var(--sweet-border,#efb6c9);--ure-accent:#d64e7c;--ure-accent-on:#fff;--ure-font:"Noto Sans SC","Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;--ure-radius:14px}
@@ -64,13 +71,15 @@ const URE_CSS = `<style>
 /* === 深色模式：sweet/xianxia/minimal 浅色对话框 --ure-* 翻深 === */
 .panel-overlay.dark .ure-sweet,body.dark-mode .ure-sweet{--ure-bg:var(--sweet-bg,#241c28);--ure-card:var(--sweet-card,#2a1c2a);--ure-text:var(--sweet-text,#e8d8e0);--ure-muted:var(--sweet-text-soft,#b898a0);--ure-line:var(--sweet-border,#3a2a38)}
 .panel-overlay.dark .ure-xianxia,body.dark-mode .ure-xianxia{--ure-bg:#19241e;--ure-card:#1f2e26;--ure-text:#cfe8df;--ure-muted:#8aa89e;--ure-line:#2a4038}
-.panel-overlay.dark .ure-minimal,body.dark-mode .ure-minimal{--ure-bg:#1a1a1a;--ure-card:#222;--ure-text:#f0f0f0;--ure-muted:#999;--ure-line:#444}
+.panel-overlay.dark .ure-minimal,body.dark-mode .ure-minimal{--ure-bg:var(--mn-paper);--ure-card:var(--mn-card);--ure-text:var(--text-color);--ure-muted:var(--secondary-text);--ure-line:var(--border-color)}
 .panel-overlay.dark .ure-ancient,body.dark-mode .ure-ancient{--ure-bg:#181515;--ure-card:#241f20;--ure-text:#f0e7e4;--ure-muted:#b29fa0;--ure-line:#514344}
 .panel-overlay.dark .ure-flirtatious,body.dark-mode .ure-flirtatious{--ure-bg:#181515;--ure-card:#241f20;--ure-text:#f0e7e4;--ure-muted:#b29fa0;--ure-line:#514344}
 .panel-overlay.dark .ure-ios,body.dark-mode .ure-ios{--ure-bg:#1c1c1e;--ure-card:#2c2c2e;--ure-text:#f2f2f7;--ure-muted:rgba(235,235,245,.62);--ure-line:rgba(235,235,245,.12);--ure-accent:#0a84ff}
 
 @media(max-width:599px){.ure-overlay{padding:0}.ure-overlay .ure-dialog{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0}.ure-textarea{min-height:56vh}}
 .ure-overlay.ure-bridge .ure-dialog{border-radius:var(--ub-popup-radius)}
+.ure-overlay.ure-minimal .ure-dialog{border-radius:var(--ub-popup-radius)}
+@media(max-width:599px){.ure-minimal .ure-body{padding:10px 12px}}
 </style>`;
 
 /** 打开原始文本编辑器（叠在当前弹窗之上，模态套模态）。 */

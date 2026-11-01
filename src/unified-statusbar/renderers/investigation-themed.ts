@@ -642,109 +642,80 @@ export function renderFlirtatiousDossier(data: InvestigationData, charName: stri
 }
 
 // ===================================================================
-// 📋 萦绕 — 机密情报档案 (Classified Intel)
+// 📋 奶油手账 — 人物私藏
 // ===================================================================
 export function renderMinimalDossier(data: InvestigationData, charName: string): string {
   const css = `
-.iv-wrap{font-family:"Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","SimSun","NSimSun","Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB",serif;background:var(--bg-color,#f8f6f0);color:var(--text-color,#1a1a1a);line-height:1.65;font-size:12.5px;position:relative;overflow:hidden}
+.iv-wrap{font-family:var(--mn-font-body);background:var(--mn-paper);color:var(--text-color);line-height:1.65;font-size:12.5px;position:relative;overflow:hidden;border-radius:var(--mn-radius-lg)}
 /* 扫描噪点纸纹 */
 .iv-wrap::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background-image:url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.03\'/%3E%3C/svg%3E");opacity:0.4;pointer-events:none;z-index:0}
 .iv-popup-body{overflow-y:auto;overflow-x:hidden;padding:0}
 /* 档案袋头 */
-.iv-intel-header{background:var(--bg-color,#f8f6f0);border-bottom:4px solid #c41e3a;padding:16px 20px 12px;position:relative;z-index:1}
-.iv-intel-header::before{content:"CLASSIFIED";position:absolute;top:10px;right:16px;font-size:9px;font-weight:700;letter-spacing:3px;color:#c41e3a;border:2px solid #c41e3a;padding:2px 8px;transform:rotate(-3deg)}
+.iv-intel-header{background:var(--mn-card);border-bottom:1.5px dashed var(--border-color);padding:12px;position:relative;z-index:1}
+.iv-intel-header::before{content:"私藏手记";position:absolute;top:10px;right:12px;font:700 12px var(--mn-font-hand);letter-spacing:.5px;color:var(--mn-sakura-ink);background:var(--mn-tape);border:1.5px dashed var(--mn-sakura);border-radius:var(--mn-radius-sm);padding:2px 8px;transform:rotate(-3deg)}
 /* 条形码装饰 */
 .iv-barcode{display:inline-flex;gap:1.5px;align-items:flex-end;height:20px;margin-left:8px;vertical-align:middle;opacity:0.5}
-.iv-barcode span{display:inline-block;width:2px;height:100%;background:var(--text-color,#1a1a1a)}
-.iv-intel-id{font-size:9px;color:var(--secondary-text,#888);letter-spacing:2px;margin-bottom:2px}
-.iv-intel-name{font-size:22px;font-weight:700;color:var(--text-color,#1a1a1a);letter-spacing:2px}
-.iv-intel-grade{display:inline-block;background:#c41e3a;color:#fff;padding:2px 14px;font-size:11px;font-weight:700;letter-spacing:4px;margin-top:4px}
-.iv-intel-rank{font-size:10px;color:var(--secondary-text,#888);letter-spacing:2px;margin-top:4px}
-.iv-intel-desc{font-size:11.5px;color:var(--secondary-text,#666);line-height:1.7;margin-top:8px;padding:10px 14px;background:rgba(0,0,0,0.03);border-left:3px solid var(--border-color,#ddd)}
+.iv-barcode span{display:inline-block;width:2px;height:100%;background:var(--mn-matcha);border-radius:var(--mn-radius-sm)}
+.iv-intel-id{font-size:10px;color:var(--secondary-text);letter-spacing:.5px;margin-bottom:2px;padding-right:80px}
+.iv-intel-name{font-size:22px;font-weight:700;color:var(--text-color);letter-spacing:.5px;font-family:var(--mn-font-hand)}
+.iv-intel-grade{display:inline-block;background:var(--mn-sakura);color:var(--accent-ink);padding:2px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:4px}
+.iv-intel-rank{font-size:10px;color:var(--secondary-text);letter-spacing:.5px;margin-top:4px}
+.iv-intel-desc{font-size:12px;color:var(--secondary-text);line-height:1.7;margin-top:8px;padding:10px 12px;background:var(--mn-card-2);border-left:3px solid var(--mn-matcha);border-radius:var(--mn-radius-sm)}
 /* 红条遮盖 — 敏感数据交互 */
-.iv-redact-bar{display:inline-block;background:#1a1a1a;color:transparent;padding:0 4px;min-width:40px;cursor:pointer;transition:all 0.3s;position:relative;border-radius:2px;user-select:none}
+.iv-redact-bar{display:inline-block;background:var(--mn-sakura-soft);color:transparent;padding:0 4px;min-width:40px;cursor:pointer;transition:all 0.3s;position:relative;border-radius:var(--mn-radius-sm);user-select:none}
 .iv-redact-bar:hover{background:transparent;color:inherit}
-.iv-redact-bar::after{content:"[REDACTED]";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c41e3a;font-size:8px;letter-spacing:2px;font-weight:700;white-space:nowrap;pointer-events:none}
+.iv-redact-bar::after{content:"悄悄话";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--mn-sakura-ink);font-size:10px;letter-spacing:.5px;font-weight:700;white-space:nowrap;pointer-events:none}
 .iv-redact-bar:hover::after{display:none}
 /* 分类印章动画 */
 @keyframes iv-classify{0%{transform:rotate(-5deg) scale(3);opacity:0}60%{transform:rotate(2deg) scale(0.95)}100%{transform:rotate(-3deg) scale(1);opacity:1}}
 .iv-classify-stamp{animation:iv-classify 0.5s cubic-bezier(0.34,1.56,0.64,1)}
 /* 数据表 */
-.iv-intel-section{margin:0;padding:14px 20px;border-bottom:1px solid var(--border-color,#e0e0e0);position:relative}
-.iv-intel-section h3{font-size:9px;color:#c41e3a;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.iv-intel-section h3::after{content:"";flex:1;height:1px;background:var(--border-color,#e0e0e0)}
+.iv-intel-section{margin:10px;padding:12px;background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);position:relative}
+.iv-intel-section h3{font-size:14px;color:var(--mn-sakura-ink);font-family:var(--mn-font-hand);letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.iv-intel-section h3::after{content:"";flex:1;border-bottom:1.5px dashed var(--tag-border)}
 /* 页码标记 */
-.iv-page-num{position:absolute;top:10px;right:10px;font-size:7px;color:var(--secondary-text,#888);opacity:0.35;letter-spacing:1px;font-family:"Courier New",monospace}
+.iv-page-num{position:absolute;top:10px;right:10px;font-size:10px;color:var(--secondary-text);letter-spacing:.5px;font-family:var(--mn-font-body)}
 /* 解密日期水印 */
-.iv-declass-date{text-align:center;padding:16px 20px;font-size:8.5px;color:var(--secondary-text,#888);opacity:0.4;letter-spacing:2px;font-family:"Courier New",monospace;font-style:italic}
+.iv-declass-date{text-align:center;padding:12px;font-size:10px;color:var(--secondary-text);letter-spacing:.5px;font-family:var(--mn-font-hand);font-style:italic}
 .iv-intel-row{display:flex;gap:8px;padding:4px 0;font-size:11.5px}
-.iv-intel-row .lbl{color:var(--secondary-text,#888);min-width:90px;font-size:9px;text-transform:uppercase;letter-spacing:2px}
-.iv-intel-row .val{color:var(--text-color,#1a1a1a);font-weight:500;flex:1}
-.iv-intel-row .val .redact{color:#c41e3a}
+.iv-intel-row .lbl{color:var(--secondary-text);min-width:70px;font-size:11px;letter-spacing:.5px}
+.iv-intel-row .val{color:var(--text-color);font-weight:500;flex:1;min-width:0;overflow-wrap:anywhere}
+.iv-intel-row .val .redact{color:var(--mn-sakura-ink)}
 /* 评分条 — 简洁 */
 .iv-intel-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.iv-intel-bar-lbl{color:var(--secondary-text,#888);font-size:9px;min-width:80px;text-align:right;text-transform:uppercase}
-.iv-intel-bar{flex:1;height:4px;background:var(--border-color,#e0e0e0);border-radius:0}
-.iv-intel-bar-fill{height:100%;background:#c41e3a;border-radius:0;transition:width 0.8s ease}
-.iv-intel-bar-num{font-size:12px;font-weight:700;color:#c41e3a;min-width:35px;font-family:"Courier New",monospace}
-.iv-intel-bar-desc{font-size:9.5px;color:var(--secondary-text,#888);margin-left:88px;margin-top:2px;font-style:italic}
+.iv-intel-bar-lbl{color:var(--secondary-text);font-size:11px;min-width:70px;text-align:right}
+.iv-intel-bar{flex:1;height:6px;background:var(--mn-card-2);border-radius:var(--mn-radius-sm)}
+.iv-intel-bar-fill{height:100%;background:var(--mn-sakura);border-radius:inherit;transition:width 0.8s ease}
+.iv-intel-bar-num{font-size:12px;font-weight:700;color:var(--mn-honey-ink);min-width:35px;font-family:var(--mn-font-body)}
+.iv-intel-bar-desc{font-size:11px;color:var(--secondary-text);margin-left:78px;margin-top:2px;font-style:italic}
 /* 标签 — 归档标签 */
 .iv-intel-tags{display:flex;flex-wrap:wrap;gap:4px}
-.iv-intel-tag{display:inline-block;padding:1px 8px;font-size:9px;letter-spacing:1px;border:1px solid var(--border-color,#ccc);color:var(--secondary-text,#666);background:rgba(0,0,0,0.02);text-transform:uppercase}
+.iv-intel-tag{display:inline-block;padding:2px 8px;font-size:11px;letter-spacing:.5px;border:1px solid var(--tag-border);border-radius:12px;color:var(--mn-matcha-ink);background:var(--mn-matcha-soft)}
 /* 统计数字 */
-.iv-intel-stats{display:flex;gap:1px;flex-wrap:wrap;margin-bottom:8px}
-.iv-intel-stat{flex:1;min-width:80px;text-align:center;padding:12px 4px;background:rgba(0,0,0,0.02);border:1px solid var(--border-color,#e0e0e0)}
-.iv-intel-stat .num{font-size:24px;font-weight:700;color:var(--text-color,#1a1a1a);font-family:"Courier New",monospace}
-.iv-intel-stat .lbl{font-size:7.5px;color:var(--secondary-text,#888);letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.iv-intel-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.iv-intel-stat{flex:1;min-width:80px;text-align:center;padding:10px 4px;background:var(--mn-honey-soft);border:1.5px solid var(--border-color);border-radius:var(--mn-radius)}
+.iv-intel-stat .num{font-size:24px;font-weight:700;color:var(--mn-honey-ink);font-family:var(--mn-font-body)}
+.iv-intel-stat .lbl{font-size:11px;color:var(--secondary-text);letter-spacing:.5px;margin-top:2px}
 /* 表格 */
 .iv-intel-tbl{width:100%;border-collapse:collapse;font-size:10.5px}
-.iv-intel-tbl th{text-align:left;color:var(--secondary-text,#888);font-size:8px;text-transform:uppercase;letter-spacing:2px;padding:4px 8px;border-bottom:2px solid var(--border-color,#ccc)}
-.iv-intel-tbl td{padding:3px 8px;border-bottom:1px solid var(--border-color,#eee);color:var(--text-color,#1a1a1a)}
+.iv-intel-tbl th{text-align:left;color:var(--secondary-text);font-size:11px;letter-spacing:.5px;padding:4px 8px;border-bottom:1.5px dashed var(--border-color)}
+.iv-intel-tbl td{padding:3px 8px;border-bottom:1.5px dashed var(--tag-border);color:var(--text-color)}
 /* 开发行 */
-.iv-intel-dev-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-color,#eee);align-items:flex-start}
-.iv-intel-dev-lbl{font-size:9px;color:var(--text-color,#1a1a1a);font-weight:600;letter-spacing:2px;min-width:70px;text-transform:uppercase}
-.iv-intel-dev-body{font-size:11px;color:var(--secondary-text,#666);line-height:1.65;flex:1}
+.iv-intel-dev-row{display:flex;gap:8px;padding:6px 0;border-bottom:1.5px dashed var(--tag-border);align-items:flex-start}
+.iv-intel-dev-lbl{font-size:11px;color:var(--text-color);font-weight:600;letter-spacing:.5px;min-width:70px}
+.iv-intel-dev-body{font-size:12px;color:var(--secondary-text);line-height:1.65;flex:1}
 /* 经历 — 打字机 */
-.iv-intel-exp{border-left:2px solid var(--border-color,#ccc);margin-left:8px;padding-left:14px}
+.iv-intel-exp{border-left:1.5px dashed var(--border-color);margin-left:8px;padding-left:12px}
 .iv-intel-exp-item{margin-bottom:10px}
-.iv-intel-exp-item h6{font-size:9px;color:#c41e3a;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px}
-.iv-intel-exp-item p{font-size:11px;color:var(--secondary-text,#666);line-height:1.65}
+.iv-intel-exp-item h6{font-size:13px;color:var(--mn-sakura-ink);letter-spacing:.5px;font-family:var(--mn-font-hand);margin-bottom:2px}
+.iv-intel-exp-item p{font-size:12px;color:var(--secondary-text);line-height:1.65}
 /* 评价 */
-.iv-intel-rev{padding:8px 10px;margin-bottom:4px;background:rgba(0,0,0,0.02);border-left:3px solid var(--border-color,#ccc);font-size:10.5px;color:var(--secondary-text,#666)}
-.iv-intel-rev strong{color:var(--text-color,#1a1a1a)}
+.iv-intel-rev{padding:8px 10px;margin-bottom:4px;background:var(--mn-card-2);border-left:3px solid var(--mn-matcha);border-radius:var(--mn-radius-sm);font-size:12px;color:var(--secondary-text)}
+.iv-intel-rev strong{color:var(--text-color)}
 /* 主角评价 / 角色自评 */
-.iv-note-prot,.iv-note-self{font-family:"Noto Sans SC","Noto Sans CJK SC","Source Han Sans SC","PingFang SC","Microsoft YaHei","Heiti SC","WenQuanYi Micro Hei","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;padding:8px 10px;margin-top:8px;color:#3a3a3a}
-.iv-note-prot{border-left:3px solid #c41e3a;background:rgba(196,30,58,0.04)}
-.iv-note-self{border-left:3px solid #8b6d30;background:rgba(139,109,48,0.05)}
-/* 暗色 */
-.dark .iv-wrap{background:#1a1a1a;color:#e0e0e0}
-.dark .iv-age{filter:brightness(1.7)}
-.dark .iv-intel-header{background:#1a1a1a}
-.dark .iv-intel-name{color:#e0e0e0}
-.dark .iv-intel-desc{background:rgba(255,255,255,0.03);border-left-color:#444}
-.dark .iv-redact-bar{background:#e0e0e0}
-.dark .iv-intel-section{border-bottom-color:#333}
-.dark .iv-intel-section h3::after{background:#333}
-.dark .iv-intel-bar{background:#333}
-.dark .iv-intel-bar-desc{color:#999}
-.dark .iv-intel-stat{background:rgba(255,255,255,0.02);border-color:#333}
-.dark .iv-intel-stat .num{color:#e0e0e0}
-.dark .iv-intel-tag{border-color:#444;color:#aaa;background:rgba(255,255,255,0.02)}
-.dark .iv-intel-tbl th{border-bottom-color:#444}
-.dark .iv-intel-tbl td{border-bottom-color:#333}
-.dark .iv-intel-dev-row{border-bottom-color:#333}
-.dark .iv-intel-exp{border-left-color:#444}
-.dark .iv-intel-dev-body{color:#aaa}
-.dark .iv-intel-exp-item p{color:#aaa}
-.dark .iv-intel-row .lbl{color:#888}
-.dark .iv-intel-row .val{color:#e0e0e0}
-.dark .iv-barcode span{background:#e0e0e0}
-.dark .iv-page-num{color:#888}
-.dark .iv-declass-date{color:#888}
-.dark .iv-intel-rev{color:#bbb}
-.dark .iv-note-prot,.dark .iv-note-self{color:#d8d8d8}
-.dark .iv-note-prot{background:rgba(196,30,58,0.12)}
-.dark .iv-note-self{background:rgba(139,109,48,0.14)}
+.iv-note-prot,.iv-note-self{font-family:var(--mn-font-hand);font-size:14px;line-height:1.6;padding:8px 10px;margin-top:8px;color:var(--text-color);border-radius:var(--mn-radius-sm)}
+.iv-note-prot{border-left:3px solid var(--mn-sakura);background:var(--mn-sakura-soft)}
+.iv-note-self{border-left:3px solid var(--mn-honey);background:var(--mn-note)}
 @media(max-width:600px){.iv-intel-stats{flex-direction:column}}
 `;
 
@@ -755,43 +726,43 @@ export function renderMinimalDossier(data: InvestigationData, charName: string):
   for (var bi=0;bi<barCount;bi++){var bw=1+Math.floor(Math.random()*3);barcodeHtml+='<span style="width:'+bw+'px;height:'+(12+Math.floor(Math.random()*8))+'px"></span>';}
   barcodeHtml += '</span>';
   parts.push('<div class="iv-intel-header">');
-  parts.push('<div class="iv-intel-id">CASE FILE // '+esc(charName).toUpperCase().replace(/\s/g,'_')+'</div>');
+  parts.push('<div class="iv-intel-id">人物手记 · '+esc(charName).toUpperCase().replace(/\s/g,'_')+'</div>');
   parts.push('<div class="iv-intel-name iv-classify-stamp">'+esc(data.name||charName)+'</div>');
   if (data.grade) parts.push('<div class="iv-intel-grade">'+esc(data.grade)+'</div>');
-  if (data.globalRank) parts.push('<div class="iv-intel-rank">GLOBAL RANK: '+esc(data.globalRank)+' '+barcodeHtml+'</div>');
+  if (data.globalRank) parts.push('<div class="iv-intel-rank">世界排名：'+esc(data.globalRank)+' '+barcodeHtml+'</div>');
   if (data.description) parts.push('<div class="iv-intel-desc">'+esc(data.description)+'</div>');
   parts.push('</div>');
 
   // 基本档案
-  parts.push('<div class="iv-intel-section"><span class="iv-page-num">PAGE 1 OF 8</span><h3>Basic Profile</h3>');
-  if (data.sex) parts.push('<div class="iv-intel-row"><span class="lbl">Sex</span><span class="val">'+esc(data.sex)+'</span></div>');
+  parts.push('<div class="iv-intel-section"><span class="iv-page-num">第 1 页</span><h3>人物小档</h3>');
+  if (data.sex) parts.push('<div class="iv-intel-row"><span class="lbl">性别</span><span class="val">'+esc(data.sex)+'</span></div>');
   if (data.age) {
-    const ac = ageColor(data.age,'#5a825a','#8b6d30','#c07830','#c41e3a');
-    parts.push('<div class="iv-intel-row"><span class="lbl">Age</span><span class="val iv-age" style="color:'+ac+';font-weight:700">'+esc(data.age)+'</span></div>');
+    const ac = ageColor(data.age,'var(--mn-matcha-ink)','var(--mn-honey-ink)','var(--ub-warning)','var(--ub-danger)');
+    parts.push('<div class="iv-intel-row"><span class="lbl">年龄</span><span class="val iv-age" style="color:'+ac+';font-weight:700">'+esc(data.age)+'</span></div>');
   }
-  if (data.body) parts.push('<div class="iv-intel-row"><span class="lbl">Body</span><span class="val">'+bn(esc(data.body))+'</span></div>');
+  if (data.body) parts.push('<div class="iv-intel-row"><span class="lbl">身形</span><span class="val">'+bn(esc(data.body))+'</span></div>');
   parts.push('</div>');
 
   // 外貌风格
   if (data.dailyClothes||data.privateClothes||data.makeup) {
-    parts.push('<div class="iv-intel-section"><h3>Style</h3>');
-    for (const [lbl,val] of [['Daily',data.dailyClothes],['Private',data.privateClothes],['Makeup',data.makeup]] as const) {
+    parts.push('<div class="iv-intel-section"><h3>穿搭印象</h3>');
+    for (const [lbl,val] of [['日常',data.dailyClothes],['私服',data.privateClothes],['妆容',data.makeup]] as const) {
       if (val) parts.push('<div class="iv-intel-row"><span class="lbl">'+lbl+'</span><span class="val">'+esc(val)+'</span></div>');
     }
     parts.push('</div>');
   }
 
   // 心理
-  parts.push('<div class="iv-intel-section"><h3>Psychology</h3>');
-  if (data.orientation) parts.push('<div class="iv-intel-row"><span class="lbl">Orientation</span><span class="val">'+esc(data.orientation)+'</span></div>');
-  for (const [lbl,sv] of [['Shame',data.shameIndex],['Confidence',data.confidenceIndex],['Openness',data.opennessIndex]] as const) {
+  parts.push('<div class="iv-intel-section"><h3>心绪侧写</h3>');
+  if (data.orientation) parts.push('<div class="iv-intel-row"><span class="lbl">取向</span><span class="val">'+esc(data.orientation)+'</span></div>');
+  for (const [lbl,sv] of [['羞耻',data.shameIndex],['自信',data.confidenceIndex],['开放',data.opennessIndex]] as const) {
     if (sv) {
       parts.push('<div class="iv-intel-bar-row"><span class="iv-intel-bar-lbl">'+lbl+'</span><div class="iv-intel-bar"><div class="iv-intel-bar-fill" style="width:'+sv.score+'%"></div></div><span class="iv-intel-bar-num">'+sv.score+'</span></div>');
       if (sv.desc) parts.push('<div class="iv-intel-bar-desc">'+esc(sv.desc)+'</div>');
     }
   }
   if (data.coreFetishes.length>0) {
-    parts.push('<div style="margin-top:6px"><span style="font-size:8px;color:#c41e3a;letter-spacing:2px;text-transform:uppercase">Fetishes</span><div class="iv-intel-tags" style="margin-top:3px">'+data.coreFetishes.map(t=>'<span class="iv-intel-tag">#'+esc(t)+'</span>').join('')+'</div></div>');
+    parts.push('<div style="margin-top:6px"><span style="font-size:11px;color:var(--mn-sakura-ink);letter-spacing:.5px">偏好</span><div class="iv-intel-tags" style="margin-top:3px">'+data.coreFetishes.map(t=>'<span class="iv-intel-tag">#'+esc(t)+'</span>').join('')+'</div></div>');
   }
   parts.push('</div>');
 
@@ -800,38 +771,38 @@ export function renderMinimalDossier(data: InvestigationData, charName: string):
   const redact = (s: string) => '<span class="iv-redact-bar">'+bn(esc(s)).replace(/\n/g,'<br>')+'</span>';
 
   // 纯洁 — 红条遮盖
-  parts.push('<div class="iv-intel-section"><h3>Purity [SENSITIVE]</h3>');
+  parts.push('<div class="iv-intel-section"><h3>私密记录</h3>');
   const pm = data.purityScore.match(/(\d+)/);
   const pv2 = pm?parseInt(pm[1],10):0;
-  const rc2 = pv2<=25?'#c41e3a':pv2<=50?'#d4783a':pv2<=75?'#8b6d30':'#5a825a';
+  const rc2 = pv2<=25?'var(--mn-sakura-ink)':pv2<=50?'var(--ub-warning)':pv2<=75?'var(--mn-honey-ink)':'var(--mn-matcha-ink)';
   parts.push('<div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">');
-  parts.push('<div style="width:70px;height:70px;border-radius:50%;border:3px solid '+rc2+';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:'+rc2+';font-family:Courier New,monospace">'+pv2+'%</div>');
+  parts.push('<div style="width:70px;height:70px;border-radius:50%;border:3px solid '+rc2+';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:'+rc2+';font-family:var(--mn-font-body)">'+pv2+'%</div>');
   parts.push('<div style="flex:1">');
-  if (data.isVirgin) parts.push('<div class="iv-intel-row"><span class="lbl">Status</span><span class="val">'+esc(data.isVirgin)+'</span></div>');
+  if (data.isVirgin) parts.push('<div class="iv-intel-row"><span class="lbl">状态</span><span class="val">'+esc(data.isVirgin)+'</span></div>');
   if (data.defloration&&data.defloration!=='无') {
     const deflorParts = data.defloration.split(/[,，]/);
     const redactedDeflor = deflorParts.map((p,i) => i===1 ? redact(p.trim()) : esc(p.trim())).join(', ');
-    parts.push('<div class="iv-intel-row"><span class="lbl">First</span><span class="val">'+redactedDeflor+'</span></div>');
+    parts.push('<div class="iv-intel-row"><span class="lbl">初次</span><span class="val">'+redactedDeflor+'</span></div>');
   }
-  if (data.purityDetails) parts.push('<div style="font-size:10.5px;color:var(--secondary-text,#666);margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color,#eee);line-height:1.65">'+redact(data.purityDetails)+'</div>');
+  if (data.purityDetails) parts.push('<div style="font-size:12px;color:var(--secondary-text);margin-top:8px;padding-top:8px;border-top:1.5px dashed var(--border-color);line-height:1.65">'+redact(data.purityDetails)+'</div>');
   parts.push('</div></div></div>');
 
   // 性爱统计 — 数字涂黑
-  parts.push('<div class="iv-intel-section"><h3>Sexual Statistics</h3>');
+  parts.push('<div class="iv-intel-section"><h3>亲密统计</h3>');
   parts.push('<div class="iv-intel-stats">');
   // 男女分列随统计卡一同涂黑（本主题统计数字均为机密涂黑样式）
   var ivIntelRatio = objectGenderRatioText(data.partnerGenderRatio, data.partnerCount);
-  if (data.sexCount) parts.push('<div class="iv-intel-stat"><div class="num">'+redact(extractLeadingNumber(data.sexCount)||data.sexCount)+'</div><div class="lbl">Total</div></div>');
-  if (data.partnerCount || data.partnerGenderRatio) parts.push('<div class="iv-intel-stat"><div class="num">'+redact(objectCountNumber(data.partnerCount, data.partnerGenderRatio))+'</div><div class="lbl">Partners</div>'+(ivIntelRatio?'<div style="font-size:9.5px;opacity:0.72;margin-top:3px;letter-spacing:0.5px">'+redact(ivIntelRatio)+'</div>':'')+'</div>');
-  if (data.frequency) parts.push('<div class="iv-intel-stat"><div style="font-size:14px;font-weight:700">'+esc(data.frequency)+'</div><div class="lbl">Frequency</div></div>');
+  if (data.sexCount) parts.push('<div class="iv-intel-stat"><div class="num">'+redact(extractLeadingNumber(data.sexCount)||data.sexCount)+'</div><div class="lbl">总次数</div></div>');
+  if (data.partnerCount || data.partnerGenderRatio) parts.push('<div class="iv-intel-stat"><div class="num">'+redact(objectCountNumber(data.partnerCount, data.partnerGenderRatio))+'</div><div class="lbl">伴侣数</div>'+(ivIntelRatio?'<div style="font-size:9.5px;opacity:0.72;margin-top:3px;letter-spacing:0.5px">'+redact(ivIntelRatio)+'</div>':'')+'</div>');
+  if (data.frequency) parts.push('<div class="iv-intel-stat"><div style="font-size:14px;font-weight:700">'+esc(data.frequency)+'</div><div class="lbl">频率</div></div>');
   parts.push('</div>');
   // 极简短线条 — Swiss/Tufte 数据可视化风格
-  var thinColors = ['#c04050','#5a5048','#3a5a3a','#a06030','#304050','#403860','#6a5040','#687888'];
-  if (data.positionItems.length>0) parts.push('<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.04)"><span style="font-size:8px;color:#706860;letter-spacing:3px;text-transform:uppercase">Positions</span>'+renderThinBars(data.positionItems,thinColors)+'</div>');
-  if (data.locationItems.length>0) parts.push('<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.04)"><span style="font-size:8px;color:#706860;letter-spacing:3px;text-transform:uppercase">Locations</span>'+renderThinBars(data.locationItems,thinColors)+'</div>');
+  var thinColors = ['var(--mn-sakura)','var(--mn-honey)','var(--mn-matcha)','var(--mn-sakura-ink)','var(--mn-honey-ink)','var(--mn-matcha-ink)','var(--accent)','var(--secondary-text)'];
+  if (data.positionItems.length>0) parts.push('<div style="margin-top:12px;padding-top:12px;border-top:1.5px dashed var(--border-color)"><span style="font-size:11px;color:var(--secondary-text);letter-spacing:.5px">姿势偏好</span>'+renderThinBars(data.positionItems,thinColors)+'</div>');
+  if (data.locationItems.length>0) parts.push('<div style="margin-top:10px;padding-top:10px;border-top:1.5px dashed var(--border-color)"><span style="font-size:11px;color:var(--secondary-text);letter-spacing:.5px">地点偏好</span>'+renderThinBars(data.locationItems,thinColors)+'</div>');
   // 性伴名单
   if (data.partnerList.length>0) {
-    parts.push('<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.04)"><span style="font-size:8px;color:#706860;letter-spacing:3px;text-transform:uppercase">Partner List [SENSITIVE]</span><div style="margin-top:6px;overflow-x:auto"><table class="iv-intel-tbl"><thead><tr><th>Name</th><th>Role</th><th>Relation</th><th>Forced</th><th>Share</th></tr></thead><tbody>'
+    parts.push('<div style="margin-top:12px;padding-top:12px;border-top:1.5px dashed var(--border-color)"><span style="font-size:11px;color:var(--secondary-text);letter-spacing:.5px">亲密名单</span><div style="margin-top:6px;overflow-x:auto"><table class="iv-intel-tbl"><thead><tr><th>姓名</th><th>身份</th><th>关系</th><th>强迫</th><th>占比</th></tr></thead><tbody>'
       + data.partnerList.map(function(p){return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.identity)+'</td><td>'+esc(p.relationship)+'</td><td>'+esc(p.forced)+'</td><td>'+redact(p.percentage)+'</td></tr>';}).join('')
       + '</tbody></table></div></div>');
   }
@@ -839,22 +810,22 @@ export function renderMinimalDossier(data: InvestigationData, charName: string):
 
   // 生育记录
   if (hasPositiveCount(data.pregnancy) || hasPositiveCount(data.impregnate)) {
-    parts.push('<div class="iv-intel-section"><h3>Reproductive Record [SENSITIVE]</h3>');
+    parts.push('<div class="iv-intel-section"><h3>孕育记录</h3>');
     if (hasPositiveCount(data.pregnancy)) {
-      parts.push('<div class="iv-intel-row"><span class="lbl">Pregnancy</span><span class="val">'+redact(data.pregnancy)+'</span></div>');
-      if (data.pregnancyDetails) parts.push('<div class="iv-intel-row"><span class="lbl">Detail</span><span class="val">'+bn(esc(data.pregnancyDetails)).replace(/\n/g,'<br>')+'</span></div>');
+      parts.push('<div class="iv-intel-row"><span class="lbl">怀孕</span><span class="val">'+redact(data.pregnancy)+'</span></div>');
+      if (data.pregnancyDetails) parts.push('<div class="iv-intel-row"><span class="lbl">详情</span><span class="val">'+bn(esc(data.pregnancyDetails)).replace(/\n/g,'<br>')+'</span></div>');
     }
     if (hasPositiveCount(data.impregnate)) {
-      parts.push('<div class="iv-intel-row"><span class="lbl">Impregnated</span><span class="val">'+redact(data.impregnate)+'</span></div>');
-      if (data.impregnateDetails) parts.push('<div class="iv-intel-row"><span class="lbl">Impregnate_Detail</span><span class="val">'+bn(esc(data.impregnateDetails)).replace(/\n/g,'<br>')+'</span></div>');
+      parts.push('<div class="iv-intel-row"><span class="lbl">致孕</span><span class="val">'+redact(data.impregnate)+'</span></div>');
+      if (data.impregnateDetails) parts.push('<div class="iv-intel-row"><span class="lbl">致孕详情</span><span class="val">'+bn(esc(data.impregnateDetails)).replace(/\n/g,'<br>')+'</span></div>');
     }
     parts.push('</div>');
   }
 
   // 开发
-  const devF2 = ([['Mouth',data.devMouth],['Hand',data.devHand],['Foot',data.devFoot],['Breast',data.devBreast],['Penis',data.devPenis],['Vagina',data.devVagina],['Anal',data.devAnal]] as [string,string][]).filter(([,v])=>v&&v!=='不适用');
+  const devF2 = ([['口部',data.devMouth],['手部',data.devHand],['足部',data.devFoot],['胸部',data.devBreast],['阴茎',data.devPenis],['阴道',data.devVagina],['后庭',data.devAnal]] as [string,string][]).filter(([,v])=>v&&v!=='不适用');
   if (devF2.length>0) {
-    parts.push('<div class="iv-intel-section"><h3>Development</h3>');
+    parts.push('<div class="iv-intel-section"><h3>身体记录</h3>');
     for (const [lbl,txt] of devF2) {
       parts.push('<div class="iv-intel-dev-row"><span class="iv-intel-dev-lbl">'+lbl+'</span><span class="iv-intel-dev-body">'+bn(esc(txt))+'</span></div>');
     }
@@ -862,33 +833,33 @@ export function renderMinimalDossier(data: InvestigationData, charName: string):
   }
 
   // 经历
-  const exps2: [string,string][] = [['First Experience',data.firstExp],['Last Experience',data.lastExp],['Best Experience',data.bestExp]];
+  const exps2: [string,string][] = [['初次经历',data.firstExp],['最近经历',data.lastExp],['难忘经历',data.bestExp]];
   const ve2 = exps2.filter(([,v])=>v&&v!=='无'&&v!=='暂无数据');
   if (ve2.length>0||(data.mastFirst&&data.mastFirst!=='无')||(data.mastWay&&data.mastWay!=='无')||data.mastCount||data.mastFreq) {
-    parts.push('<div class="iv-intel-section"><h3>Experience</h3><div class="iv-intel-exp">');
+    parts.push('<div class="iv-intel-section"><h3>经历手记</h3><div class="iv-intel-exp">');
     for (const [lbl,txt] of ve2) parts.push('<div class="iv-intel-exp-item"><h6>'+lbl+'</h6><p>'+esc(txt)+'</p></div>');
-    if (data.mastFirst&&data.mastFirst!=='无') parts.push('<div class="iv-intel-exp-item"><h6>First Masturbation</h6><p>'+esc(data.mastFirst)+'</p></div>');
-    if (data.mastWay&&data.mastWay!=='无') parts.push('<div class="iv-intel-exp-item"><h6>Method</h6><p>'+esc(data.mastWay)+'</p></div>');
+    if (data.mastFirst&&data.mastFirst!=='无') parts.push('<div class="iv-intel-exp-item"><h6>初次自慰</h6><p>'+esc(data.mastFirst)+'</p></div>');
+    if (data.mastWay&&data.mastWay!=='无') parts.push('<div class="iv-intel-exp-item"><h6>习惯方式</h6><p>'+esc(data.mastWay)+'</p></div>');
     parts.push('</div>');
     if (data.mastCount||data.mastFreq) {
-      parts.push('<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border-color,#eee);display:flex;gap:20px;flex-wrap:wrap;font-size:11px">');
-      if (data.mastCount) parts.push('<div class="iv-intel-row" style="padding:2px 0"><span class="lbl">Self Count</span><span class="val">'+redact(data.mastCount)+'</span></div>');
-      if (data.mastFreq) parts.push('<div class="iv-intel-row" style="padding:2px 0"><span class="lbl">Self Freq</span><span class="val">'+esc(data.mastFreq)+'</span></div>');
+      parts.push('<div style="margin-top:10px;padding-top:8px;border-top:1.5px dashed var(--border-color);display:flex;gap:12px;flex-wrap:wrap;font-size:11px">');
+      if (data.mastCount) parts.push('<div class="iv-intel-row" style="padding:2px 0"><span class="lbl">自慰次数</span><span class="val">'+redact(data.mastCount)+'</span></div>');
+      if (data.mastFreq) parts.push('<div class="iv-intel-row" style="padding:2px 0"><span class="lbl">自慰频率</span><span class="val">'+esc(data.mastFreq)+'</span></div>');
       parts.push('</div>');
     }
     parts.push('</div>');
   }
 
   // 评估
-  parts.push('<div class="iv-intel-section"><h3>Assessment</h3>');
-  if (data.charmTypes.length>0) parts.push('<div style="margin-bottom:6px"><span style="font-size:8px;color:#c41e3a;letter-spacing:2px;text-transform:uppercase">Charm</span><div class="iv-intel-tags" style="margin-top:3px">'+data.charmTypes.map(t=>'<span class="iv-intel-tag" style="border-color:#c41e3a;color:#c41e3a">'+esc(t)+'</span>').join('')+'</div></div>');
-  if (data.pornTags.length>0) parts.push('<div style="margin-bottom:6px"><span style="font-size:8px;color:#c41e3a;letter-spacing:2px;text-transform:uppercase">Tags</span><div class="iv-intel-tags" style="margin-top:3px">'+data.pornTags.map(t=>'<span class="iv-intel-tag">'+esc(t)+'</span>').join('')+'</div></div>');
-  if (data.bestPart) parts.push('<div class="iv-intel-row"><span class="lbl">Best Part</span><span class="val">'+esc(data.bestPart)+'</span></div>');
-  if (data.voice) parts.push('<div class="iv-intel-row"><span class="lbl">Voice</span><span class="val">'+esc(data.voice).replace(/\n/g,'<br>')+'</span></div>');
-  if (data.rankAdvantages) parts.push('<div style="font-size:10px;color:#5a825a;margin-bottom:2px">▲ '+esc(data.rankAdvantages)+'</div>');
-  if (data.rankDisadvantages) parts.push('<div style="font-size:10px;color:#c41e3a">▼ '+esc(data.rankDisadvantages)+'</div>');
+  parts.push('<div class="iv-intel-section"><h3>印象便签</h3>');
+  if (data.charmTypes.length>0) parts.push('<div style="margin-bottom:6px"><span style="font-size:11px;color:var(--mn-sakura-ink);letter-spacing:.5px">魅力</span><div class="iv-intel-tags" style="margin-top:3px">'+data.charmTypes.map(t=>'<span class="iv-intel-tag" style="background:var(--mn-sakura-soft);color:var(--mn-sakura-ink)">'+esc(t)+'</span>').join('')+'</div></div>');
+  if (data.pornTags.length>0) parts.push('<div style="margin-bottom:6px"><span style="font-size:11px;color:var(--mn-sakura-ink);letter-spacing:.5px">标签</span><div class="iv-intel-tags" style="margin-top:3px">'+data.pornTags.map(t=>'<span class="iv-intel-tag">'+esc(t)+'</span>').join('')+'</div></div>');
+  if (data.bestPart) parts.push('<div class="iv-intel-row"><span class="lbl">亮点</span><span class="val">'+esc(data.bestPart)+'</span></div>');
+  if (data.voice) parts.push('<div class="iv-intel-row"><span class="lbl">声音</span><span class="val">'+esc(data.voice).replace(/\n/g,'<br>')+'</span></div>');
+  if (data.rankAdvantages) parts.push('<div style="font-size:12px;color:var(--mn-matcha-ink);margin-bottom:2px">▲ '+esc(data.rankAdvantages)+'</div>');
+  if (data.rankDisadvantages) parts.push('<div style="font-size:12px;color:var(--ub-danger)">▼ '+esc(data.rankDisadvantages)+'</div>');
   if (data.reviews) {
-    parts.push('<div style="margin-top:8px"><span style="font-size:8px;color:#c41e3a;letter-spacing:2px;text-transform:uppercase">Rumors</span>');
+    parts.push('<div style="margin-top:8px"><span style="font-size:11px;color:var(--mn-sakura-ink);letter-spacing:.5px">听闻</span>');
     const rvs = data.reviews.split(/[-\n]/).map(l=>l.trim()).filter(Boolean);
     for (const r of rvs) {
       const ci = r.search(/[：:]/);
@@ -897,13 +868,13 @@ export function renderMinimalDossier(data: InvestigationData, charName: string):
     }
     parts.push('</div>');
   }
-  if (data.protagonistNote) parts.push('<div class="iv-note-prot">[NOTE] ' + esc(data.protagonistNote) + '</div>');
-  if (data.characterSelfNote) parts.push('<div class="iv-note-self">[SELF] ' + esc(data.characterSelfNote) + '</div>');
-  parts.push('<span class="iv-page-num">PAGE 8 OF 8</span>');
+  if (data.protagonistNote) parts.push('<div class="iv-note-prot">便签 · ' + esc(data.protagonistNote) + '</div>');
+  if (data.characterSelfNote) parts.push('<div class="iv-note-self">自述 · ' + esc(data.characterSelfNote) + '</div>');
+  parts.push('<span class="iv-page-num">第 8 页</span>');
   parts.push('</div>');
   // 解密日期水印
   var declassYear = new Date().getFullYear() + 50;
-  parts.push('<div class="iv-declass-date">SCHEDULED DECLASSIFICATION: ' + declassYear + '-01-01 // ARCHIVE ID: ' + Math.random().toString(36).slice(2,8).toUpperCase() + '</div>');
+  parts.push('<div class="iv-declass-date">珍藏至：' + declassYear + '-01-01 · 手记编号：' + Math.random().toString(36).slice(2,8).toUpperCase() + '</div>');
 
   return ivStyleOnce(css) +
     '<div class="iv-popup"><div class="iv-popup-body"><div class="iv-wrap">' +

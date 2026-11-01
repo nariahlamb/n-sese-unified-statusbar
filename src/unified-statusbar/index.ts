@@ -876,7 +876,7 @@ function renderMinimal(): void {
   const mainCharName = getCellByHeader('主角信息表', 1, '姓名') || '';
   const config = getConfig();
 
-  $('#sys-location').text(currentLocation || 'LOCATION UNKNOWN').css('cursor', config.mapEnabled ? 'pointer' : '');
+  $('#sys-location').text(currentLocation || '地点未知').css('cursor', config.mapEnabled ? 'pointer' : '');
   $('#sys-status').text(mainCharStatus || '');
   const sysTimeHtml = buildWeatherIconHTML(16) + escapeHtml(currentTime || '—'); // U2：统一出口
   if (_minimalSysTimeHtml !== sysTimeHtml) { $('#sys-time').html(sysTimeHtml); _minimalSysTimeHtml = sysTimeHtml; }
@@ -918,14 +918,14 @@ function renderMinimal(): void {
       document.body.classList.add('dark-mode');
       document.body.setAttribute('data-ub-dark', '1'); // 源标记：此类由插件 minimal 写入
     }
-    $('#theme-toggle-btn').text('DAY');
+    $('#theme-toggle-btn').text('日间');
   } else {
     mc.classList.remove('dark-mode');
     if (config.panelColorMode !== 'tavern') {
       document.body.classList.remove('dark-mode');
       document.body.removeAttribute('data-ub-dark');
     }
-    $('#theme-toggle-btn').text('NIGHT');
+    $('#theme-toggle-btn').text('夜间');
   }
 
   // 渲染角色内容
@@ -1761,7 +1761,7 @@ function bindEvents(): void {
     const container = $('.minimal-container');
     container.toggleClass('dark-mode');
     const isDark = container.hasClass('dark-mode');
-    $(this).text(isDark ? 'DAY' : 'NIGHT');
+    $(this).text(isDark ? '日间' : '夜间');
     setConfig('darkTheme', isDark);
     // 自适应通知皮肤即时跟随明暗切换（深色切换不走 config-change 回调，须直连重算 ub-skin-*）
     {

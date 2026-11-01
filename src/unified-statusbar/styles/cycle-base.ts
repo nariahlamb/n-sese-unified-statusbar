@@ -422,6 +422,27 @@ export const CYCLE_BASE_CSS = `
 .cycle-manager-confirm p { margin: 0; color: var(--text-muted, #666); line-height: 1.6; }
 .cycle-manager-confirm .cycle-manager-irreversible { color: #b42318; font-weight: 700; }
 
+.minimal-container .cycle-bar{padding:6px 8px;background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.minimal-container .cycle-bar .cycle-label{color:var(--text-color);border-radius:var(--mn-radius-sm);}
+.minimal-container .cycle-bar .cycle-track{background:var(--mn-card-2);border-radius:var(--mn-radius-sm);}
+.minimal-container .cycle-bar .cycle-fill{background:var(--mn-sakura)!important;border-radius:var(--mn-radius-sm);}
+.minimal-container .cycle-bar.cycle-phase-follicular .cycle-fill{background:var(--mn-matcha)!important;}
+.minimal-container .cycle-bar.cycle-phase-luteal .cycle-fill{background:var(--mn-honey)!important;}
+.minimal-container .cycle-bar .cycle-value{color:var(--mn-honey-ink);}
+.minimal-container .cycle-high-risk{color:var(--ub-danger);}
+.minimal-container .mood-icon.is-cycle-period{outline-color:var(--mn-sakura);box-shadow:var(--mn-shadow-soft);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-popup{font-family:var(--mn-font-body);background:var(--mn-paper);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-summary{background:var(--mn-honey-soft);color:var(--mn-honey-ink);font-family:var(--mn-font-hand);border-radius:var(--mn-radius);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-fields{border:1.5px solid var(--border-color);background:var(--mn-card);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-row{border-bottom:1.5px dashed var(--tag-border);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-row:last-child{border-bottom:none;}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-input,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn{background:var(--mn-card);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--ub-btn-radius);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);color:var(--mn-sakura-ink);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn.primary{background:var(--mn-sakura);border-color:var(--mn-sakura);color:var(--accent-ink);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn.danger,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-danger strong,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-message.error,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-irreversible{color:var(--ub-danger);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn.danger,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-danger{border-color:var(--ub-danger);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-warning-icon{background:var(--mn-sakura-soft);color:var(--ub-danger);}
+
 /* 怪盗手记：周期条（米灰底 + 炭灰描边 + 暗红/暗金分档） */
 .cycle-bar.bridge-cycle-indicator{
   display:grid;grid-template-columns:auto minmax(64px,1fr) auto;gap:7px;align-items:center;

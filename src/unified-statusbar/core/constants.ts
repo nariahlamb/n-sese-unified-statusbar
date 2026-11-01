@@ -361,7 +361,7 @@ export type WeatherCategory = '晴' | '多云' | '阴' | '雨' | '雪' | '雾' |
 export const STYLE_LABELS: Record<StyleType, string> = {
   ancient: '古风灵感',
   flirtatious: '瑟瑟灵感',
-  minimal: '萦绕灵感',
+  minimal: '奶油手账',
   sweet: '甜恋糖果',
   xianxia: '云海仙踪',
   bridge: '怪盗手记',

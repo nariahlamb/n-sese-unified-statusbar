@@ -578,47 +578,76 @@ export const calendarBaseCSS = /* css */ `
 /*  主题专属样式 — 萦绕                                */
 /* ═══════════════════════════════════════════════════ */
 .cal-theme-minimal {
-  font-family: 'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial, 'Noto Serif SC','Noto Serif CJK SC','Source Han Serif SC','Songti SC','STSong','SimSun','NSimSun', sans-serif;
-  letter-spacing: 0.3px;
+  font-family: var(--mn-font-body);
+  letter-spacing: 0.5px;
+  background: var(--mn-paper);
+  color: var(--text-color);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--mn-radius-lg);
+  box-shadow: var(--mn-shadow);
 }
 .cal-theme-minimal .cal-header {
-  background: transparent;
-  border-bottom: 0.5px solid var(--ub-divider, #e0e0e0);
+  background: var(--mn-card);
+  border-bottom: 1.5px dashed var(--border-color);
 }
 .cal-theme-minimal .cal-nav-btn,
 .cal-theme-minimal .cal-newspaper-btn,
 .cal-theme-minimal .cal-refresh-btn,
 .cal-theme-minimal .cal-close-btn {
-  border-radius: 1px;
-  border-width: 0.5px;
+  border-radius: var(--ub-btn-radius);
+  border: 1.5px solid var(--border-color);
+  background: var(--mn-card);
+  color: var(--secondary-text);
+}
+.cal-theme-minimal .cal-nav-btn:hover:not(:disabled),
+.cal-theme-minimal .cal-newspaper-btn:hover,
+.cal-theme-minimal .cal-refresh-btn:hover,
+.cal-theme-minimal .cal-close-btn:hover {
+  background: var(--mn-sakura-soft);
+  border-color: var(--mn-sakura);
+  color: var(--mn-sakura-ink);
 }
 .cal-theme-minimal .cal-month-label {
-  font-weight: 400;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  font-size: 11px;
+  font-family: var(--mn-font-hand);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  color: var(--mn-sakura-ink);
 }
+.cal-theme-minimal .cal-day { border-radius: var(--mn-radius-sm); }
 .cal-theme-minimal .cal-day.is-today {
-  box-shadow: inset 0 -2px 0 var(--ub-accent, #111);
-  border-color: transparent;
+  background: var(--mn-honey-soft);
+  color: var(--mn-honey-ink);
+  box-shadow: inset 0 -2px 0 var(--mn-honey);
+  border-color: var(--mn-honey);
   font-weight: 600;
 }
+.cal-theme-minimal .cal-day.is-selected,
+.cal-theme-minimal .cal-day.is-selected:not(.is-today) {
+  background: var(--mn-sakura);
+  color: var(--accent-ink);
+  border-color: var(--mn-sakura);
+}
 .cal-theme-minimal .cal-detail {
-  background: transparent;
+  background: var(--mn-card-2);
+  border-top: 1.5px dashed var(--border-color);
 }
 .cal-theme-minimal .cal-detail-event {
-  border-left-width: 1.5px;
+  background: var(--mn-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--mn-radius);
+  box-shadow: var(--mn-shadow-soft);
 }
-/* 萦绕装饰：月标两侧细线 */
 .cal-theme-minimal .cal-month-label::before,
 .cal-theme-minimal .cal-month-label::after {
   content: '';
   display: inline-block;
-  width: 18px;
-  height: 0.5px;
-  background: var(--ub-divider, #e0e0e0);
+  width: 12px;
+  height: 7px;
+  background: var(--mn-tape);
+  border-radius: var(--mn-radius-sm);
   vertical-align: middle;
-  margin: 0 8px;
+  margin: 0 4px;
 }
 
 /* ═══════════════════════════════════════════════════ */
@@ -743,7 +772,7 @@ export const calendarBaseCSS = /* css */ `
 /* 瑟瑟 */
 .cal-theme-flirtatious{--ub-text:var(--text,#3a2a4a);--ub-divider:var(--divider,#ecdce8);--ub-accent:var(--accent,#d060a0);--ub-hover-bg:var(--lust-bg,rgba(144,80,192,0.06))}
 /* 萦绕 */
-.cal-theme-minimal{--ub-text:var(--text-color,#111111);--ub-divider:var(--border-color,#e0e0e0);--ub-accent:var(--text-color,#111111);--ub-hover-bg:rgba(0,0,0,0.04)}
+.cal-theme-minimal{--ub-text:var(--text-color);--ub-text-muted:var(--secondary-text);--ub-bg-card:var(--mn-card);--ub-divider:var(--border-color);--ub-accent:var(--mn-sakura);--ub-hover-bg:var(--mn-sakura-soft)}
 /* 甜恋 */
 .cal-theme-sweet{--ub-text:var(--sweet-text,#5c3d4a);--ub-divider:var(--sweet-border,#f0d8e0);--ub-accent:var(--sweet-pink,#ff8fab);--ub-hover-bg:var(--sweet-pink-light,rgba(255,143,171,0.08))}
 /* 云海 */
@@ -777,7 +806,7 @@ export const calendarBaseCSS = /* css */ `
 }
 
 /* 萦绕暗色 */
-.dark .cal-theme-minimal{--ub-text:var(--text-color,#f0f0f0);--ub-divider:var(--border-color,#333333);--ub-accent:var(--text-color,#f0f0f0);--ub-hover-bg:rgba(255,255,255,0.06)}
+.dark .cal-theme-minimal{--ub-text:var(--text-color);--ub-text-muted:var(--secondary-text);--ub-bg-card:var(--mn-card);--ub-divider:var(--border-color);--ub-accent:var(--mn-sakura);--ub-hover-bg:var(--mn-sakura-soft)}
 
 /* 云海暗色 */
 .dark .cal-theme-xianxia{--ub-text:var(--text,#e4ece0);--ub-divider:var(--divider,rgba(70,90,75,0.35));--ub-accent:var(--jade,#68b090);--ub-hover-bg:rgba(255,255,255,0.05)}

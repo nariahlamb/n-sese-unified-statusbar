@@ -24,7 +24,7 @@ function masthead(style: StyleType): string {
   switch (style) {
     case 'ancient': return '世·界·邸·报';
     case 'flirtatious': return '✦ 午夜世界 ✦';
-    case 'minimal': return 'WORLD · DAILY';
+    case 'minimal': return '世界日记';
     case 'sweet': return '🍬 世界糖果报';
     case 'xianxia': return '灵霄世界录';
     case 'bridge': return '世界手记';

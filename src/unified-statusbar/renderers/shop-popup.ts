@@ -33,7 +33,7 @@ const THEME_TEXT: Record<StyleType, {
   flirtatious: { title: '心动商店',  tabRegular: '常规售卖', tabStory: '剧情特卖', refresh: ubIcon('refresh') + ' 刷新', draw: ubIcon('dice') + ' 单抽', draw10: ubIcon('dice') + ' 十连', buy: ubIcon('bag') + ' 购买', energyIcon: ubIcon('bolt') },
   sweet:       { title: '甜蜜小铺',  tabRegular: '常规售卖', tabStory: '剧情特卖', refresh: '🔄 刷新', draw: '💕 心动抽', draw10: '十连心动',  buy: '🛒 带走',  energyIcon: '⚡' },
   xianxia:     { title: '洞天集市',  tabRegular: '常规售卖', tabStory: '剧情特卖', refresh: ubIcon('refresh') + ' 刷新', draw: ubIcon('gem') + ' 探宝',   draw10: '十连探宝',            buy: '请回',     energyIcon: ubIcon('bolt') },
-  minimal:     { title: 'Shop',      tabRegular: 'Regular',  tabStory: 'Story',    refresh: 'Refresh', draw: 'Draw',     draw10: 'Draw ×10',            buy: 'Buy',      energyIcon: ubIcon('bolt') },
+  minimal:     { title: '手账小铺',  tabRegular: '日常好物', tabStory: '剧情特卖', refresh: '刷新',    draw: '单抽',     draw10: '十连抽',              buy: '购买',     energyIcon: ubIcon('bolt') },
   bridge:      { title: '补给与交易终端', tabRegular: '常规补给', tabStory: '剧情特供', refresh: '刷新货单', draw: '单次征调', draw10: '十次征调', buy: '确认入库', energyIcon: ubIcon('bolt') },
   ios:         { title: '补给商店',  tabRegular: '常规售卖', tabStory: '剧情特卖', refresh: '刷新',     draw: '单抽',     draw10: '十连抽',    buy: '购买',     energyIcon: ubIcon('bolt') },
 };
@@ -44,7 +44,7 @@ const QUALITY_NAMES: Record<StyleType, string[]> = {
   flirtatious: ['寻常', '心动', '迷人', '魅惑', '销魂', '绝品'],
   sweet:       ['软糖', '奶油', '草莓', '蜜桃', '星尘', '神迹'],
   xianxia:     ['凡器', '灵器', '法器', '寶器', '仙器', '神器'],
-  minimal:     ['Ordinary', 'Fine', 'Rare', 'Epic', 'Legend', 'Myth'],
+  minimal:     ['普通', '精良', '稀有', '史诗', '传说', '神话'],
   bridge:      ['标准', '改良', '稀有', '史诗', '传奇', '神话'],
   ios:         ['普通', '良好', '稀有', '史诗', '传说', '神话'],
 };
@@ -177,22 +177,44 @@ const THEME_SCOPED_CSS = `
 @keyframes shop-float{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-2px) scale(1.08);}}
 .shop-popup.shop-theme-xianxia .shop-sale{background:linear-gradient(135deg,var(--cinnabar,#c05048),var(--cinnabar-deep,#983028));}
 .shop-popup.shop-theme-xianxia .shop-skill-card{color:var(--jade-deep,#5a9078);background:radial-gradient(circle at 50% 38%,rgba(255,240,180,.45),transparent 38%),linear-gradient(145deg,var(--jade-surface-1,#f4faf6),#dcecdc);border-color:var(--gold,#b89848);box-shadow:0 0 0 2px rgba(90,144,120,.25),0 0 18px rgba(184,152,72,.3);}
-/* 萦绕极简 */
-.shop-popup.shop-theme-minimal{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Serif SC','Noto Serif CJK SC','Source Han Serif SC','Songti SC','STSong','SimSun','NSimSun',serif;border-radius:2px;}
-.shop-popup.shop-theme-minimal .shop-title{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-style:italic;font-size:18px;letter-spacing:3px;}
-.shop-popup.shop-theme-minimal .shop-tab{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;font-size:11px;}
-.shop-popup.shop-theme-minimal .shop-r0{background:var(--card,#fafafa);}
-.shop-popup.shop-theme-minimal .shop-r3{border:1.5px solid var(--text,#333);}
-.shop-popup.shop-theme-minimal .shop-r5{border:2px solid var(--text,#111);box-shadow:4px 4px 0 var(--text,#111);}
-.shop-popup.shop-theme-minimal .shop-r5::after{content:'';position:absolute;inset:-2px;border:1px solid var(--text,#111);pointer-events:none;}
-.shop-popup.shop-theme-minimal .shop-deco{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-weight:700;letter-spacing:1px;font-size:9px;}
-.shop-popup.shop-theme-minimal .shop-sale{background:var(--text,#111);}
-.shop-popup.shop-theme-minimal .shop-skill-card{color:var(--text,#111);background:linear-gradient(135deg,var(--card,#fff) 0 48%,var(--divider-light,#f1f1f1) 48% 52%,var(--card,#fff) 52%);border:2px solid var(--text,#111);box-shadow:4px 4px 0 var(--text,#111);}
-/* 深色：minimal 硬编码 #333/#111 边框/阴影与 #fafafa 白底在深色底近不可见，反转为浅色边/暗底 */
-.dark-mode .shop-popup.shop-theme-minimal .shop-r0{background:var(--card,#1a1a1a)}
-.dark .shop-popup.shop-theme-minimal .shop-r3,.dark-mode .shop-popup.shop-theme-minimal .shop-r3{border-color:var(--text,#f0f0f0)}
-.dark .shop-popup.shop-theme-minimal .shop-r5,.dark-mode .shop-popup.shop-theme-minimal .shop-r5{border-color:var(--text,#f0f0f0);box-shadow:4px 4px 0 var(--text,#f0f0f0)}
-.dark .shop-popup.shop-theme-minimal .shop-r5::after,.dark-mode .shop-popup.shop-theme-minimal .shop-r5::after{border-color:var(--text,#f0f0f0)}
+/* 奶油手账 */
+.shop-popup.shop-theme-minimal{font-family:var(--mn-font-body);background:var(--mn-paper);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);}
+.shop-popup.shop-theme-minimal .shop-title{font-family:var(--mn-font-hand);font-size:18px;letter-spacing:.5px;color:var(--mn-sakura-ink);}
+.shop-popup.shop-theme-minimal .shop-head,.shop-popup.shop-theme-minimal .shop-detail-head{padding:10px 12px;background:var(--mn-card);border-bottom:1.5px dashed var(--border-color);}
+.shop-popup.shop-theme-minimal .shop-close{color:var(--secondary-text);}
+.shop-popup.shop-theme-minimal .shop-tabs{gap:6px;padding:6px 12px;background:var(--mn-card-2);border-bottom:1.5px dashed var(--tag-border);}
+.shop-popup.shop-theme-minimal .shop-tab{font-family:var(--mn-font-body);letter-spacing:.5px;font-size:12px;border-radius:12px;padding:7px 10px;color:var(--secondary-text);}
+.shop-popup.shop-theme-minimal .shop-tab:hover{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+.shop-popup.shop-theme-minimal .shop-tab.on{background:var(--mn-sakura);color:var(--accent-ink);border-bottom-color:transparent;}
+.shop-popup.shop-theme-minimal .shop-bar{border-bottom:1.5px dashed var(--tag-border);}
+.shop-popup.shop-theme-minimal .shop-energy{background:var(--mn-honey-soft);color:var(--mn-honey-ink);border-color:var(--border-color);}
+.shop-popup.shop-theme-minimal .shop-btn{border:1.5px solid var(--border-color);border-radius:var(--ub-btn-radius);color:var(--text-color);}
+.shop-popup.shop-theme-minimal .shop-btn:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);color:var(--mn-sakura-ink);}
+.shop-popup.shop-theme-minimal .shop-btn.primary{background:var(--mn-sakura);border-color:var(--mn-sakura);color:var(--accent-ink);}
+.shop-popup.shop-theme-minimal .shop-card{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.shop-popup.shop-theme-minimal .shop-card:hover{border-color:var(--mn-sakura);box-shadow:var(--mn-shadow);}
+.shop-popup.shop-theme-minimal .shop-r1{background:var(--mn-matcha-soft);}
+.shop-popup.shop-theme-minimal .shop-r2{border-color:var(--mn-matcha);}
+.shop-popup.shop-theme-minimal .shop-r3{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
+.shop-popup.shop-theme-minimal .shop-r4{background:var(--mn-honey-soft);border-color:var(--mn-honey);}
+.shop-popup.shop-theme-minimal .shop-r5{background:var(--mn-note);border-color:var(--mn-honey);box-shadow:var(--mn-shadow);}
+.shop-popup.shop-theme-minimal .shop-r5::after{content:'';position:absolute;inset:4px;border:1.5px dashed var(--mn-honey);border-radius:var(--mn-radius-sm);pointer-events:none;}
+.shop-popup.shop-theme-minimal .shop-deco{font-family:var(--mn-font-body);font-weight:700;letter-spacing:.5px;font-size:9px;color:var(--mn-honey-ink);}
+.shop-popup.shop-theme-minimal .shop-sale{background:var(--mn-sakura);color:var(--accent-ink);border-radius:var(--mn-radius-sm);}
+.shop-popup.shop-theme-minimal .shop-price{color:var(--mn-honey-ink);}
+.shop-popup.shop-theme-minimal .shop-skill-card{color:var(--mn-matcha-ink);background:var(--mn-matcha-soft);border-color:var(--mn-matcha);box-shadow:var(--mn-shadow-soft);}
+.shop-popup.shop-theme-minimal .shop-skill-card::before{border-color:var(--mn-matcha);border-radius:var(--mn-radius-sm);}
+.shop-popup.shop-theme-minimal .shop-skill-card::after{background:var(--mn-tape);height:12px;inset:0 20% auto;transform:rotate(-3deg);}
+.shop-popup.shop-theme-minimal .shop-skill-badge{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);border-radius:12px;}
+.shop-popup.shop-theme-minimal .shop-skill-sigil{box-shadow:var(--mn-shadow-soft);}
+.shop-popup.shop-theme-minimal .shop-skill-effect{background:var(--mn-note);border-color:var(--mn-honey);border-radius:var(--mn-radius);}
+.shop-popup.shop-theme-minimal .shop-skill-effect-title{letter-spacing:.5px;font-family:var(--mn-font-hand);}
+.shop-popup.shop-theme-minimal .shop-skill-status,.shop-popup.shop-theme-minimal .shop-skill-note,.shop-popup.shop-theme-minimal .shop-extra-label{color:var(--secondary-text);}
+.shop-popup.shop-theme-minimal .shop-skill-owned{color:var(--mn-matcha-ink);}
+.shop-popup.shop-theme-minimal .shop-empty{padding:12px;color:var(--secondary-text);}
+.shop-popup.shop-theme-minimal .shop-detail-banner{padding:12px;border-bottom:1.5px dashed var(--tag-border);}
+.shop-popup.shop-theme-minimal .shop-extra-textarea{background:var(--mn-card);color:var(--text-color);border-color:var(--border-color);border-radius:var(--mn-radius);}
+.shop-popup.shop-theme-minimal .shop-extra-textarea:focus{border-color:var(--mn-sakura);}
 /* 深色模式（4 主题走 .dark，minimal 走 .dark-mode，变量自动跟随；特价角标渐变引用主题变量自动跟随） */
 /* 怪盗手记：补给小铺 */
 .shop-popup.shop-theme-bridge.bridge-module-commerce{
@@ -307,7 +329,7 @@ const DECO: Record<StyleType, [string, string, string]> = {  // [史诗, 传说,
   flirtatious: ['💎', '👑', '💗'],
   sweet:       ['🌸', '🎀', '💖'],
   xianxia:     ['灵', '寶', '聖'],
-  minimal:     ['EPIC', 'LEG', 'MYTH'],
+  minimal:     ['珍藏', '传说', '秘宝'],
   bridge:      ['珍藏', '传说', '秘宝'],
   ios:         ['稀有', '传说', '神话'],
 };

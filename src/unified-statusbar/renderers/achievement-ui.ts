@@ -135,11 +135,31 @@ const ACHIEVEMENT_CSS = `
 .ach-popup.ach-theme-flirtatious .ach-cat{border-radius:10px;background:var(--accent-bg-faint,rgba(208,96,160,0.08));box-shadow:0 0 8px var(--accent-glow,rgba(208,96,160,0.10));padding:1px 6px;}
 .ach-popup.ach-theme-flirtatious .ach-flavor{background:linear-gradient(135deg,var(--accent-bg-faint,rgba(208,96,160,0.08)),var(--lust-bg,rgba(144,80,192,0.06)));border-left:3px solid var(--accent,#d060a0);border-radius:8px;padding:2px 8px;}
 
-/* 萦绕 minimal：极简克制 */
-.ach-popup.ach-theme-minimal .ach-card{border-top:1px solid var(--text-color,#111);border-radius:2px;}
-.ach-popup.ach-theme-minimal .ach-name{font-family:'Noto Serif SC','Noto Serif CJK SC','Source Han Serif SC','Songti SC','STSong','SimSun','NSimSun',serif;font-weight:700;letter-spacing:1px;}
-.ach-popup.ach-theme-minimal .ach-cat{text-transform:uppercase;letter-spacing:2px;font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;}
-.ach-popup.ach-theme-minimal .ach-flavor{font-family:'Playfair Display',Georgia,'Times New Roman','Noto Serif SC','Noto Serif CJK SC','Source Han Serif SC','Songti SC','STSong','SimSun','NSimSun',serif;border-left:1px solid var(--border-color,#e0e0e0);}
+/* minimal：奶油手账 */
+.ach-popup.ach-theme-minimal{font-family:var(--mn-font-body);background:var(--mn-paper);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);}
+.ach-popup.ach-theme-minimal .ach-card{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.ach-popup.ach-theme-minimal .ach-card.ach-r1{border-left-color:var(--mn-matcha);}
+.ach-popup.ach-theme-minimal .ach-card.ach-r2{border-left-color:var(--mn-sakura);}
+.ach-popup.ach-theme-minimal .ach-card.ach-r3{border-left-color:var(--mn-honey);}
+.ach-popup.ach-theme-minimal .ach-name{font-family:var(--mn-font-hand);font-weight:700;letter-spacing:.5px;color:var(--text-color);}
+.ach-popup.ach-theme-minimal .ach-cat{letter-spacing:.5px;font-family:var(--mn-font-body);padding:2px 7px;border-radius:12px;background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+.ach-popup.ach-theme-minimal .ach-flavor{font-family:var(--mn-font-hand);font-style:normal;background:var(--mn-note);color:var(--mn-honey-ink);border-left:1.5px dashed var(--mn-honey);border-radius:var(--mn-radius-sm);padding:4px 8px;}
+.ach-popup.ach-theme-minimal .ach-tabs{border-bottom:1.5px dashed var(--border-color);}
+.ach-popup.ach-theme-minimal .ach-tab{background:var(--mn-card-2);color:var(--secondary-text);border-radius:12px;}
+.ach-popup.ach-theme-minimal .ach-tab:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
+.ach-popup.ach-theme-minimal .ach-tab[data-full="1"]{color:var(--mn-matcha-ink);}
+.ach-popup.ach-theme-minimal .ach-tab[data-active="1"]{background:var(--mn-sakura);color:var(--accent-ink);}
+.ach-popup.ach-theme-minimal .ach-tier-bar,.ach-popup.ach-theme-minimal .ach-tab-bar{background:var(--mn-card-2);border-radius:var(--mn-radius-sm);}
+.ach-popup.ach-theme-minimal .ach-tier-bar-fill,.ach-popup.ach-theme-minimal .ach-tab-bar>i{background:var(--mn-sakura);border-radius:var(--mn-radius-sm);}
+.ach-popup.ach-theme-minimal .ach-tab[data-full="1"] .ach-tab-bar>i{background:var(--mn-matcha);}
+.ach-popup.ach-theme-minimal .ach-stat-num,.ach-popup.ach-theme-minimal .ach-tier-pct{color:var(--mn-honey-ink);}
+.ach-popup.ach-theme-minimal .ach-stat-today{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink);}
+.ach-popup.ach-theme-minimal .ach-tier-chip{background:var(--mn-honey-soft);color:var(--mn-honey-ink);border-radius:12px;}
+.ach-popup.ach-theme-minimal .ach-rar.r0{background:var(--mn-card-2);color:var(--secondary-text);}
+.ach-popup.ach-theme-minimal .ach-rar.r1{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink);}
+.ach-popup.ach-theme-minimal .ach-rar.r2{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+.ach-popup.ach-theme-minimal .ach-rar.r3{background:var(--mn-honey-soft);color:var(--mn-honey-ink);}
+.ach-popup.ach-theme-minimal .ach-empty{padding:12px;color:var(--secondary-text);}
 
 /* 甜恋 sweet：糖果（§3.0 严重① 白底重灾修复，深色 --sweet-card:#241c28）*/
 .ach-popup.ach-theme-sweet .ach-card{border-radius:18px;background:linear-gradient(135deg,var(--sweet-card,#ffffff),var(--sweet-bubble,#fff0f5));box-shadow:0 2px 16px rgba(200,160,180,.12);}

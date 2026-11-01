@@ -77,27 +77,27 @@ export const beyondLensBaseCSS = /* css */ `
 .beyond-theme-flirtatious .ub-beyond-bar span{background:#c4489c;}
 .beyond-theme-flirtatious .ub-beyond-empty{color:#b48ba8;}
 
-/* ═══ minimal 萦绕：主题变量驱动（面板与 .char-card 同框制；正文/标签走 --ub-font-minimal-* 字体分层，与人物界面一致） ═══ */
-.ub-beyond-panel.beyond-theme-minimal{background:transparent;border:1px solid var(--card-border);padding:20px 24px 24px;border-radius:0 2px 2px 2px;color:var(--text-color);font-family:var(--ub-font-minimal-body);}
-.beyond-theme-minimal .ub-beyond-sec-title{border-bottom-width:1px;border-color:var(--tag-border);color:var(--text-color);letter-spacing:2px;font-family:var(--ub-font-minimal-body);}
-.beyond-theme-minimal .ub-beyond-sec-title em{color:var(--secondary-text);letter-spacing:2px;font-family:var(--ub-font-minimal-label);}
-.beyond-theme-minimal .ub-beyond-reshuffle{color:var(--secondary-text);border-color:var(--border-color);border-radius:2px;font-family:var(--ub-font-minimal-label);}
-.beyond-theme-minimal .ub-beyond-rumor{background:var(--bg-color);border-color:var(--card-border);border-radius:1px;}
-.beyond-theme-minimal .ub-beyond-rumor:hover{border-color:var(--border-color);}
+/* ═══ minimal 奶油手账 ═══ */
+.ub-beyond-panel.beyond-theme-minimal{background:var(--mn-card);border:1.5px solid var(--border-color);padding:12px;border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow-soft);color:var(--text-color);font-family:var(--mn-font-body);}
+.beyond-theme-minimal .ub-beyond-sec-title{border-bottom:1.5px dashed var(--tag-border);color:var(--text-color);letter-spacing:.5px;font-family:var(--mn-font-hand);}
+.beyond-theme-minimal .ub-beyond-sec-title em{color:var(--secondary-text);letter-spacing:.5px;font-family:var(--mn-font-body);}
+.beyond-theme-minimal .ub-beyond-reshuffle{color:var(--mn-sakura-ink);background:var(--mn-sakura-soft);border-color:var(--border-color);border-radius:var(--ub-btn-radius);font-family:var(--mn-font-body);}
+.beyond-theme-minimal .ub-beyond-rumor{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.beyond-theme-minimal .ub-beyond-rumor:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
 .beyond-theme-minimal .ub-beyond-rumor-top{color:var(--text-color);}
 .beyond-theme-minimal .ub-beyond-rumor-body{color:var(--text-color);}
 .beyond-theme-minimal .ub-beyond-rumor-status{color:var(--secondary-text);}
-.beyond-theme-minimal .ub-beyond-level{font-family:var(--ub-font-minimal-label);letter-spacing:1px;}
-.beyond-theme-minimal .ub-beyond-level-heard{background:transparent;border:1px solid var(--tag-border);color:var(--secondary-text);}
-.beyond-theme-minimal .ub-beyond-level-known{background:var(--text-color);color:var(--bg-color);}
-.beyond-theme-minimal .ub-beyond-char{background:var(--bg-color);border-color:var(--card-border);border-radius:1px;}
-.beyond-theme-minimal .ub-beyond-char:hover{border-color:var(--border-color);}
-.beyond-theme-minimal .ub-beyond-char-name{color:var(--text-color);}
+.beyond-theme-minimal .ub-beyond-level{font-family:var(--mn-font-body);letter-spacing:.5px;border-radius:12px;}
+.beyond-theme-minimal .ub-beyond-level-heard{background:var(--mn-honey-soft);border:1px solid var(--tag-border);color:var(--mn-honey-ink);}
+.beyond-theme-minimal .ub-beyond-level-known{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink);}
+.beyond-theme-minimal .ub-beyond-char{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.beyond-theme-minimal .ub-beyond-char:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
+.beyond-theme-minimal .ub-beyond-char-name{color:var(--text-color);font-family:var(--mn-font-hand);}
 .beyond-theme-minimal .ub-beyond-char-act{color:var(--text-color);}
 .beyond-theme-minimal .ub-beyond-thread{color:var(--secondary-text);}
-.beyond-theme-minimal .ub-beyond-bar{background:var(--tag-border);}
-.beyond-theme-minimal .ub-beyond-bar span{background:var(--text-color);}
-.beyond-theme-minimal .ub-beyond-empty{color:var(--secondary-text);font-family:var(--ub-font-minimal-label);letter-spacing:3px;}
+.beyond-theme-minimal .ub-beyond-bar{background:var(--mn-card-2);border-radius:var(--mn-radius-sm);}
+.beyond-theme-minimal .ub-beyond-bar span{background:var(--mn-sakura);border-radius:inherit;}
+.beyond-theme-minimal .ub-beyond-empty{color:var(--secondary-text);font-family:var(--mn-font-hand);letter-spacing:.5px;}
 
 /* ═══ sweet 甜恋：粉糖 · 大圆角 ═══ */
 .beyond-theme-sweet .ub-beyond-panel{background:#fff6fa;color:#7a3b54;}

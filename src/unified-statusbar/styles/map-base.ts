@@ -582,6 +582,22 @@ export const MAP_BASE_CSS = `
 .map-library-preview.lib-full .map-lib-zoom-controls{top:48px;}
 .map-library-preview .map-lib-full-close{display:flex;align-items:center;justify-content:center;position:absolute;top:8px;right:8px;z-index:6;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;}
 
+.minimal-container,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .map-popup,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .panel-overlay.dark .map-popup{
+  --map-bg:var(--mn-paper);--map-stroke:var(--mn-sakura-ink);--map-stroke-soft:var(--card-border);
+  --map-title-color:var(--text-color);--map-text:var(--text-color);--map-text-soft:var(--secondary-text);
+  --map-panel-border:var(--border-color);--map-panel-bg:var(--mn-card);--map-panel-radius:var(--mn-radius);
+  --map-btn-bg:var(--mn-card);--map-btn-hover:var(--mn-sakura-soft);--map-input-bg:var(--mn-card-2);--map-divider:var(--tag-border);
+  --map-room-fill:var(--mn-card-2);--map-room-label-color:var(--text-color);--map-marker-name-fill:var(--text-color);
+  --map-marker-name-stroke:var(--mn-paper);--map-exit-label-stroke:var(--mn-paper);
+  --marker-protagonist:var(--mn-honey);--marker-protagonist-text:var(--mn-honey-ink);--marker-ally:var(--mn-matcha);--marker-npc:var(--mn-sakura);--marker-enemy:var(--ub-danger);
+  --map-status-ready:var(--mn-matcha-ink);--map-status-loading:var(--mn-honey-ink);--map-status-pending:var(--mn-honey-ink);--map-status-error:var(--ub-danger);
+  --map-status-ready-bg:var(--mn-matcha-soft);--map-status-pending-bg:var(--mn-honey-soft);
+}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .panel-popup.map-popup{font-family:var(--mn-font-body);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);background:var(--mn-paper);color:var(--text-color);box-shadow:var(--mn-shadow);}
+.minimal-container .map-section,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .map-popup .map-section{border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.minimal-container .map-section-head,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .map-popup .map-section-head{border-bottom:1.5px dashed var(--border-color);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .map-popup .map-title{font-family:var(--mn-font-hand);letter-spacing:.5px;}
+
 /* ========== AI 地图整理（--map-* 驱动 5 主题 + minimal 深色） ========== */
 /* 平时地图弹窗按内容自适应；整理面板需要完整高度，打开期间让整个弹窗定高（关闭即恢复）。 */
 .panel-popup.map-popup.map-organize-open { height: min(90vh, 860px); max-height: min(90vh, 860px); }
@@ -884,35 +900,35 @@ export const MAP_THEME_VARS: Record<string, MapThemeVars> = {
     '--marker-enemy': '#d05070',
   },
   minimal: {
-    '--map-bg': '#1a1a1a',
-    '--map-stroke': '#aaa',
-    '--map-stroke-soft': '#b8b8b8',
-    '--map-title-color': '#f0f0f0',
-    '--map-text': '#f0f0f0',
-    '--map-text-soft': '#c0c0c0',
-    '--map-panel-border': '#666',
-    '--map-panel-bg': 'rgba(30,30,30,0.6)',
-    '--map-panel-radius': '6px',
-    '--map-room-fill': 'none',
-    '--map-btn-bg': 'rgba(255,255,255,0.08)',
-    '--map-btn-hover': 'rgba(255,255,255,0.14)',
-    '--map-input-bg': 'rgba(255,255,255,0.08)',
-    '--map-divider': 'rgba(255,255,255,0.22)',
-    '--map-room-label-color': '#f0f0f0',
-    '--map-marker-name-fill': '#f0f0f0',
-    '--map-marker-name-stroke': '#1a1a1a',
-    '--map-exit-label-stroke': '#1a1a1a',
-    '--marker-protagonist': '#f0c040',
-    '--marker-protagonist-text': '#1a1a1a',
-    '--marker-ally': '#4aa',
-    '--marker-npc': '#69a',
-    '--marker-enemy': '#e55',
-    '--map-status-ready': '#66bb6a',
-    '--map-status-loading': '#ffb74d',
-    '--map-status-pending': '#ffb74d',
-    '--map-status-error': '#ef5350',
-    '--map-status-ready-bg': 'rgba(102,187,106,0.2)',
-    '--map-status-pending-bg': 'rgba(255,183,77,0.2)',
+    '--map-bg': 'var(--mn-paper)',
+    '--map-stroke': 'var(--mn-sakura-ink)',
+    '--map-stroke-soft': 'var(--card-border)',
+    '--map-title-color': 'var(--text-color)',
+    '--map-text': 'var(--text-color)',
+    '--map-text-soft': 'var(--secondary-text)',
+    '--map-panel-border': 'var(--border-color)',
+    '--map-panel-bg': 'var(--mn-card)',
+    '--map-panel-radius': 'var(--mn-radius)',
+    '--map-room-fill': 'var(--mn-card-2)',
+    '--map-btn-bg': 'var(--mn-card)',
+    '--map-btn-hover': 'var(--mn-sakura-soft)',
+    '--map-input-bg': 'var(--mn-card-2)',
+    '--map-divider': 'var(--tag-border)',
+    '--map-room-label-color': 'var(--text-color)',
+    '--map-marker-name-fill': 'var(--text-color)',
+    '--map-marker-name-stroke': 'var(--mn-paper)',
+    '--map-exit-label-stroke': 'var(--mn-paper)',
+    '--marker-protagonist': 'var(--mn-honey)',
+    '--marker-protagonist-text': 'var(--mn-honey-ink)',
+    '--marker-ally': 'var(--mn-matcha)',
+    '--marker-npc': 'var(--mn-sakura)',
+    '--marker-enemy': 'var(--ub-danger)',
+    '--map-status-ready': 'var(--mn-matcha-ink)',
+    '--map-status-loading': 'var(--mn-honey-ink)',
+    '--map-status-pending': 'var(--mn-honey-ink)',
+    '--map-status-error': 'var(--ub-danger)',
+    '--map-status-ready-bg': 'var(--mn-matcha-soft)',
+    '--map-status-pending-bg': 'var(--mn-honey-soft)',
   },
   sweet: {
     '--map-bg': '#fff0f6',

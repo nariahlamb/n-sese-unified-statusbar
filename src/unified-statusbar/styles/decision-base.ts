@@ -86,52 +86,29 @@ export const decisionBaseCSS = /* css */ `
 .ub-decision-overlay.dark .ub-decision-theme-flirtatious .cycle-form-btn:hover{background:rgba(255,123,208,.1);}
 .ub-decision-overlay.dark .ub-decision-theme-flirtatious .cycle-form-btn.cycle-form-single{background:#ff7bd0;border-color:#ff7bd0;color:#1a0022;}
 
-/* ===== 决策弹窗 · minimal 萦绕（极简） ===== */
-.ub-decision-theme-minimal{background:#f4f4f4;color:#222;border:1px solid #d6d6d6;border-radius:2px;}
-.ub-decision-theme-minimal .ub-decision-head{border-bottom-color:#d0d0d0;}
-.ub-decision-theme-minimal .ub-decision-title{color:#333;letter-spacing:3px;font-weight:600;}
-.ub-decision-theme-minimal .ub-decision-close{color:#888;}
-.ub-decision-theme-minimal .ub-decision-close:hover{background:rgba(0,0,0,.05);}
-.ub-decision-theme-minimal .ww-decision-block{color:#333;letter-spacing:3px;}
-.ub-decision-theme-minimal .ww-decision-row{border-bottom:1px dashed #ccc;}
-.ub-decision-theme-minimal .ww-decision-tag{background:#e8e8e8;color:#444;border-radius:3px;}
-.ub-decision-theme-minimal .ww-decision-tag.ww-tag-heard{background:#e8e8e8;color:#444;}
-.ub-decision-theme-minimal .ww-decision-tag.ww-tag-known{background:#222;color:#fff;}
-.ub-decision-theme-minimal .ww-decision-desc{color:#888;}
-.ub-decision-theme-minimal .ww-decision-btn{border-radius:2px;background:transparent;border-color:#c8c8c8;color:#555;}
-.ub-decision-theme-minimal .ww-decision-btn:hover{background:#eee;}
-.ub-decision-theme-minimal .ww-decision-fill,.ub-decision-theme-minimal .ww-decision-ack{background:#222;border-color:#222;color:#fff;}
-.ub-decision-theme-minimal .ww-decision-fill:hover,.ub-decision-theme-minimal .ww-decision-ack:hover{background:#111;}
-.ub-decision-theme-minimal .map-location-candidate{background:#fff;border-color:#d8d8d8;border-radius:4px;}
-.ub-decision-theme-minimal .map-location-candidate:hover{border-color:#999;}
-.ub-decision-theme-minimal .map-location-actions button{background:#fff;border-color:#ccc;color:#333;}
-.ub-decision-theme-minimal .cycle-form-btn{background:#fff;border-color:#d8d8d8;color:#333;}
-.ub-decision-theme-minimal .cycle-form-btn:hover{background:#f1f1f1;border-color:#999;}
-.ub-decision-theme-minimal .cycle-form-btn.cycle-form-single{background:#222;border-color:#222;color:#fff;}
-.ub-decision-theme-minimal .cycle-form-btn.cycle-form-single:hover{background:#111;}
-.ub-decision-theme-minimal .ub-decision-error{background:rgba(34,34,34,.08);color:#a33;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal{background:#161616;color:#ccc;border-color:#3a3a3a;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ub-decision-head{border-bottom-color:#2a2a2a;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ub-decision-title{color:#eee;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ub-decision-close{color:#999;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ub-decision-close:hover{background:rgba(255,255,255,.07);}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-block{color:#ddd;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-row{border-bottom-color:#2a2a2a;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-tag{background:#2a2a2a;color:#aaa;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-tag.ww-tag-heard{background:#3a3a3a;color:#ccc;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-tag.ww-tag-known{background:#eee;color:#111;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-desc{color:#999;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-btn{background:transparent;border-color:#666;color:#aaa;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-btn:hover{background:#222;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-fill,.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-ack{background:#eee;border-color:#eee;color:#111;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-fill:hover,.ub-decision-overlay.dark .ub-decision-theme-minimal .ww-decision-ack:hover{background:#fff;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .map-location-candidate{background:#1a1a1a;border-color:#2a2a2a;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .map-location-candidate:hover{border-color:#666;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .map-location-actions button{background:transparent;border-color:#3a3a3a;color:#ccc;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .cycle-form-btn{background:#1a1a1a;border-color:#3a3a3a;color:#ccc;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .cycle-form-btn:hover{background:#222;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .cycle-form-btn.cycle-form-single{background:#eee;border-color:#eee;color:#111;}
-.ub-decision-overlay.dark .ub-decision-theme-minimal .cycle-form-btn.cycle-form-single:hover{background:#fff;}
+/* ===== 决策弹窗 · minimal 奶油手账 ===== */
+.ub-decision-theme-minimal{background:var(--mn-paper);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);font-family:var(--mn-font-body);}
+.ub-decision-theme-minimal .ub-decision-head{padding:10px 12px;border-bottom:1.5px dashed var(--border-color);}
+.ub-decision-theme-minimal .ub-decision-title{color:var(--mn-sakura-ink);font-family:var(--mn-font-hand);letter-spacing:.5px;font-weight:600;}
+.ub-decision-theme-minimal .ub-decision-close{color:var(--secondary-text);border-radius:var(--mn-radius-sm);}
+.ub-decision-theme-minimal .ub-decision-close:hover{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+.ub-decision-theme-minimal .ww-decision-block{color:var(--text-color);letter-spacing:.5px;}
+.ub-decision-theme-minimal .ww-decision-row{border-bottom:1.5px dashed var(--tag-border);}
+.ub-decision-theme-minimal .ww-decision-tag{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);border-radius:12px;}
+.ub-decision-theme-minimal .ww-decision-tag.ww-tag-heard{background:var(--mn-honey-soft);color:var(--mn-honey-ink);}
+.ub-decision-theme-minimal .ww-decision-tag.ww-tag-known{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink);}
+.ub-decision-theme-minimal .ww-decision-desc{color:var(--secondary-text);}
+.ub-decision-theme-minimal .ww-decision-btn{border-radius:var(--ub-btn-radius);background:var(--mn-card);border:1.5px solid var(--border-color);color:var(--text-color);}
+.ub-decision-theme-minimal .ww-decision-btn:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);color:var(--mn-sakura-ink);}
+.ub-decision-theme-minimal .ww-decision-fill,.ub-decision-theme-minimal .ww-decision-ack{background:var(--mn-sakura);border-color:var(--mn-sakura);color:var(--accent-ink);}
+.ub-decision-theme-minimal .ww-decision-fill:hover,.ub-decision-theme-minimal .ww-decision-ack:hover{background:var(--btn-hover-bg);color:var(--btn-hover-text);}
+.ub-decision-theme-minimal .map-location-candidate{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.ub-decision-theme-minimal .map-location-candidate:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
+.ub-decision-theme-minimal .map-location-actions button,.ub-decision-theme-minimal .cycle-form-btn{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--ub-btn-radius);color:var(--text-color);}
+.ub-decision-theme-minimal .cycle-form-btn:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);}
+.ub-decision-theme-minimal .cycle-form-btn.cycle-form-single{background:var(--mn-sakura);border-color:var(--mn-sakura);color:var(--accent-ink);}
+.ub-decision-theme-minimal .cycle-form-btn.cycle-form-single:hover{background:var(--btn-hover-bg);color:var(--btn-hover-text);}
+.ub-decision-theme-minimal .ub-decision-error{background:var(--mn-sakura-soft);color:var(--ub-danger);border-radius:var(--mn-radius-sm);}
 
 /* ===== 决策弹窗 · sweet 甜恋糖果 ===== */
 .ub-decision-theme-sweet{background:#fff0f6;color:#7a3b54;border:1px solid #f2a8c4;border-radius:14px;box-shadow:0 4px 14px rgba(231,84,143,.22);}

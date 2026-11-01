@@ -50,7 +50,7 @@ type DirectoryFilter = 'all' | 'romance' | 'important';
 type HubPage = 'profile' | 'relationship' | 'personality' | 'intimacy' | 'milestone';
 
 function titleForStyle(style: StyleType): string {
-  if (style === 'minimal') return 'CHARACTER ARCHIVE';
+  if (style === 'minimal') return '人物手账';
   if (style === 'ancient') return '人物谱';
   if (style === 'xianxia') return '仙缘簿';
   if (style === 'bridge') return '人物档案';
@@ -58,7 +58,7 @@ function titleForStyle(style: StyleType): string {
 }
 
 function leadMoreLabel(style: StyleType): string {
-  if (style === 'minimal') return 'VIEW PROFILE →';
+  if (style === 'minimal') return '翻开档案 →';
   if (style === 'ancient' || style === 'xianxia') return '查阅其人 →';
   if (style === 'bridge') return '查看档案 →';
   return '查看档案 →';
@@ -99,7 +99,7 @@ function charDot(name: string): string {
 }
 
 function chronicleBannerTitle(style: StyleType): string {
-  if (style === 'minimal') return 'CHRONICLE';
+  if (style === 'minimal') return '岁月手记';
   if (style === 'bridge') return '故事手记';
   if (style === 'ancient') return '众人编年';
   if (style === 'xianxia') return '岁月共历';
@@ -113,7 +113,7 @@ function chronicleStatsLabel(data: StoryChronicle): string {
 
 function chronicleHeroLabel(data: StoryChronicle, style: StyleType): string {
   if (style === 'bridge') return `手记 · ${data.characterCount} 人${data.spanDays > 0 ? ` · 第 1—${data.spanDays + 1} 天` : ''}`;
-  if (style === 'minimal') return `ENTRIES · ${data.characterCount} PEOPLE${data.spanDays > 0 ? ` · ${data.spanDays} DAYS` : ''}`;
+  if (style === 'minimal') return `手记 · ${data.characterCount} 人${data.spanDays > 0 ? ` · 历 ${data.spanDays} 天` : ''}`;
   return chronicleStatsLabel(data);
 }
 
@@ -154,7 +154,7 @@ function milestoneHeroHtml(record: CharacterHubRecord, style: StyleType): string
   const label = (() => {
     switch (style) {
       case 'bridge': return days > 0 ? `条手记 · 历 ${days} 天` : '条手记';
-      case 'minimal': return days > 0 ? `ENTRIES · ${days} DAYS` : 'ENTRIES';
+      case 'minimal': return days > 0 ? `条手记 · 历 ${days} 天` : '条手记';
       case 'ancient': return days > 0 ? `枚人生印记 · 历 ${days} 天` : '枚人生印记';
       case 'xianxia': return days > 0 ? `枚星标 · 历 ${days} 天` : '枚星标';
       case 'sweet': return days > 0 ? `枚邮戳 · 历 ${days} 天` : '枚邮戳';
@@ -167,7 +167,8 @@ function milestoneHeroHtml(record: CharacterHubRecord, style: StyleType): string
 
 function protagonistLabel(style: StyleType): string {
   if (style === 'bridge') return '主角';
-  if (style === 'minimal' || style === 'flirtatious' || style === 'sweet') return 'PROTAGONIST · 主角';
+  if (style === 'minimal') return '主角';
+  if (style === 'flirtatious' || style === 'sweet') return 'PROTAGONIST · 主角';
   return '主角';
 }
 
@@ -319,7 +320,7 @@ function profilePage(record: CharacterHubRecord): string {
 }
 
 function relationGraphTitle(style: StyleType): string {
-  if (style === 'minimal') return 'RELATION WEB';
+  if (style === 'minimal') return '缘分小网';
   if (style === 'bridge') return '关系图';
   if (style === 'ancient') return '关系图谱';
   if (style === 'xianxia') return '因缘之网';
@@ -443,7 +444,7 @@ function milestonePage(record: CharacterHubRecord, style: StyleType): string {
       : `<button class="char-hub-ms-node" type="button" data-char-hub-milestone="${escapeHtmlAttr(entry.dateKey)}" aria-label="回看 ${escapeHtmlAttr(record.name)} 的当日剧情回顾"><span>${escapeHtml(milestoneNodeLabel(entry, style, index))}</span></button>`;
     const p = entry.dateParts;
     const dateHtml = p
-      ? `<time class="char-hub-ms-date">${escapeHtml(formatMilestoneDate(entry, style))}${style === 'minimal' ? `<small>${EN_MONTH[Number(p.m) - 1]} ${Number(p.d)}</small>` : style === 'bridge' ? `<small>手记 ${String(index + 1).padStart(2, '0')}</small>` : ''}</time>`
+      ? `<time class="char-hub-ms-date">${escapeHtml(formatMilestoneDate(entry, style))}${style === 'minimal' ? `<small>${Number(p.m)}月${Number(p.d)}日</small>` : style === 'bridge' ? `<small>手记 ${String(index + 1).padStart(2, '0')}</small>` : ''}</time>`
       : '';
     let desc: string;
     if (entry.raw) {

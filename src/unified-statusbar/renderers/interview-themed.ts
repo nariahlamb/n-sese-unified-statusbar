@@ -53,7 +53,7 @@ function archiveHtml(data: InterviewData, primaryInterviewee: string, style: Sty
     : style === 'flirtatious'
       ? '<i class="itv-rec">● REC</i><i class="itv-scanline"></i><i class="itv-cursor">_</i>'
       : style === 'minimal'
-        ? '<i class="itv-classified">CLASSIFIED</i><i class="itv-barcode">|||| ||| || |||||</i>'
+        ? '<i class="itv-classified">悄悄记</i><i class="itv-barcode">采访手账</i>'
         : style === 'sweet'
           ? '<i class="itv-ribbon">SECRET</i><i class="itv-wax">♥</i><i class="itv-lace"></i>'
           : style === 'bridge'
@@ -65,7 +65,7 @@ function archiveHtml(data: InterviewData, primaryInterviewee: string, style: Sty
   return `<div class="itv-overlay itv-theme-${style}${style === 'bridge' ? ' bridge-window bridge-module-interview' : ''}">
     ${decorations}
     <header class="itv-cover">
-      <span class="itv-kicker">${style === 'bridge' ? '采访记录' : style === 'flirtatious' ? 'ON AIR / LIVE INTERVIEW' : style === 'minimal' ? 'CASE FILE / EYES ONLY' : style === 'sweet' ? 'PRIVATE LOVE LETTER' : style === 'xianxia' ? '天机玉简 · 问心实录' : style === 'ios' ? '采访实录 · VOICE MEMO' : '秘卷 · 艳史采风'}</span>
+      <span class="itv-kicker">${style === 'bridge' ? '采访记录' : style === 'flirtatious' ? 'ON AIR / LIVE INTERVIEW' : style === 'minimal' ? '今日访谈 · 私藏手记' : style === 'sweet' ? 'PRIVATE LOVE LETTER' : style === 'xianxia' ? '天机玉简 · 问心实录' : style === 'ios' ? '采访实录 · VOICE MEMO' : '秘卷 · 艳史采风'}</span>
       <h2>${esc(data.title || '采访实录')}</h2>
       <div class="itv-subtitle">${esc(data.subtitle || '未编号')}</div>
       <p>${lines(data.scene || '现场记录')}</p>
@@ -106,12 +106,26 @@ const FLIRTATIOUS_CSS = `
 `;
 
 const MINIMAL_CSS = `
-.itv-theme-minimal{--itv-bg:#f2f1ed;--itv-card:#fff;--itv-text:#171717;--itv-muted:#666;--itv-line:#bbb;--itv-q:#b22038;--itv-a:#9a751f;font-family:"Courier New",monospace}.itv-theme-minimal .itv-cover{text-align:left;border-bottom:4px solid #171717}.itv-theme-minimal .itv-cover h2{font-size:25px;letter-spacing:1px}.itv-theme-minimal .itv-classified{right:22px;top:27px;padding:4px 9px;border:3px solid #b22038;color:#b22038;font:700 13px "Courier New";letter-spacing:2px;transform:rotate(5deg)}.itv-theme-minimal .itv-barcode{right:23px;bottom:18px;color:#171717;font:16px/1 "Courier New";letter-spacing:-2px}.itv-theme-minimal .itv-bubble,.itv-theme-minimal .itv-person{border-radius:0;box-shadow:none}.itv-theme-minimal .itv-redactable{transition:color .2s,background .2s}.itv-theme-minimal .itv-redactable:not(:hover){color:transparent;background:#171717;text-shadow:none}.itv-theme-minimal .itv-redactable:not(:hover)::after{content:"HOVER TO DECLASSIFY";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#ddd;font-size:8px;letter-spacing:1px}.itv-theme-minimal .itv-epilogue{border-left:6px solid #171717}.panel-overlay.dark .itv-theme-minimal,body.dark-mode .itv-theme-minimal{--itv-bg:#111;--itv-card:#1b1b1b;--itv-text:#e5e5e5;--itv-muted:#999;--itv-line:#3d3d3d;--itv-q:#d34258;--itv-a:#d0aa43}.panel-overlay.dark .itv-theme-minimal .itv-cover,body.dark-mode .itv-theme-minimal .itv-cover{border-bottom-color:#e5e5e5}
-/* 深色：#171717 条形码/遮蔽条/epilogue 边框在 #111 底上不可见，翻为浅色（H8） */
-.panel-overlay.dark .itv-theme-minimal .itv-barcode,body.dark-mode .itv-theme-minimal .itv-barcode{color:#e5e5e5}
-.panel-overlay.dark .itv-theme-minimal .itv-redactable:not(:hover),body.dark-mode .itv-theme-minimal .itv-redactable:not(:hover){background:#e5e5e5}
-.panel-overlay.dark .itv-theme-minimal .itv-redactable:not(:hover)::after,body.dark-mode .itv-theme-minimal .itv-redactable:not(:hover)::after{color:#333}
-.panel-overlay.dark .itv-theme-minimal .itv-epilogue,body.dark-mode .itv-theme-minimal .itv-epilogue{border-left-color:#e5e5e5}
+.itv-theme-minimal,.panel-overlay.dark .itv-theme-minimal,.panel-overlay.dark-mode .itv-theme-minimal,body.dark-mode .itv-theme-minimal{--itv-bg:var(--mn-paper);--itv-card:var(--mn-card);--itv-text:var(--text-color);--itv-muted:var(--secondary-text);--itv-line:var(--border-color);--itv-q:var(--mn-matcha-ink);--itv-a:var(--mn-sakura-ink)}
+.itv-theme-minimal{font-family:var(--mn-font-body);border-radius:var(--mn-radius-lg);background-image:linear-gradient(var(--mn-grid) 1px,transparent 1px),linear-gradient(90deg,var(--mn-grid) 1px,transparent 1px);background-size:20px 20px}
+.itv-theme-minimal .itv-cover{text-align:left;border-bottom:1.5px dashed var(--border-color);padding:12px}
+.itv-theme-minimal .itv-cover h2{font:700 25px var(--mn-font-hand);letter-spacing:.5px;padding-right:64px}
+.itv-theme-minimal .itv-kicker,.itv-theme-minimal .itv-subtitle,.itv-theme-minimal .itv-roster-label,.itv-theme-minimal .itv-block-label,.itv-theme-minimal .itv-epilogue-label{letter-spacing:.5px;text-transform:none}
+.itv-theme-minimal .itv-classified{right:12px;top:34px;padding:4px 9px;border:1.5px dashed var(--mn-sakura);border-radius:var(--mn-radius-sm);background:var(--mn-tape);color:var(--mn-sakura-ink);font:700 13px var(--mn-font-hand);letter-spacing:.5px;transform:rotate(5deg)}
+.itv-theme-minimal .itv-barcode{right:12px;top:12px;color:var(--secondary-text);font:12px/1 var(--mn-font-hand);letter-spacing:.5px}
+.itv-theme-minimal .itv-roster{padding:12px;border-bottom:1.5px dashed var(--border-color);gap:10px}
+.itv-theme-minimal .itv-transcript{padding:12px}
+.itv-theme-minimal .itv-turn{margin:12px 0;gap:10px}
+.itv-theme-minimal .itv-bubble,.itv-theme-minimal .itv-right .itv-bubble,.itv-theme-minimal .itv-person{border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft)}
+.itv-theme-minimal .itv-person{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink)}
+.itv-theme-minimal .itv-emotion{background:var(--mn-honey-soft);color:var(--mn-honey-ink);border-radius:12px}
+.itv-theme-minimal .itv-redactable{transition:color .2s,background .2s}
+.itv-theme-minimal .itv-redactable:not(:hover){color:transparent;background:var(--mn-sakura-soft);text-shadow:none}
+.itv-theme-minimal .itv-redactable:not(:hover)::after{content:"轻触读悄悄话";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mn-sakura-ink);font-size:11px;letter-spacing:.5px}
+.itv-theme-minimal .itv-narration,.itv-theme-minimal .itv-scene{margin:12px 0;padding:10px 12px;border-radius:var(--mn-radius);border-color:var(--border-color);border-top-style:dashed;border-bottom-style:dashed;background:var(--mn-card)}
+.itv-theme-minimal .itv-sound{margin:12px 0}
+.itv-theme-minimal .itv-epilogue{margin:0 12px 12px;padding:12px;border:1.5px dashed var(--border-color);border-radius:var(--mn-radius);background:var(--mn-note);font-family:var(--mn-font-hand);box-shadow:var(--mn-shadow-soft)}
+@media(max-width:600px){.itv-theme-minimal .itv-cover h2{font-size:22px}.itv-theme-minimal .itv-cover p{margin-top:10px}.itv-theme-minimal .itv-epilogue{padding-bottom:12px}}
 `;
 
 const SWEET_CSS = `

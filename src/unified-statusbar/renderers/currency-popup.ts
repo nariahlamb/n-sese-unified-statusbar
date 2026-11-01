@@ -32,7 +32,7 @@ const THEME_COPY: Record<StyleType, { title: string; sub: string; empty: string 
   xianxia: { title: '灵钱袋', sub: '灵钱账目', empty: '身无灵石' },
   sweet: { title: '小金库', sub: '收支记录', empty: '小金库还是空的' },
   flirtatious: { title: '小金库', sub: '收支记录', empty: '小金库还是空的' },
-  minimal: { title: 'WALLET', sub: 'LEDGER', empty: 'NO CURRENCY' },
+  minimal: { title: '零钱手账', sub: '收支记录', empty: '还没有记下币种' },
   bridge: { title: '钱包', sub: '收支记录', empty: '暂无币种' },
 };
 

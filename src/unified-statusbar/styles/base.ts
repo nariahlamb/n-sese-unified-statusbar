@@ -163,9 +163,9 @@ export const baseCSS = /* css */ `
 	.iv-top-bar-flirtatious{background:linear-gradient(180deg,#f5f0fa,#ede0f5);border-bottom:2px solid #c06080;color:#4a2040}
 	.iv-top-bar-flirtatious .iv-top-btn{border-color:rgba(192,96,128,0.3);color:#a04060}
 	.iv-top-bar-flirtatious .iv-top-btn:hover{background:rgba(192,96,128,0.08);border-color:#c06080}
-.iv-top-bar-minimal{background:var(--bg-color,#f8f6f0);border-bottom:1px solid var(--border-color,#e0e0e0);color:var(--text-color,#1a1a1a)}
-.iv-top-bar-minimal .iv-top-btn{border-color:var(--border-color,#ddd);color:var(--text-color,#1a1a1a)}
-.iv-top-bar-minimal .iv-top-btn:hover{background:rgba(0,0,0,0.04)}
+.iv-top-bar-minimal{background:var(--mn-card);border-bottom:1.5px dashed var(--border-color);color:var(--text-color);font-family:var(--mn-font-body)}
+.iv-top-bar-minimal .iv-top-btn{border-color:var(--border-color);color:var(--text-color);border-radius:var(--ub-btn-radius)}
+.iv-top-bar-minimal .iv-top-btn:hover{background:var(--mn-sakura-soft);border-color:var(--mn-sakura);color:var(--mn-sakura-ink)}
 .iv-top-bar-sweet{background:linear-gradient(180deg,#ffe8f0,#ffdae4);border-bottom:2px solid #ff8fab;color:#6b3a4a}
 .iv-top-bar-sweet .iv-top-btn{border-color:rgba(255,143,171,0.4);color:#c04060;border-radius:4px}
 .iv-top-bar-sweet .iv-top-btn:hover{background:rgba(255,143,171,0.08);border-color:#e8557a}
@@ -219,11 +219,14 @@ export const baseCSS = /* css */ `
 	.iv-hist-flirtatious .iv-hist-time{color:#8a6a80}
 	.iv-hist-flirtatious .iv-hist-item.active .iv-hist-time{color:#a04060}
 	.iv-hist-flirtatious .iv-hist-del:hover{color:#c06080}
-/* 萦绕 */
-.iv-hist-minimal{background:var(--bg-color,#f8f6f0);border-right:1px solid var(--border-color,#e0e0e0)}
-.iv-hist-minimal .iv-hist-topbar{border-bottom-color:var(--border-color,#e0e0e0)}
-.iv-hist-minimal .iv-hist-title{color:var(--secondary-text,#888)}
-.iv-hist-minimal .iv-hist-item.active{background:rgba(0,0,0,0.06)}
+/* 奶油手账 */
+.iv-hist-minimal{background:var(--mn-paper);border-right:1.5px dashed var(--border-color);font-family:var(--mn-font-body)}
+.iv-hist-minimal .iv-hist-topbar{border-bottom:1.5px dashed var(--border-color)}
+.iv-hist-minimal .iv-hist-title{color:var(--secondary-text);font-family:var(--mn-font-hand)}
+.iv-hist-minimal .iv-hist-item{border-radius:var(--mn-radius-sm);color:var(--text-color)}
+.iv-hist-minimal .iv-hist-item:hover{background:var(--mn-sakura-soft)}
+.iv-hist-minimal .iv-hist-item.active{background:var(--mn-sakura);color:var(--accent-ink)}
+.iv-hist-minimal .iv-hist-item.active .iv-hist-time{color:var(--accent-ink)}
 /* 甜恋 */
 .iv-hist-sweet{background:linear-gradient(180deg,#fff5f7,#ffe8f0);border-right:2px solid #ffd0dc}
 .iv-hist-sweet .iv-hist-topbar{border-bottom-color:rgba(255,143,171,0.2)}
@@ -488,11 +491,11 @@ export const baseCSS = /* css */ `
 /* 瑟瑟：霓虹粉 */
 .ub-hl-flirtatious{--ub-hl-color:rgba(255,106,158,0.25)}
 .ub-hl-flirtatious::after{background:rgba(255,106,158,0.04)}
-/* 萦绕：黑色 */
-.ub-hl-minimal{--ub-hl-color:rgba(0,0,0,0.12)}
-.ub-hl-minimal::after{background:rgba(0,0,0,0.03)}
-.dark .ub-hl-minimal,.dark-mode .ub-hl-minimal{--ub-hl-color:rgba(255,255,255,0.24)}
-.dark .ub-hl-minimal::after,.dark-mode .ub-hl-minimal::after{background:rgba(255,255,255,0.06)}
+/* 奶油手账：樱粉 */
+.ub-hl-minimal{--ub-hl-color:var(--mn-tape)}
+.ub-hl-minimal::after{background:var(--mn-sakura-soft)}
+.dark .ub-hl-minimal,.dark-mode .ub-hl-minimal{--ub-hl-color:var(--mn-tape)}
+.dark .ub-hl-minimal::after,.dark-mode .ub-hl-minimal::after{background:var(--mn-sakura-soft)}
 /* 甜恋：糖果粉 */
 .ub-hl-sweet{--ub-hl-color:rgba(255,107,138,0.2)}
 .ub-hl-sweet::after{background:rgba(255,107,138,0.04)}
@@ -506,8 +509,8 @@ export const baseCSS = /* css */ `
 .ub-badge-ancient{background:#b5362e;color:#f5e6d0;font-family:"Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","SimSun","NSimSun",serif;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.35);}
 /* 瑟瑟：霓虹光点 — 融合暗底粉紫按钮 */
 .ub-badge-flirtatious{background:linear-gradient(135deg,#ff4d80,#c03070);color:#fff;border-radius:8px;box-shadow:0 0 6px rgba(255,77,128,0.5);}
-/* 萦绕：数字圈 — 跟随文字色 */
-.ub-badge-minimal{background:var(--bg-color,#fff);color:var(--text-color,#111);border:1.5px solid var(--text-color,#111);border-radius:50%;min-width:17px;height:17px;padding:0;font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;box-shadow:0 0 0 2px var(--bg-color,#fff)}
+/* 奶油手账：数字贴纸 */
+.ub-badge-minimal{background:var(--mn-honey-soft);color:var(--mn-honey-ink);border:1.5px solid var(--border-color);border-radius:12px;min-width:17px;height:17px;padding:0 3px;font-family:var(--mn-font-body);box-shadow:var(--mn-shadow-soft)}
 /* 甜恋：糖果心 — 融合粉白按钮 */
 .ub-badge-sweet{background:linear-gradient(135deg,#ff7b9a,#ff5a80);color:#fff;border-radius:50%;min-width:17px;height:17px;padding:0;box-shadow:0 0 5px rgba(255,107,138,0.35);}
 /* 云海：灵石 — 融合玉色按钮 */
@@ -688,6 +691,8 @@ export const baseCSS = /* css */ `
 .feature-status.off{color:var(--text-muted,#999);background:rgba(128,128,128,.12);}
 .dark .feature-status.on,.dark-mode .feature-status.on{background:#43b581;}
 .dark .feature-status.off,.dark-mode .feature-status.off{background:rgba(255,255,255,.08);}
+.minimal-container .feature-status.on,.settings-overlay.dark-mode .feature-status.on,.dark-mode .feature-status.on{background:var(--mn-matcha-soft);color:var(--mn-matcha-ink);}
+.minimal-container .feature-status.off,.settings-overlay.dark-mode .feature-status.off,.dark-mode .feature-status.off{background:var(--mn-card-2);color:var(--secondary-text);}
 
 /* === API 指示徽标（标注该功能可能涉及额外 LLM 请求） === */
 .api-badge{font-size:11px;line-height:1;flex-shrink:0;cursor:help;}

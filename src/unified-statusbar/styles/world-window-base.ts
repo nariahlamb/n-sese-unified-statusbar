@@ -270,9 +270,9 @@ background:var(--ww-surf);color:var(--ww-ink);border:1px solid #b055d0;}
 /* sweet 甜恋糖果：奶油粉面 · 莓粉特征色 */
 .ww-theme-sweet{--ww-surf:var(--sweet-bg,#fff3f8);--ww-ink:var(--sweet-text,#7a3b54);--ww-mut:var(--sweet-text-soft,#c08ba2);--ww-line:var(--sweet-border,#f2cddc);--ww-acc:#e7548f;--ww-acc-ink:#fff;--ww-acc-strong:#e7548f;--ww-accent-line:#eda0be;--ww-card:var(--sweet-card,#ffffff);--ww-chip:#fadfe9;--ww-chip-ink:#a85070;--ww-hot-bg:#fadfe9;--ww-hot-ink:#c04a68;--ww-warm-bg:#f6ecd4;--ww-warm-ink:#7a6028;--ww-hot-dot:#d84a6e;--ww-veil:rgba(122,59,84,.05);
 background:var(--ww-surf);color:var(--ww-ink);border:1px solid #f2a8c4;}
-/* minimal 萦绕：纯白亮屏 · 墨色特征色 */
-.ww-theme-minimal{--ww-surf:#fafafa;--ww-ink:#333;--ww-mut:#999;--ww-line:#dedede;--ww-acc:#222;--ww-acc-ink:#fff;--ww-acc-strong:#222;--ww-accent-line:#bdbdbd;--ww-card:#fff;--ww-chip:#eee;--ww-chip-ink:#444;--ww-hot-bg:#eee;--ww-hot-ink:#333;--ww-warm-bg:#eee;--ww-warm-ink:#555;--ww-hot-dot:#555;--ww-veil:rgba(0,0,0,.04);
-background:var(--ww-surf);color:var(--ww-ink);border:1px solid #d6d6d6;}
+/* minimal 奶油手账 */
+.ww-theme-minimal{--ww-surf:var(--mn-paper);--ww-ink:var(--text-color);--ww-mut:var(--secondary-text);--ww-line:var(--border-color);--ww-acc:var(--mn-sakura);--ww-acc-ink:var(--accent-ink);--ww-acc-strong:var(--mn-sakura-ink);--ww-accent-line:var(--mn-sakura);--ww-card:var(--mn-card);--ww-chip:var(--mn-matcha-soft);--ww-chip-ink:var(--mn-matcha-ink);--ww-hot-bg:var(--mn-sakura-soft);--ww-hot-ink:var(--mn-sakura-ink);--ww-warm-bg:var(--mn-honey-soft);--ww-warm-ink:var(--mn-honey-ink);--ww-hot-dot:var(--mn-sakura);--ww-veil:var(--mn-card-2);
+background:var(--ww-surf);color:var(--ww-ink);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);font-family:var(--mn-font-body);}
 /* bridge 怪盗手记：纸面与暗红点缀，亮暗两档跟随主题变量 */
 .ww-theme-bridge{--ww-surf:var(--bridge-panel);--ww-ink:var(--bridge-text);--ww-mut:var(--bridge-muted);--ww-line:var(--bridge-line);--ww-acc:var(--bridge-signal);--ww-acc-ink:var(--bridge-signal-contrast);--ww-acc-strong:var(--bridge-signal);--ww-accent-line:var(--bridge-line-strong);--ww-card:var(--bridge-panel-alt);--ww-chip:var(--bridge-screen);--ww-chip-ink:var(--bridge-screen-text);--ww-hot-bg:var(--bridge-signal-soft);--ww-hot-ink:var(--bridge-signal);--ww-warm-bg:var(--bridge-alert-soft);--ww-warm-ink:var(--bridge-alert);--ww-hot-dot:var(--bridge-danger);--ww-veil:var(--bridge-shadow-soft);
 background:var(--ww-surf);color:var(--ww-ink);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui);}
@@ -281,10 +281,18 @@ background:var(--ww-surf);color:var(--ww-ink);border:var(--ub-popup-border);bord
 background:var(--ww-surf);color:var(--ww-ink);border:1px solid rgba(60,60,67,.12);font-family:var(--ios-font,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei UI',sans-serif);}
 
 /* 各主题形制差异（非配色，保持原样） */
-.ww-theme-minimal .ww-arrival-card{border-radius:5px;border-left:3px solid var(--ww-acc);}
-.ww-theme-minimal .ww-front-rumor,.ww-theme-minimal .ww-front-rumor-level{border-radius:5px;}
-.ww-theme-minimal .ww-front-title{letter-spacing:4px;}
+.ww-theme-minimal .ww-arrival-card,.ww-theme-minimal .ww-front-rumor,.ww-theme-minimal .ww-vault-card,.ww-theme-minimal .ww-rumor-card,.ww-theme-minimal .ww-intrusion,.ww-theme-minimal .ww-arc-card{border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.ww-theme-minimal .ww-arrival-card{border-left:3px solid var(--mn-sakura);}
+.ww-theme-minimal .ww-front-rumor-level,.ww-theme-minimal .ww-arrival-badge,.ww-theme-minimal .ww-notknown,.ww-theme-minimal .ww-onstage,.ww-theme-minimal .ww-offstage,.ww-theme-minimal .ww-rumor-level,.ww-theme-minimal .ww-count,.ww-theme-minimal .ww-triggered{border-radius:12px;}
+.ww-theme-minimal .ww-front-title{letter-spacing:.5px;font-family:var(--mn-font-hand);color:var(--mn-sakura-ink);}
+.ww-theme-minimal .ww-front-date,.ww-theme-minimal .ww-front-sec-title,.ww-theme-minimal .ww-back-head,.ww-theme-minimal .ww-back-block-title{letter-spacing:.5px;}
+.ww-theme-minimal .ww-front-sec-title{border-bottom:1.5px dashed var(--border-color);}
 .ww-theme-minimal .ww-front-rumor-top{font-weight:500;}
+.ww-theme-minimal .ww-tab-btn{border-radius:var(--ub-btn-radius);}
+.ww-theme-minimal .ww-tab-btn:hover:not(.is-active){background:var(--mn-sakura-soft);border-color:var(--mn-sakura);color:var(--mn-sakura-ink);}
+.ww-theme-minimal .ww-thread-bar{border-radius:var(--mn-radius-sm);background:var(--mn-card-2);}
+.ww-theme-minimal .ww-thread-bar span{border-radius:var(--mn-radius-sm);background:var(--mn-sakura);}
+.ww-theme-minimal .ww-rumor-meter-num{color:var(--mn-honey-ink);}
 .ww-theme-sweet .ww-arrival-card,.ww-theme-sweet .ww-front-rumor{border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
 .ww-theme-bridge .ww-tab-btn,.ww-theme-bridge .ww-arrival-badge,.ww-theme-bridge .ww-arrival-card,.ww-theme-bridge .ww-front-rumor,.ww-theme-bridge .ww-vault-card,.ww-theme-bridge .ww-rumor-card,.ww-theme-bridge .ww-intrusion,.ww-theme-bridge .ww-notknown,.ww-theme-bridge .ww-onstage,.ww-theme-bridge .ww-offstage,.ww-theme-bridge .ww-rumor-level,.ww-theme-bridge .ww-triggered,.ww-theme-bridge .ww-chron-kind,.ww-theme-bridge .ww-intrusion-fill,.ww-theme-bridge .ww-intrusion-delete,.ww-theme-bridge .ww-arc-card,.ww-theme-bridge .ww-arc-tag,.ww-theme-bridge .ww-arc-kind,.ww-theme-bridge .ww-arc-tool,.ww-theme-bridge .ww-arc-lv,.ww-theme-bridge .ww-arc-chip,.ww-theme-bridge .ww-arc-side-lab,.ww-theme-bridge .ww-arc-dim-lab,.ww-theme-bridge .ww-excluded-row,.ww-theme-bridge .ww-excluded-restore{border-radius:4px;}
 .ww-theme-bridge .ww-arrival-badge{background:var(--ww-chip);color:var(--ww-chip-ink);border:1px solid var(--ww-acc);}
@@ -310,8 +318,8 @@ background:var(--ww-surf);border-color:#1e4a58;}
 .dark .ww-theme-flirtatious{--ww-surf:#180822;--ww-veil:rgba(0,0,0,.18);border-color:#4a2a52;}
 .dark .ww-theme-sweet{--ww-surf:var(--sweet-bg,#241018);--ww-ink:var(--sweet-text,#e8c0cc);--ww-mut:var(--sweet-text-soft,#a88090);--ww-line:var(--sweet-border,#4a2a3a);--ww-acc:#ff7da6;--ww-acc-ink:#fff;--ww-acc-strong:#ffb0c8;--ww-accent-line:#5a3244;--ww-card:var(--sweet-card,#2c161e);--ww-chip:#3a1a28;--ww-chip-ink:#ff9db8;--ww-hot-bg:#40202c;--ww-hot-ink:#ff90a8;--ww-warm-bg:#3a3018;--ww-warm-ink:#ffd8a8;--ww-veil:rgba(0,0,0,.16);
 background:var(--ww-surf);border-color:#5a3a4a;}
-.dark .ww-theme-minimal{--ww-surf:#161616;--ww-ink:#ccc;--ww-mut:#888;--ww-line:#2e2e2e;--ww-acc:#eee;--ww-acc-ink:#161616;--ww-acc-strong:#eee;--ww-accent-line:#3a3a3a;--ww-card:#1c1c1c;--ww-chip:#262626;--ww-chip-ink:#aaa;--ww-hot-bg:#262626;--ww-hot-ink:#ddd;--ww-warm-bg:#262626;--ww-warm-ink:#bbb;
-background:var(--ww-surf);border-color:#3a3a3a;}
+.dark .ww-theme-minimal{--ww-surf:var(--mn-paper);--ww-ink:var(--text-color);--ww-mut:var(--secondary-text);--ww-line:var(--border-color);--ww-acc:var(--mn-sakura);--ww-acc-ink:var(--accent-ink);--ww-acc-strong:var(--mn-sakura-ink);--ww-accent-line:var(--mn-sakura);--ww-card:var(--mn-card);--ww-chip:var(--mn-matcha-soft);--ww-chip-ink:var(--mn-matcha-ink);--ww-hot-bg:var(--mn-sakura-soft);--ww-hot-ink:var(--mn-sakura-ink);--ww-warm-bg:var(--mn-honey-soft);--ww-warm-ink:var(--mn-honey-ink);
+background:var(--ww-surf);border-color:var(--border-color);}
 .dark .ww-theme-ios{--ww-surf:#1c1c1e;--ww-ink:#f2f2f7;--ww-mut:rgba(235,235,245,.62);--ww-line:rgba(235,235,245,.12);--ww-acc:#0a84ff;--ww-acc-ink:#fff;--ww-acc-strong:#64d2ff;--ww-accent-line:rgba(10,132,255,.4);--ww-card:#2c2c2e;--ww-chip:rgba(120,120,128,.28);--ww-chip-ink:rgba(235,235,245,.85);--ww-hot-bg:rgba(255,69,58,.14);--ww-hot-ink:#ff9a8a;--ww-warm-bg:rgba(255,159,10,.16);--ww-warm-ink:#ffd60a;--ww-hot-dot:#ff453a;--ww-veil:rgba(0,0,0,.2);
 background:var(--ww-surf);border-color:rgba(235,235,245,.12);}
 /* ios 形制：胶囊页签 + 圆角卡 */

@@ -21,7 +21,12 @@ export const WARDROBE_BASE_CSS = `
 }
 .wardrobe-theme-ancient{--wr-accent:#9a633b;--wr-bg:#fbf4e8;--wr-panel:#fffaf1;--wr-line:#d8c2a4}
 .wardrobe-theme-flirtatious{--wr-accent:#b34f72;--wr-bg:#fff3f6;--wr-panel:#fffafd;--wr-line:#e7b9c8}
-.wardrobe-theme-minimal{--wr-accent:#222;--wr-bg:#f4f4f2;--wr-panel:#fff;--wr-line:#c8c8c4;border-radius:2px}
+.wardrobe-theme-minimal{--wr-accent:var(--mn-sakura);--wr-accent-soft:var(--mn-sakura-soft);--wr-soft:var(--mn-honey-soft);--wr-bg:var(--mn-paper);--wr-panel:var(--mn-card);--wr-text:var(--text-color);--wr-muted:var(--secondary-text);--wr-line:var(--border-color);border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);font-family:var(--mn-font-body)}
+.wardrobe-theme-minimal .wardrobe-title{font-family:var(--mn-font-hand)}
+.wardrobe-theme-minimal .wardrobe-card{border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft)}
+.wardrobe-theme-minimal .wardrobe-head,.wardrobe-theme-minimal .wardrobe-toolbar,.wardrobe-theme-minimal .wardrobe-current-outfit{border-bottom:1.5px dashed var(--border-color)}
+.wardrobe-theme-minimal .wardrobe-route[aria-selected="true"],.wardrobe-theme-minimal .wardrobe-filter[aria-pressed="true"],.wardrobe-theme-minimal .wardrobe-mobile-step[aria-current="step"]{color:var(--accent-ink)}
+.wardrobe-theme-minimal .wardrobe-btn:hover,.wardrobe-theme-minimal .wardrobe-route:hover,.wardrobe-theme-minimal .wardrobe-filter:hover{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);border-color:var(--mn-sakura)}
 .wardrobe-theme-sweet{--wr-accent:#df7198;--wr-bg:var(--sweet-bg,#fff0f5);--wr-panel:var(--sweet-card,#fffafd);--wr-line:var(--sweet-border,#efbdd0)}
 .wardrobe-theme-xianxia{--wr-accent:#247f76;--wr-bg:#edf5f1;--wr-panel:#f9fcfa;--wr-line:#abcac2}
 .wardrobe-theme-ios{--wr-accent:#007aff;--wr-bg:#f2f2f7;--wr-panel:#ffffff;--wr-line:rgba(60,60,67,.12);--wr-text:#1c1c1e;--wr-muted:rgba(60,60,67,.62);--wr-accent-soft:rgba(0,122,255,.1)}
@@ -43,6 +48,7 @@ body.dark-mode .wardrobe-window{
   --wr-bg:#191817;--wr-panel:#242220;--wr-text:#f1ece7;--wr-muted:#b3aaa1;
   --wr-line:#494541;--wr-accent:#d49a72;--wr-accent-soft:rgba(212,154,114,.14);
 }
+.panel-overlay.dark .wardrobe-theme-minimal,body.dark-mode .wardrobe-theme-minimal,.panel-overlay.dark-mode .wardrobe-theme-minimal{--wr-accent:var(--mn-sakura);--wr-accent-soft:var(--mn-sakura-soft);--wr-bg:var(--mn-paper);--wr-panel:var(--mn-card);--wr-text:var(--text-color);--wr-muted:var(--secondary-text);--wr-line:var(--border-color)}
 .wardrobe-head{display:flex;align-items:center;gap:12px;padding:14px 18px 10px;border-bottom:1px solid var(--wr-line)}
 .wardrobe-title{font-size:20px;font-weight:750;white-space:nowrap}
 .wardrobe-routes{display:flex;gap:4px;margin-left:auto}

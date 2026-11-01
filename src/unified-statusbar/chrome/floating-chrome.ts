@@ -165,7 +165,7 @@ export function showOptionsBarPopup(): void {
   switch (style) {
     case 'ancient': headerLabel = '妙计锦囊'; break;
     case 'flirtatious': headerLabel = '心动选项'; break;
-    case 'minimal': headerLabel = 'OPTIONS'; break;
+    case 'minimal': headerLabel = '下一步'; break;
     case 'sweet': headerLabel = '甜蜜选择'; break;
     case 'xianxia': headerLabel = '天机抉择'; break;
     case 'bridge': headerLabel = '下一步'; break;

@@ -33,7 +33,7 @@ const CANVAS_H = 640;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 function titleForStyle(style: StyleType): string {
-  if (style === 'minimal') return 'RELATION WEB';
+  if (style === 'minimal') return '缘分小网';
   if (style === 'bridge') return '关系图';
   if (style === 'ancient') return '关系图谱';
   if (style === 'xianxia') return '因缘之网';

@@ -160,7 +160,7 @@ export function buildWardrobeButton(style: StyleType, config: StatusBarConfig): 
 const WARDROBE_SUMMARY_LABELS: Record<StyleType, string> = {
   ancient: '着装',
   flirtatious: '穿搭',
-  minimal: 'OUTFIT',
+  minimal: '穿搭',
   sweet: '穿搭',
   xianxia: '仙衣',
   bridge: '穿搭',
@@ -600,7 +600,7 @@ export function buildOptionsBar(style: StyleType, opts?: { floating?: boolean })
   switch (style) {
     case 'ancient': headerLabel = '妙计锦囊'; break;
     case 'flirtatious': headerLabel = '心动选项'; break;
-    case 'minimal': headerLabel = 'OPTIONS'; break;
+    case 'minimal': headerLabel = '下一步'; break;
     case 'sweet': headerLabel = '甜蜜选择'; break;
     case 'xianxia': headerLabel = '天机抉择'; break;
     case 'bridge': headerLabel = '下一步'; break;
@@ -954,7 +954,7 @@ export function buildMinimalPresentChars(config: StatusBarConfig): string {
   if (presenceCount <= 0) {
     // #char-selector-buttons 是静态元素，须在此清空，否则人物从有→0 重渲染时旧按钮残留
     if (_minimalSelectorHtml !== '') { $('#char-selector-buttons').html(''); _minimalSelectorHtml = ''; }
-    return '<div class="empty-state">NO ONE AROUND</div>';
+    return '<div class="empty-state">暂无在场角色</div>';
   }
 
   const activeChar = resolveActiveCharacter();
@@ -1041,14 +1041,14 @@ function buildMinimalCharCard(name: string, config: StatusBarConfig): string {
   if (relation) html += charRelationPillHtml(name, relation);
   if (config.investigationEnabled) html += '<button class="investigate-btn ub-lp-hint" id="ac-investigate-btn" data-name="' + escapeAttr(name) + '">大调查</button>';
   if (config.interviewEnabled) html += '<button class="investigate-btn interview-btn" id="ac-interview-btn" data-name="' + escapeAttr(name) + '">采访</button>';
-  html += buildPastExpButton(name, 'PAST');
+  html += buildPastExpButton(name, '过往');
   html += '</div>';
   html += '</div>';
   html += '<div class="note-content">' + escapeHtml(innerThought) + '</div>';
   html += '</div>';
   // 日记预览
   html += '<div class="diary-preview diary-preview-clickable" data-name="' + escapeAttr(name) + '">';
-  html += '<div class="diary-preview-title">Diary</div>';
+  html += '<div class="diary-preview-title">日记</div>';
   if (latestDiary) {
     html += '<div class="diary-preview-content">' + escapeHtml(diaryPlainText(latestDiary.content)) + '</div>';
     if (latestDiary.time) html += '<div class="diary-preview-time">' + escapeHtml(latestDiary.time) + '</div>';

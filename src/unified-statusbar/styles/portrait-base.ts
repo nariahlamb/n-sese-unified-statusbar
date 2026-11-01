@@ -358,6 +358,25 @@ export const PORTRAIT_BASE_CSS = `
 .portrait-fan-tag-hint{font-size:var(--ub-ui-font-11,11px);color:var(--text-muted,#888);line-height:1.45}
 @media(max-width:599px){.portrait-fan-tag-name{flex:0 0 auto}}
 
+.minimal-container .portrait-box{background:var(--mn-card-2);border:1.5px dashed var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow-soft);}
+.minimal-container .portrait-box.has-real-portrait{border-style:solid;border-color:var(--card-border);}
+.minimal-container .portrait-box.portrait-empty::before{color:var(--secondary-text);font-family:var(--mn-font-hand);}
+.minimal-container .portrait-actions,.minimal-container .portrait-menu-trigger{background:var(--mn-sakura);color:var(--accent-ink);}
+.minimal-container .portrait-actions span:hover,.minimal-container .portrait-menu-trigger:active{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-popup{padding:12px;font-family:var(--mn-font-body);background:var(--mn-paper);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-lg);box-shadow:var(--mn-shadow);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-popup-title{font-family:var(--mn-font-hand);color:var(--mn-sakura-ink);letter-spacing:.5px;}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item{border:1.5px solid var(--border-color);border-radius:var(--mn-radius);background:var(--mn-card);box-shadow:var(--mn-shadow-soft);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gen-textarea,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-edit-textarea,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-edit-select,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .pg-filter-select{background:var(--mn-card);color:var(--text-color);border:1.5px solid var(--border-color);border-radius:var(--mn-radius-sm);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gen-btn-primary,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-gen-btn,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-edit-btn.save{background:var(--mn-sakura);color:var(--accent-ink);border-radius:var(--ub-btn-radius);border-color:var(--mn-sakura);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item.current,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item.batch-selected{border-color:var(--mn-sakura);box-shadow:0 0 0 2px var(--mn-sakura);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item .pg-check{background:var(--mn-card-2);border-color:var(--border-color);color:var(--text-color);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item.batch-selected .pg-check{background:var(--mn-sakura);color:var(--accent-ink);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item .pg-actions span,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-item .pg-meta{background:var(--mn-card);color:var(--text-color);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-quick-menu{background:var(--mn-card);border:1.5px solid var(--border-color);border-radius:var(--mn-radius);box-shadow:var(--mn-shadow);font-family:var(--mn-font-body);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-quick-menu button{color:var(--text-color);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-quick-menu button:active{background:var(--mn-sakura-soft);color:var(--mn-sakura-ink);}
+body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-empty{padding:12px;color:var(--secondary-text);}
+
 /* 怪盗手记：立绘与画廊 */
 .bridge-container .portrait-box{border-radius:6px;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);background-image:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 6px,transparent 6px 12px);box-shadow:3px 3px 0 var(--bridge-offset);}
 .bridge-container .portrait-box.portrait-empty::before{content:"无立绘";color:var(--bridge-muted);font-family:var(--bridge-font-ui);font-size:11px;font-weight:700;letter-spacing:.06em;}

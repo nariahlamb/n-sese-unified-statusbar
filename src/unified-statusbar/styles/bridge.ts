@@ -377,18 +377,23 @@ body.dark-mode,
 .memo-item-top{justify-content:space-between}
 .memo-item-sub{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
 .item-name,
-.memo-title,
-.mission-name{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.memo-title{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mission-name{min-width:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .item-desc,
 .mission-desc,
 .diary-item-content{margin-top:4px;color:var(--bridge-muted);font-size:11.5px;line-height:1.55;overflow-wrap:anywhere}
 .item-detail-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--bridge-line)}
 .item-detail-actions button{flex:1 1 120px;padding:7px 10px}
-.mission-objective{margin-top:7px;padding:7px 10px;color:var(--bridge-text);background:var(--bridge-panel-alt);border-left:4px solid var(--bridge-signal);border-radius:3px;font-size:12px;line-height:1.6}
+.mission-objective{margin-top:7px;padding:6px 9px;color:var(--bridge-text);background:var(--bridge-panel);border-left:4px solid var(--bridge-signal);border-radius:3px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
 .mission-status{display:inline-block;margin-top:7px;padding:1px 8px;border:1.5px solid var(--bridge-line);border-radius:3px;font-size:11px;font-weight:700}
 .mission-status.completed{color:var(--bridge-signal);border-color:var(--bridge-signal);background:var(--bridge-signal-soft)}
 .mission-status.pending{color:var(--bridge-muted)}
-.mission-delete{margin-left:auto}
+/* 任务卡是块级容器，删除钮须绝对定位到右上角；带 button 与容器前缀以压过 .bridge-window button 及移动端 min-height:34px */
+.bridge-window .panel-popup-body .mission-list-item{box-sizing:border-box;max-width:100%}
+.bridge-window .mission-name{padding-right:26px}
+.bridge-window button.mission-delete{position:absolute;top:6px;right:6px;width:24px;height:24px;min-height:0;padding:0;display:flex;align-items:center;justify-content:center;color:var(--bridge-muted);background:transparent;border:0;border-radius:50%;box-shadow:none;font-size:16px;line-height:1}
+.bridge-window button.mission-delete:hover{color:var(--bridge-danger);background:var(--bridge-danger-soft);border:0}
+.bridge-window button.mission-delete:active{transform:none}
 .diary-notebook{position:relative;padding:14px;margin:8px 0;background:var(--bridge-panel-alt);background-image:repeating-linear-gradient(transparent 0 27px,var(--bridge-line-soft) 27px 28px);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-signal);border-radius:var(--bridge-radius)}
 .diary-content .dc{color:var(--bridge-text);font-size:12px;line-height:1.75;overflow-wrap:anywhere}
 /* 日记手账标记（全库 7 类 span；桥式窗口用扁平档案语言表达，token 浅深自适应） */
