@@ -224,39 +224,40 @@ const THEME_SCOPED_CSS = `
   font-family:var(--bridge-font-ui);
 }
 .shop-popup.shop-theme-bridge .shop-head,.shop-popup.shop-theme-bridge .shop-detail-head{
-  background:var(--bridge-panel-2);
-  border-bottom:2px solid var(--bridge-line-strong);padding:10px 14px;
+  background:var(--bridge-screen);
+  color:var(--bridge-screen-text);
+  border-bottom:4px solid var(--bridge-signal);padding:10px 14px;
 }
-.shop-popup.shop-theme-bridge .shop-title{font-size:14px;letter-spacing:1px;}
-.shop-popup.shop-theme-bridge .shop-close,.shop-popup.shop-theme-bridge .shop-btn{min-height:34px;border-radius:4px;border:1.5px solid var(--bridge-line);color:var(--bridge-text);}
-.shop-popup.shop-theme-bridge .shop-tabs{padding:6px 14px 8px;gap:6px;background:var(--bridge-panel-inset);border-bottom:1px solid var(--bridge-line);}
-.shop-popup.shop-theme-bridge .shop-tab{border:1.5px solid var(--bridge-line);border-radius:4px;letter-spacing:.5px;color:var(--bridge-muted);}
-.shop-popup.shop-theme-bridge .shop-tab.on{color:var(--bridge-screen-text);background:var(--bridge-screen);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
-.shop-popup.shop-theme-bridge .shop-bar{background:var(--bridge-panel-2);border-bottom:1px solid var(--bridge-line);}
-.shop-popup.shop-theme-bridge .shop-energy{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);border:1.5px solid var(--bridge-line-strong);font-family:var(--bridge-font-ui);transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-title{font-size:14px;letter-spacing:1px;color:var(--bridge-screen-text);}
+.shop-popup.shop-theme-bridge .shop-close,.shop-popup.shop-theme-bridge .shop-btn{min-height:34px;border-radius:0;border:2px solid var(--bridge-line-strong);color:var(--bridge-text);}
+.shop-popup.shop-theme-bridge .shop-tabs{padding:6px 14px 8px;gap:6px;background:var(--bridge-panel-inset);border-bottom:2px solid var(--bridge-line-strong);}
+.shop-popup.shop-theme-bridge .shop-tab{border:2px solid var(--bridge-line-strong);border-radius:0;letter-spacing:.5px;color:var(--bridge-muted);}
+.shop-popup.shop-theme-bridge .shop-tab.on{color:var(--bridge-screen-text);background:var(--bridge-screen);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-bar{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
+.shop-popup.shop-theme-bridge .shop-energy{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);border:2px solid var(--bridge-line-strong);font-family:var(--bridge-font-ui);box-shadow:3px 3px 0 var(--bridge-offset);}
 .shop-popup.shop-theme-bridge .shop-btn{background:var(--bridge-panel-alt);letter-spacing:.5px;}
-.shop-popup.shop-theme-bridge .shop-btn:hover,.shop-popup.shop-theme-bridge .shop-btn.primary{background:var(--bridge-signal);border-color:var(--bridge-signal);color:var(--bridge-signal-contrast);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-btn:hover,.shop-popup.shop-theme-bridge .shop-btn.primary{background:var(--bridge-signal);border-color:var(--bridge-signal);color:var(--bridge-signal-contrast);box-shadow:3px 3px 0 var(--bridge-offset);}
 .shop-popup.shop-theme-bridge .shop-body{background:var(--bridge-panel);}
 .shop-popup.shop-theme-bridge .shop-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
-.shop-popup.shop-theme-bridge .shop-card{border-radius:4px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);text-align:left;box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-card{border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);text-align:left;box-shadow:3px 3px 0 var(--bridge-offset);}
 .shop-popup.shop-theme-bridge .shop-card:nth-child(even){border-left-color:var(--bridge-signal);}
-.shop-popup.shop-theme-bridge .shop-card:hover{transform:translateY(-1px);box-shadow:3px 3px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-card:hover{transform:translateY(-1px);box-shadow:4px 4px 0 var(--bridge-offset);}
 .shop-popup.shop-theme-bridge .shop-quality,.shop-popup.shop-theme-bridge .shop-deco{font-family:var(--bridge-font-ui);color:var(--bridge-muted);}
 .shop-popup.shop-theme-bridge .shop-stars,.shop-popup.shop-theme-bridge .shop-price{font-family:var(--bridge-font-data);color:var(--bridge-alert);}
 .shop-popup.shop-theme-bridge .shop-r3{border-left-color:var(--bridge-signal);}
 .shop-popup.shop-theme-bridge .shop-r4{border-left-color:var(--bridge-alert);}
-.shop-popup.shop-theme-bridge .shop-r5{border-color:var(--bridge-alert);box-shadow:3px 3px 0 var(--bridge-offset);}
-.shop-popup.shop-theme-bridge .shop-r5::after{content:'';position:absolute;inset:5px;border:1px solid var(--bridge-alert);border-radius:3px;pointer-events:none;}
-.shop-popup.shop-theme-bridge .shop-sale{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset);}
-.shop-popup.shop-theme-bridge .shop-skill-card{border-radius:4px;color:var(--bridge-text);background:var(--bridge-panel-alt);border-color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-offset);}
-.shop-popup.shop-theme-bridge .shop-skill-card::before{border-radius:3px;border-color:var(--bridge-line-strong);}
+.shop-popup.shop-theme-bridge .shop-r5{border-color:var(--bridge-alert);box-shadow:4px 4px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-r5::after{content:'';position:absolute;inset:5px;border:1px solid var(--bridge-alert);border-radius:0;pointer-events:none;}
+.shop-popup.shop-theme-bridge .shop-sale{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-card{border-radius:0;color:var(--bridge-text);background:var(--bridge-panel-alt);border-color:var(--bridge-signal);box-shadow:3px 3px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-card::before{border-radius:0;border-color:var(--bridge-line-strong);}
 .shop-popup.shop-theme-bridge .shop-skill-card::after{background:none;}
-.shop-popup.shop-theme-bridge .shop-skill-badge{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
-.shop-popup.shop-theme-bridge .shop-skill-sigil{border-radius:4px;background:var(--bridge-panel-inset);color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-badge{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);}
+.shop-popup.shop-theme-bridge .shop-skill-sigil{border-radius:0;background:var(--bridge-panel-inset);color:var(--bridge-signal);box-shadow:3px 3px 0 var(--bridge-offset);}
 .shop-popup.shop-theme-bridge .shop-skill-status,.shop-popup.shop-theme-bridge .shop-skill-note,.shop-popup.shop-theme-bridge .shop-extra-label{color:var(--bridge-muted);}
 .shop-popup.shop-theme-bridge .shop-skill-owned,.shop-popup.shop-theme-bridge .shop-skill-card.is-skill-disabled .shop-skill-status,.shop-popup.shop-theme-bridge .shop-extra-label b{color:var(--bridge-signal);}
-.shop-popup.shop-theme-bridge .shop-skill-effect{border-left-color:var(--bridge-signal);border-radius:4px;background:var(--bridge-panel-inset);}
-.shop-popup.shop-theme-bridge .shop-extra-textarea{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.shop-popup.shop-theme-bridge .shop-skill-effect{border-left-color:var(--bridge-signal);border-radius:0;background:var(--bridge-panel-inset);}
+.shop-popup.shop-theme-bridge .shop-extra-textarea{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);color:var(--bridge-text);}
 .shop-popup.shop-theme-bridge .shop-extra-textarea:focus{border-color:var(--bridge-signal);}
 .shop-popup.shop-theme-bridge .shop-empty{border:1.5px dashed var(--bridge-line);border-radius:4px;background:var(--bridge-panel-alt);color:var(--bridge-muted);}
 @media(max-width:599px){

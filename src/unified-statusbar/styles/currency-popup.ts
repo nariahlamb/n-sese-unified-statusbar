@@ -150,18 +150,18 @@ export const CURRENCY_POPUP_CSS = /* css */ `
   font-family:var(--bridge-font-ui);
 }
 .ub-wallet[data-skin="bridge"] .wk-ptitle{font-size:12px;letter-spacing:1px}
-.ub-wallet[data-skin="bridge"] .wk-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
-.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini,.ub-wallet[data-skin="bridge"] .wk-input,.ub-wallet[data-skin="bridge"] .wk-icon-cell,.ub-wallet[data-skin="bridge"] .wk-prop,.ub-wallet[data-skin="bridge"] .wk-panel{border-radius:4px}
-.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini{min-height:32px;border:1.5px solid var(--bridge-line)}
-.ub-wallet[data-skin="bridge"] .wk-btn.ai,.ub-wallet[data-skin="bridge"] .wk-mini.pri,.ub-wallet[data-skin="bridge"] .wk-icon-cell.on{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal)}
-.ub-wallet[data-skin="bridge"] .wk-panel,.ub-wallet[data-skin="bridge"] .wk-prop{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt)}
+.ub-wallet[data-skin="bridge"] .wk-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal)}
+.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini,.ub-wallet[data-skin="bridge"] .wk-input,.ub-wallet[data-skin="bridge"] .wk-icon-cell,.ub-wallet[data-skin="bridge"] .wk-prop,.ub-wallet[data-skin="bridge"] .wk-panel{border-radius:0}
+.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini{min-height:32px;border:2px solid var(--bridge-line-strong)}
+.ub-wallet[data-skin="bridge"] .wk-btn.ai,.ub-wallet[data-skin="bridge"] .wk-mini.pri,.ub-wallet[data-skin="bridge"] .wk-icon-cell.on{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal)}
+.ub-wallet[data-skin="bridge"] .wk-panel,.ub-wallet[data-skin="bridge"] .wk-prop{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt)}
 .ub-wallet[data-skin="bridge"] .wk-prop.pick{border-left-color:var(--bridge-signal);background:var(--bridge-signal-soft)}
-.ub-wallet[data-skin="bridge"] .wk-cur.wk-primary{border-radius:4px}
+.ub-wallet[data-skin="bridge"] .wk-cur.wk-primary{border-radius:0}
 .ub-wallet[data-skin="bridge"] .wk-qty,.ub-wallet[data-skin="bridge"] .wk-led .wk-ledamt{font-family:var(--bridge-font-data);color:var(--bridge-alert)}
 .ub-wallet[data-skin="bridge"] .wk-qty.neg,.ub-wallet[data-skin="bridge"] .wk-led .wk-ledamt.out{color:var(--bridge-danger)}
-.ub-wallet[data-skin="bridge"] .wk-ptag{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg)}
+.ub-wallet[data-skin="bridge"] .wk-ptag{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text)}
 .ub-wallet[data-skin="bridge"] .wk-negtag{background:var(--bridge-danger-soft);color:var(--bridge-danger)}
-.ub-wallet[data-skin="bridge"] .wk-star,.ub-wallet[data-skin="bridge"] .wk-del{border-radius:4px;color:var(--bridge-muted)}
+.ub-wallet[data-skin="bridge"] .wk-star,.ub-wallet[data-skin="bridge"] .wk-del{border-radius:0;color:var(--bridge-muted)}
 .ub-wallet[data-skin="bridge"] .wk-star.on{color:var(--bridge-alert);background:var(--bridge-alert-soft)}
 .ub-wallet[data-skin="bridge"] .wk-del:hover{color:var(--bridge-danger);background:var(--bridge-danger-soft)}
 

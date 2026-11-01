@@ -240,33 +240,33 @@ b.num,.num{font-variant-numeric:tabular-nums}
   border-radius:var(--ub-popup-radius)!important;border:var(--ub-popup-border)!important;background:var(--bridge-panel)!important;
   color:var(--bridge-text);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui)
 }
-.bridge-module-skill-tree .panel-popup-head,.bridge-module-skill-detail .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
-.bridge-module-skill-tree .skill-tree-container{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt)}
-.bridge-module-skill-tree .skill-node rect{rx:4px;ry:4px}
+.bridge-module-skill-tree .panel-popup-head,.bridge-module-skill-detail .panel-popup-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal)}
+.bridge-module-skill-tree .skill-tree-container{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt)}
+.bridge-module-skill-tree .skill-node rect{rx:0;ry:0}
 .bridge-module-skill-tree .skill-tree-svg{font-family:var(--bridge-font-ui)}
-.bridge-module-skill-tree .skill-node:hover{filter:drop-shadow(2px 2px 0 var(--bridge-offset))}
-.bridge-module-skill-tree .skill-node.sk-n-next{filter:drop-shadow(2px 2px 0 var(--bridge-signal))}
-.bridge-module-skill-tree .sk-zoom-btn,.bridge-module-skill-detail .sk-act-btn{border-radius:4px;min-height:32px;box-shadow:2px 2px 0 var(--bridge-offset)}
-.bridge-module-skill-tree .sk-zoom-btn{background:var(--bridge-panel);border:1.5px solid var(--bridge-line);color:var(--bridge-text)}
+.bridge-module-skill-tree .skill-node:hover{filter:none}
+.bridge-module-skill-tree .skill-node.sk-n-next{filter:none}
+.bridge-module-skill-tree .sk-zoom-btn,.bridge-module-skill-detail .sk-act-btn{border-radius:0;min-height:32px;box-shadow:3px 3px 0 var(--bridge-offset)}
+.bridge-module-skill-tree .sk-zoom-btn{background:var(--bridge-panel);border:2px solid var(--bridge-line-strong);color:var(--bridge-text)}
 .bridge-module-skill-tree .sk-zoom-btn:active{background:var(--bridge-screen);color:var(--bridge-screen-text)}
 .bridge-module-skill-tree .sk-legend{font-family:var(--bridge-font-ui);letter-spacing:.4px}
-.bridge-module-skill-tree .sk-flavor{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:3px;transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset)}
-.bridge-module-skill-detail .sk-detail,.bridge-module-skill-detail .sk-confirm{border:1.5px solid var(--bridge-line);border-radius:5px;background:var(--bridge-panel-alt)}
-.bridge-module-skill-detail .sk-detail .hd,.bridge-module-skill-detail .sk-confirm .hd{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal)}
-.bridge-module-skill-detail .sk-d-desc,.bridge-module-skill-detail .sk-d-warn{border-radius:4px;background:var(--bridge-panel-inset)}
-.sk-popup.bridge-module-skill-detail .sk-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal)}
+.bridge-module-skill-tree .sk-flavor{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:0;box-shadow:3px 3px 0 var(--bridge-offset)}
+.bridge-module-skill-detail .sk-detail,.bridge-module-skill-detail .sk-confirm{border:2px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-panel-alt)}
+.bridge-module-skill-detail .sk-detail .hd,.bridge-module-skill-detail .sk-confirm .hd{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal)}
+.bridge-module-skill-detail .sk-d-desc,.bridge-module-skill-detail .sk-d-warn{border-radius:0;background:var(--bridge-panel-inset)}
+.sk-popup.bridge-module-skill-detail .sk-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal)}
 .bridge-module-skill-detail .sk-head .sk-btn,.bridge-module-skill-detail .hd .sk-btn{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-screen-muted)}
-.sk-popup.bridge-module-skill-detail .sk-row{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;background:var(--bridge-panel-alt);margin-bottom:6px;padding:7px}
+.sk-popup.bridge-module-skill-detail .sk-row{border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-panel-alt);margin-bottom:6px;padding:7px}
 .sk-popup.bridge-module-skill-detail .sk-row:nth-child(even){border-left-color:var(--bridge-signal)}
-.sk-popup.bridge-module-skill-detail .sk-badge{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:3px;transform:skewX(-8deg)}
-.sk-popup.bridge-module-skill-detail .sk-exp,.sk-popup.bridge-module-skill-detail .sk-tree-btn,.sk-popup.bridge-module-skill-detail .sk-del-btn{border-radius:4px}
+.sk-popup.bridge-module-skill-detail .sk-badge{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:0}
+.sk-popup.bridge-module-skill-detail .sk-exp,.sk-popup.bridge-module-skill-detail .sk-tree-btn,.sk-popup.bridge-module-skill-detail .sk-del-btn{border-radius:0}
 .bridge-module-skill-detail .sk-exp b.num,.bridge-module-skill-detail .sk-have b.num{font-family:var(--bridge-font-data);color:var(--bridge-alert)}
 .bridge-module-skill-detail .sk-dot.on{background:var(--bridge-signal)}
 .bridge-module-skill-detail .sk-d-state.activated,.bridge-module-skill-detail .sk-d-pre.on{color:var(--bridge-signal)}
 .bridge-module-skill-detail .sk-d-pre.off,.bridge-module-skill-detail .sk-del-btn:hover{color:var(--bridge-danger);border-color:var(--bridge-danger)}
-.bridge-module-skill-detail .sk-seg{border-radius:4px;overflow:visible}
-.bridge-module-skill-detail .sk-seg button{border-radius:3px}
-.bridge-module-skill-detail .sk-seg button.seg-active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal)}
+.bridge-module-skill-detail .sk-seg{border-radius:0;overflow:visible}
+.bridge-module-skill-detail .sk-seg button{border-radius:0}
+.bridge-module-skill-detail .sk-seg button.seg-active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal)}
 @media(max-width:599px){.panel-popup.bridge-module-skill-tree,.panel-popup.bridge-module-skill-detail{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0!important;border-right:0!important}}
 `;
 

@@ -137,22 +137,22 @@ export const beyondLensBaseCSS = /* css */ `
 .beyond-theme-xianxia .ub-beyond-bar span{background:#2e8ab0;}
 .beyond-theme-xianxia .ub-beyond-empty{color:#6a9cb0;}
 
-/* ═══ bridge 怪盗手记：米灰纸卡 · 炭灰标签 · 暗红点缀（token 驱动，浅深随主题变量） ═══ */
-.beyond-theme-bridge .ub-beyond-panel{background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);border:1.5px solid var(--bridge-line);border-radius:var(--bridge-radius);padding:8px 10px 10px;box-shadow:2px 2px 0 var(--bridge-shadow-soft);}
+/* ═══ bridge 怪盗手记：暖纸卡 · 浓墨骨架 · 绯红刀锋（token 驱动，浅深随主题变量） ═══ */
+.beyond-theme-bridge .ub-beyond-panel{background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);border:2px solid var(--bridge-line-strong);border-radius:0;padding:8px 10px 10px;box-shadow:4px 4px 0 var(--bridge-shadow-soft);}
 .beyond-theme-bridge .ub-beyond-sec-title{border-color:var(--bridge-line-strong);color:var(--bridge-text);letter-spacing:.06em;font-weight:900;}
 .beyond-theme-bridge .ub-beyond-sec-title em{color:var(--bridge-signal);font-weight:700;}
-.beyond-theme-bridge .ub-beyond-reshuffle{color:var(--bridge-text);border:1.5px solid var(--bridge-line);border-radius:4px;background:var(--bridge-panel);}
-.beyond-theme-bridge .ub-beyond-rumor{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-signal);border-radius:4px;}
+.beyond-theme-bridge .ub-beyond-reshuffle{color:var(--bridge-text);border:2px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-panel);}
+.beyond-theme-bridge .ub-beyond-rumor{background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);border-radius:0;}
 .beyond-theme-bridge .ub-beyond-rumor-top{color:var(--bridge-text);}
 .beyond-theme-bridge .ub-beyond-rumor-body{color:var(--bridge-text);}
 .beyond-theme-bridge .ub-beyond-rumor-status{color:var(--bridge-muted);}
-.beyond-theme-bridge .ub-beyond-level-heard{background:var(--bridge-panel);color:var(--bridge-text);border:1px solid var(--bridge-line-strong);border-radius:3px;}
-.beyond-theme-bridge .ub-beyond-level-known{background:var(--bridge-screen);color:var(--bridge-screen-text);border-radius:3px;}
-.beyond-theme-bridge .ub-beyond-char{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;}
+.beyond-theme-bridge .ub-beyond-level-heard{background:var(--bridge-panel);color:var(--bridge-text);border:2px solid var(--bridge-line-strong);border-radius:0;}
+.beyond-theme-bridge .ub-beyond-level-known{background:var(--bridge-screen);color:var(--bridge-screen-text);border-radius:0;}
+.beyond-theme-bridge .ub-beyond-char{background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);border-radius:0;}
 .beyond-theme-bridge .ub-beyond-char-name{color:var(--bridge-text);}
 .beyond-theme-bridge .ub-beyond-char-act{color:var(--bridge-text);}
 .beyond-theme-bridge .ub-beyond-thread{color:var(--bridge-muted);}
-.beyond-theme-bridge .ub-beyond-bar{background:var(--bridge-panel-inset);}
+.beyond-theme-bridge .ub-beyond-bar{background:var(--bridge-panel-inset);border-radius:0;}
 .beyond-theme-bridge .ub-beyond-bar span{background:var(--bridge-signal);}
 .beyond-theme-bridge .ub-beyond-empty{color:var(--bridge-muted);}
 

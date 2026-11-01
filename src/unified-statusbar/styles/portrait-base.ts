@@ -378,32 +378,32 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .portrait-gallery-empty{padding:12px;color:var(--secondary-text);}
 
 /* 怪盗手记：立绘与画廊 */
-.bridge-container .portrait-box{border-radius:6px;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);background-image:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 6px,transparent 6px 12px);box-shadow:3px 3px 0 var(--bridge-offset);}
+.bridge-container .portrait-box{border-radius:0;border:2.5px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);background-image:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 6px,transparent 6px 12px);clip-path:var(--bridge-clip-badge);box-shadow:4px 4px 0 var(--bridge-offset),7px 7px 0 var(--bridge-shadow-soft);}
 .bridge-container .portrait-box.portrait-empty::before{content:"无立绘";color:var(--bridge-muted);font-family:var(--bridge-font-ui);font-size:11px;font-weight:700;letter-spacing:.06em;}
 .portrait-popup.bridge-module-imaging{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);}
 .bridge-module-imaging .portrait-popup-header{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
 .bridge-module-imaging .portrait-popup-title{font-family:var(--bridge-font-ui);letter-spacing:1px;}
 .bridge-module-imaging .portrait-gen-prompt-display{font-family:var(--bridge-font-ui);}
-.bridge-module-imaging .portrait-popup-close,.bridge-module-imaging button{min-height:34px;border-radius:4px;}
-.bridge-module-imaging .portrait-preset-btn,.bridge-module-imaging .portrait-gen-textarea,.bridge-module-imaging .portrait-fan-tags,.bridge-module-imaging .portrait-gen-btn-cancel,.bridge-module-imaging .portrait-gen-btn-primary,.bridge-module-imaging .portrait-gen-btn-regen,.bridge-module-imaging .portrait-gallery-gen-btn,.bridge-module-imaging .portrait-gallery-import-btn,.bridge-module-imaging .portrait-wardrobe-choice,.bridge-module-imaging #portraitWardrobeOutfit,.bridge-module-imaging .portrait-wardrobe-custom-list>label{border-radius:4px;border-color:var(--bridge-line);}
-.bridge-module-imaging .portrait-preset-btn.active,.bridge-module-imaging .portrait-gen-btn-primary,.bridge-module-imaging .portrait-gallery-gen-btn{background:var(--bridge-screen);border-color:var(--bridge-line-strong);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
-.bridge-module-imaging .portrait-gen-preview,.bridge-module-imaging .portrait-gallery-random-banner{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-inset);}
+.bridge-module-imaging .portrait-popup-close,.bridge-module-imaging button{min-height:34px;border-radius:0;}
+.bridge-module-imaging .portrait-preset-btn,.bridge-module-imaging .portrait-gen-textarea,.bridge-module-imaging .portrait-fan-tags,.bridge-module-imaging .portrait-gen-btn-cancel,.bridge-module-imaging .portrait-gen-btn-primary,.bridge-module-imaging .portrait-gen-btn-regen,.bridge-module-imaging .portrait-gallery-gen-btn,.bridge-module-imaging .portrait-gallery-import-btn,.bridge-module-imaging .portrait-wardrobe-choice,.bridge-module-imaging #portraitWardrobeOutfit,.bridge-module-imaging .portrait-wardrobe-custom-list>label{border-radius:0;border-color:var(--bridge-line-strong);}
+.bridge-module-imaging .portrait-preset-btn.active,.bridge-module-imaging .portrait-gen-btn-primary,.bridge-module-imaging .portrait-gallery-gen-btn{background:var(--bridge-screen);border-color:var(--bridge-line-strong);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal);}
+.bridge-module-imaging .portrait-gen-preview,.bridge-module-imaging .portrait-gallery-random-banner{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-inset);}
 .bridge-portrait-gallery{width:min(94%,820px);max-width:820px;}
 .bridge-portrait-gallery .portrait-gallery-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
-.bridge-portrait-gallery .portrait-gallery-item{border-radius:4px;border-color:var(--bridge-line);background:var(--bridge-panel-alt);}
-.bridge-portrait-gallery .portrait-gallery-item.current{border-color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-signal);}
+.bridge-portrait-gallery .portrait-gallery-item{border-radius:0;border-color:var(--bridge-line-strong);background:var(--bridge-panel-alt);}
+.bridge-portrait-gallery .portrait-gallery-item.current{border-color:var(--bridge-signal);box-shadow:3px 3px 0 var(--bridge-signal);}
 .bridge-portrait-gallery .portrait-gallery-item.in-random-pool{outline:1px dashed var(--bridge-warn);}
-.bridge-portrait-gallery .portrait-gallery-item.batch-selected{border-color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-signal);}
-.bridge-portrait-gallery .portrait-gallery-item .pg-check{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);}
-.bridge-module-imaging .portrait-gallery-batch-toolbar{border-radius:4px;border-color:var(--bridge-line);background:var(--bridge-panel-inset);}
-.bridge-module-imaging .pg-batch-btn{border-radius:4px;border-color:var(--bridge-line);}
+.bridge-portrait-gallery .portrait-gallery-item.batch-selected{border-color:var(--bridge-signal);box-shadow:3px 3px 0 var(--bridge-signal);}
+.bridge-portrait-gallery .portrait-gallery-item .pg-check{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);}
+.bridge-module-imaging .portrait-gallery-batch-toolbar{border-radius:0;border-color:var(--bridge-line-strong);background:var(--bridge-panel-inset);}
+.bridge-module-imaging .pg-batch-btn{border-radius:0;border-color:var(--bridge-line-strong);}
 .bridge-module-imaging .pg-batch-btn.danger{border-color:var(--bridge-danger);color:var(--bridge-danger);background:var(--bridge-danger-soft);}
 .bridge-module-imaging .pg-batch-btn.danger:hover{background:var(--bridge-panel-inset);}
-.bridge-module-imaging .portrait-gallery-import-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
+.bridge-module-imaging .portrait-gallery-import-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal);}
 .bridge-module-imaging .portrait-gen-textarea,.bridge-module-imaging #portraitWardrobeOutfit,.bridge-module-imaging .portrait-wardrobe-choice,.bridge-module-imaging .portrait-wardrobe-custom-list>label{background:var(--bridge-panel-alt);color:var(--bridge-text);border-width:1.5px}
 .bridge-module-imaging .portrait-preset-btn,.bridge-module-imaging .portrait-gallery-item{border-width:1.5px}
-.portrait-quick-menu.bridge-portrait-quick-menu{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:2px 2px 0 var(--bridge-offset);font-family:var(--bridge-font-ui);}
-.portrait-quick-menu.bridge-portrait-quick-menu button{min-height:32px;border-radius:4px;color:var(--bridge-text);background:var(--bridge-panel-alt);}
+.portrait-quick-menu.bridge-portrait-quick-menu{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:3px 3px 0 var(--bridge-offset);font-family:var(--bridge-font-ui);}
+.portrait-quick-menu.bridge-portrait-quick-menu button{min-height:32px;border-radius:0;color:var(--bridge-text);background:var(--bridge-panel-alt);}
 @media(max-width:599px){.portrait-popup.bridge-module-imaging{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.bridge-portrait-gallery .portrait-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* 单图标签编辑弹窗 */

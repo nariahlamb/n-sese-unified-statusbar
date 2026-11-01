@@ -443,15 +443,15 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-btn.danger,body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-danger{border-color:var(--ub-danger);}
 body:has(.minimal-container:not([style*="display: none"]):not([style*="display:none"])) .cycle-manager-warning-icon{background:var(--mn-sakura-soft);color:var(--ub-danger);}
 
-/* 怪盗手记：周期条（米灰底 + 炭灰描边 + 暗红/暗金分档） */
+/* 怪盗手记：周期条（暖纸底 + 浓墨描边 + 绯红/暗金分档） */
 .cycle-bar.bridge-cycle-indicator{
   display:grid;grid-template-columns:auto minmax(64px,1fr) auto;gap:7px;align-items:center;
-  padding:4px 8px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-signal);border-radius:4px;
+  padding:4px 8px;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-signal);border-radius:0;
   background:var(--bridge-panel-alt);font-family:var(--bridge-font-ui);
 }
 .cycle-bar.bridge-cycle-indicator .cycle-label{color:var(--bridge-text);font-weight:700;}
-.cycle-bar.bridge-cycle-indicator .cycle-track{height:6px;border-radius:3px;background:var(--bridge-panel-inset);border:1px solid var(--bridge-line);}
-.cycle-bar.bridge-cycle-indicator .cycle-fill{border-radius:3px;animation:none!important;background:var(--bridge-signal)!important;}
+.cycle-bar.bridge-cycle-indicator .cycle-track{height:6px;border-radius:0;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);transform:skewX(-16deg)}
+.cycle-bar.bridge-cycle-indicator .cycle-fill{border-radius:0;animation:none!important;background:var(--bridge-signal)!important;}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual{border-left-color:var(--bridge-danger,#a43b35);}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual .cycle-fill{background:var(--bridge-danger,#a43b35)!important;}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-ovulation{border-left-color:var(--bridge-warn,#b47a16);}
@@ -459,12 +459,12 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 .cycle-bar.bridge-cycle-indicator .cycle-value{color:var(--bridge-text-muted,#62757c);}
 .cycle-manager-popup.bridge-module-cycle-manager{width:min(94%,620px);max-width:620px;border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);}
 .cycle-manager-popup.bridge-module-cycle-manager .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-summary{border-radius:4px;background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal);font-family:var(--bridge-font-ui);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-fields{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-input,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-summary{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal);font-family:var(--bridge-font-ui);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-fields{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-input,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);color:var(--bridge-text);}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{min-height:34px}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.primary{border-color:var(--bridge-line-strong);background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-warning-icon{border-radius:4px;background:var(--bridge-danger-soft);border:1.5px solid var(--bridge-danger);color:var(--bridge-danger);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.primary{border-color:var(--bridge-line-strong);background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-warning-icon{border-radius:0;background:var(--bridge-danger-soft);border:2px solid var(--bridge-danger);color:var(--bridge-danger);}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-field-label,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-subtitle,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm p{color:var(--bridge-muted)}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-field-value,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-person strong,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm h3{color:var(--bridge-text)}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-person span,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger span{color:var(--bridge-muted)}
@@ -473,7 +473,7 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-message.error,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger strong,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger{color:var(--bridge-danger)}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger{border-color:var(--bridge-danger)}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger:hover{background:var(--bridge-danger-soft)}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-radius:4px}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm{background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-radius:0}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-irreversible{color:var(--bridge-danger)}
 @media(max-width:599px){.cycle-manager-popup.bridge-module-cycle-manager{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}}
 

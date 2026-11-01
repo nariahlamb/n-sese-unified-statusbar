@@ -825,7 +825,7 @@ export const calendarBaseCSS = /* css */ `
 .cal-theme-bridge{
   --ub-text:var(--bridge-text);--ub-text-muted:var(--bridge-text-muted);
   --ub-divider:var(--bridge-line);--ub-accent:var(--bridge-signal);--ub-hover-bg:var(--bridge-signal-soft);
-  --ub-bg-card:var(--bridge-panel-alt);--ub-btn-radius:4px;
+  --ub-bg-card:var(--bridge-panel-alt);--ub-btn-radius:0px;
   --ub-cal-world:var(--bridge-signal);--ub-cal-major:var(--bridge-alert);--ub-cal-character:var(--bridge-text);
   --ub-cal-memo:var(--bridge-muted);--ub-cal-cycle:var(--bridge-danger);--ub-cal-birthday:var(--bridge-alert);--ub-cal-pregnancy:var(--bridge-signal);
   font-family:var(--bridge-font-ui);
@@ -834,28 +834,28 @@ export const calendarBaseCSS = /* css */ `
   width:min(94%,820px);max-width:820px;border-radius:var(--ub-popup-radius);
   background:var(--bridge-panel);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);
 }
-.cal-theme-bridge .cal-header{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
-.cal-theme-bridge .cal-month-label{font-family:var(--bridge-font-ui);letter-spacing:1px;}
-.cal-theme-bridge .cal-nav-btn,.cal-theme-bridge .cal-newspaper-btn,.cal-theme-bridge .cal-refresh-btn,.cal-theme-bridge .cal-close-btn{min-width:34px;min-height:34px;border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.cal-theme-bridge .cal-header{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal);}
+.cal-theme-bridge .cal-month-label{font-family:var(--bridge-font-ui);letter-spacing:1px;color:var(--bridge-screen-text);}
+.cal-theme-bridge .cal-nav-btn,.cal-theme-bridge .cal-newspaper-btn,.cal-theme-bridge .cal-refresh-btn,.cal-theme-bridge .cal-close-btn{min-width:34px;min-height:34px;border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);color:var(--bridge-text);}
 .cal-theme-bridge .cal-close-btn:hover{background:var(--bridge-danger-soft);border-color:var(--bridge-danger);color:var(--bridge-danger);}
 .cal-theme-bridge .cal-weekdays{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal);font:10px/1 var(--bridge-font-ui);letter-spacing:1px;}
-.cal-theme-bridge .cal-grid{gap:3px;background:var(--bridge-panel-inset);border:1.5px solid var(--bridge-line);border-radius:4px;}
-.cal-theme-bridge .cal-day{border-radius:4px;border:1px solid var(--bridge-line-soft);background:var(--bridge-panel);font-family:var(--bridge-font-ui);aspect-ratio:1.6;}
+.cal-theme-bridge .cal-grid{gap:3px;background:var(--bridge-panel-inset);border:2px solid var(--bridge-line-strong);border-radius:0;}
+.cal-theme-bridge .cal-day{border-radius:0;border:1px solid var(--bridge-line-soft);background:var(--bridge-panel);font-family:var(--bridge-font-ui);aspect-ratio:1.6;}
 .cal-theme-bridge .cal-day:hover{background:var(--bridge-panel-alt);}
-.cal-theme-bridge .cal-day.is-today{border-color:var(--bridge-signal);color:var(--bridge-signal);box-shadow:inset 0 -2px 0 var(--bridge-signal);}
-.cal-theme-bridge .cal-day.is-selected{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
+.cal-theme-bridge .cal-day.is-today{border-color:var(--bridge-signal);color:var(--bridge-signal);box-shadow:inset 0 -3px 0 var(--bridge-signal);}
+.cal-theme-bridge .cal-day.is-selected{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal);}
 .cal-theme-bridge .cal-day.is-selected .cal-memo-tag,.cal-theme-bridge .cal-day.is-selected .cal-birthday-mark{color:var(--bridge-screen-text);}
 .cal-theme-bridge .cal-detail{background:var(--bridge-panel-inset);border-top:2px solid var(--bridge-line-strong);}
-.calendar-popup.cal-theme-bridge .cal-detail-event{border-radius:4px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
+.calendar-popup.cal-theme-bridge .cal-detail-event{border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
 .cal-theme-bridge .cal-detail-event:nth-child(even){border-left-color:var(--bridge-signal);}
-.cal-theme-bridge .cal-detail-event-type{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);transform:skewX(-8deg);}
-.cal-theme-bridge .cal-detail-weather,.cal-theme-bridge .cal-ev-chip{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
+.cal-theme-bridge .cal-detail-event-type{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);clip-path:var(--bridge-clip-tag,polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%));}
+.cal-theme-bridge .cal-detail-weather,.cal-theme-bridge .cal-ev-chip{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);clip-path:var(--bridge-clip-tag,polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%));}
 .cal-theme-bridge .cal-ev-chip .ub-ic{color:var(--bridge-screen-muted);}
 .cal-theme-bridge .cal-cyc-chip b{font-family:var(--bridge-font-data);color:var(--bridge-alert);}
 .cal-theme-bridge .cal-cyc-chip.due.hot b{color:var(--bridge-danger);}
-.cal-theme-bridge .cal-cyc-bar{border-radius:3px;background:var(--bridge-panel-inset);}
-.cal-theme-bridge .cal-cyc-bar i{border-radius:3px;background:var(--bridge-signal);}
-.cal-theme-bridge .cal-edit-type-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
+.cal-theme-bridge .cal-cyc-bar{border-radius:0;background:var(--bridge-panel-inset);}
+.cal-theme-bridge .cal-cyc-bar i{border-radius:0;background:var(--bridge-signal);}
+.cal-theme-bridge .cal-edit-type-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal);}
 @media(max-width:599px){.calendar-popup.cal-theme-bridge.bridge-module-calendar{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.cal-theme-bridge .cal-detail{overflow-y:auto}}
 
 /* ═══════════════════════════════════════════════════ */

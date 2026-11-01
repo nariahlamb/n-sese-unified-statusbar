@@ -392,13 +392,13 @@ ${themeRingCss()}
   --ubn-close-hover:var(--bridge-signal-soft);
 }
 #toast-container.ub-notify-container.ub-theme-bridge .toast,#toast-container.ub-notify-container.ub-theme-bridge .toast.acu-toast{
-  border:1.5px solid var(--bridge-line)!important;border-left:4px solid var(--bridge-signal)!important;border-radius:5px!important;
-  background:var(--bridge-panel)!important;box-shadow:2px 2px 0 var(--bridge-offset)!important;
+  border:2px solid var(--bridge-line-strong)!important;border-left:5px solid var(--bridge-signal)!important;border-radius:0!important;
+  background:var(--bridge-panel)!important;box-shadow:4px 4px 0 var(--bridge-offset)!important;
   backdrop-filter:none;-webkit-backdrop-filter:none;font-family:var(--bridge-font-ui)!important;text-shadow:none;
 }
 #toast-container.ub-notify-container.ub-theme-bridge .toast.toast-warning{border-left-color:var(--bridge-warn)!important}
 #toast-container.ub-notify-container.ub-theme-bridge .toast.toast-error{border-left-color:var(--bridge-danger)!important}
-#toast-container.ub-notify-container.ub-theme-bridge .toast .ub-ntf-bar,#toast-container.ub-notify-container.ub-theme-bridge .toast .toast-progress{background:var(--bridge-signal)!important;border-radius:3px}
+#toast-container.ub-notify-container.ub-theme-bridge .toast .ub-ntf-bar,#toast-container.ub-notify-container.ub-theme-bridge .toast .toast-progress{background:var(--bridge-signal)!important;border-radius:0}
 #toast-container.ub-notify-container.ub-theme-bridge .toast .toast-message button:hover{background:var(--bridge-screen)!important;color:var(--bridge-screen-text)!important;border-color:var(--bridge-line-strong)!important}
 
 /* ===== reduced motion ===== */

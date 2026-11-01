@@ -191,34 +191,34 @@ const ACHIEVEMENT_CSS = `
 
 /* 怪盗手记：成就簿 */
 .ach-popup.ach-theme-bridge.bridge-module-achievements{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui);}
-.ach-popup.ach-theme-bridge .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
-.ach-popup.ach-theme-bridge .panel-popup-title{letter-spacing:1px;}
+.ach-popup.ach-theme-bridge .panel-popup-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:4px solid var(--bridge-signal);}
+.ach-popup.ach-theme-bridge .panel-popup-title{letter-spacing:1px;color:var(--bridge-screen-text);}
 .ach-popup.ach-theme-bridge .ach-stat{background:var(--bridge-panel-2);color:var(--bridge-text);border-bottom:2px solid var(--bridge-line-strong);font-family:var(--bridge-font-ui);}
 .ach-popup.ach-theme-bridge .ach-stat-num,.ach-popup.ach-theme-bridge .ach-stat-pts,.ach-popup.ach-theme-bridge .ach-tier-pct{color:var(--bridge-alert);font-family:var(--bridge-font-data);}
 .ach-popup.ach-theme-bridge .ach-tier-label{color:var(--bridge-muted);}
-.ach-popup.ach-theme-bridge .ach-stat-today{color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:3px;transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset);}
-.ach-popup.ach-theme-bridge .ach-tier-bar{height:6px;border-radius:3px;background:var(--bridge-panel-inset);}
-.ach-popup.ach-theme-bridge .ach-tier-bar-fill{border-radius:3px;background:var(--bridge-signal);}
-.ach-popup.ach-theme-bridge .ach-tabs{gap:6px;padding:6px 10px 8px;background:var(--bridge-panel-inset);border-color:var(--bridge-line);}
-.ach-popup.ach-theme-bridge .ach-tab{min-height:32px;box-sizing:border-box;border-radius:4px;border:1.5px solid var(--bridge-line);letter-spacing:.5px;padding:6px 9px;color:var(--bridge-muted);}
-.ach-popup.ach-theme-bridge .ach-tab[data-active="1"]{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
-.ach-popup.ach-theme-bridge .ach-tab-bar{left:6px;right:6px;bottom:4px;border-radius:3px;background:var(--bridge-panel-inset);}
-.ach-popup.ach-theme-bridge .ach-tab-bar>i{border-radius:3px;background:var(--bridge-signal);}
+.ach-popup.ach-theme-bridge .ach-stat-today{color:var(--bridge-screen-text);background:var(--bridge-screen);border-radius:0;box-shadow:3px 3px 0 var(--bridge-offset);}
+.ach-popup.ach-theme-bridge .ach-tier-bar{height:6px;border-radius:0;background:var(--bridge-panel-inset);}
+.ach-popup.ach-theme-bridge .ach-tier-bar-fill{border-radius:0;background:var(--bridge-signal);}
+.ach-popup.ach-theme-bridge .ach-tabs{gap:6px;padding:6px 10px 8px;background:var(--bridge-panel-inset);border-color:var(--bridge-line-strong);}
+.ach-popup.ach-theme-bridge .ach-tab{min-height:32px;box-sizing:border-box;border-radius:0;border:2px solid var(--bridge-line-strong);letter-spacing:.5px;padding:6px 9px;color:var(--bridge-muted);}
+.ach-popup.ach-theme-bridge .ach-tab[data-active="1"]{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:3px 3px 0 var(--bridge-signal);}
+.ach-popup.ach-theme-bridge .ach-tab-bar{left:6px;right:6px;bottom:4px;border-radius:0;background:var(--bridge-panel-inset);}
+.ach-popup.ach-theme-bridge .ach-tab-bar>i{border-radius:0;background:var(--bridge-signal);}
 .ach-popup.ach-theme-bridge .ach-tab[data-active="1"] .ach-tab-bar>i{background:var(--bridge-signal);}
 .ach-popup.ach-theme-bridge .ach-tab-detail{background:var(--bridge-panel-inset);color:var(--bridge-muted);border-bottom:2px solid var(--bridge-line-strong);font-family:var(--bridge-font-ui);}
 .ach-popup.ach-theme-bridge .ach-tab-detail b{color:var(--bridge-alert);font-family:var(--bridge-font-data);}
-.ach-popup.ach-theme-bridge .ach-search{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);}
+.ach-popup.ach-theme-bridge .ach-search{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
 .ach-popup.ach-theme-bridge .ach-search input{color:var(--bridge-text);font-family:var(--bridge-font-ui);}
 .ach-popup.ach-theme-bridge .ach-search input::placeholder{color:var(--bridge-muted);}
 .ach-popup.ach-theme-bridge .ach-list{background:var(--bridge-panel);}
 .ach-popup.ach-theme-bridge .ach-group{font-family:var(--bridge-font-ui);color:var(--bridge-muted);}
-.ach-popup.ach-theme-bridge .ach-card{position:relative;border-radius:4px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);box-shadow:2px 2px 0 var(--bridge-offset);}
+.ach-popup.ach-theme-bridge .ach-card{position:relative;border-radius:0;border:2px solid var(--bridge-line-strong);border-left:5px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);box-shadow:3px 3px 0 var(--bridge-offset);}
 .ach-popup.ach-theme-bridge .ach-card:nth-child(even){border-left-color:var(--bridge-signal);}
 .ach-popup.ach-theme-bridge .ach-name{font-family:var(--bridge-font-ui);letter-spacing:.5px;color:var(--bridge-text);}
-.ach-popup.ach-theme-bridge .ach-cat,.ach-popup.ach-theme-bridge .ach-rar{padding:1px 5px;border:1px solid var(--bridge-line-strong);border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);letter-spacing:.5px;transform:skewX(-8deg);}
-.ach-popup.ach-theme-bridge .ach-tier-chip{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
+.ach-popup.ach-theme-bridge .ach-cat,.ach-popup.ach-theme-bridge .ach-rar{padding:1px 5px;border:2px solid var(--bridge-line-strong);border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);letter-spacing:.5px;}
+.ach-popup.ach-theme-bridge .ach-tier-chip{border-radius:0;background:var(--bridge-screen);color:var(--bridge-screen-text);}
 .panel-overlay.dark .ach-popup.ach-theme-bridge .ach-rar,.ach-popup.ach-theme-bridge .ach-rar.r3{background:var(--bridge-screen);color:var(--bridge-screen-text);}
-.ach-popup.ach-theme-bridge .ach-flavor{padding:3px 7px;border-left:3px solid var(--bridge-alert);border-radius:4px;background:var(--bridge-panel-inset);font-style:normal;}
+.ach-popup.ach-theme-bridge .ach-flavor{padding:3px 7px;border-left:4px solid var(--bridge-alert);border-radius:0;background:var(--bridge-panel-inset);font-style:normal;}
 .ach-popup.ach-theme-bridge .ach-card.locked{opacity:1;border-left-color:var(--bridge-line);filter:none;}
 .ach-popup.ach-theme-bridge .ach-card.locked .ach-name{color:var(--bridge-muted);}
 .ach-popup.ach-theme-bridge .ach-card.hidden-ach{opacity:.48;filter:grayscale(1);}
