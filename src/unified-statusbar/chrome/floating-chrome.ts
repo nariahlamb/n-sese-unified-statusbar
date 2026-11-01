@@ -168,7 +168,7 @@ export function showOptionsBarPopup(): void {
     case 'minimal': headerLabel = 'OPTIONS'; break;
     case 'sweet': headerLabel = '甜蜜选择'; break;
     case 'xianxia': headerLabel = '天机抉择'; break;
-    case 'bridge': headerLabel = '指令选项'; break;
+    case 'bridge': headerLabel = '下一步'; break;
     case 'ios': headerLabel = '接下来的选择'; break;
     default: headerLabel = '选项栏';
 

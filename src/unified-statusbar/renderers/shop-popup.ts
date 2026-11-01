@@ -194,44 +194,49 @@ const THEME_SCOPED_CSS = `
 .dark .shop-popup.shop-theme-minimal .shop-r5,.dark-mode .shop-popup.shop-theme-minimal .shop-r5{border-color:var(--text,#f0f0f0);box-shadow:4px 4px 0 var(--text,#f0f0f0)}
 .dark .shop-popup.shop-theme-minimal .shop-r5::after,.dark-mode .shop-popup.shop-theme-minimal .shop-r5::after{border-color:var(--text,#f0f0f0)}
 /* 深色模式（4 主题走 .dark，minimal 走 .dark-mode，变量自动跟随；特价角标渐变引用主题变量自动跟随） */
-/* 深空舰桥：补给与交易终端 */
+/* 怪盗手记：补给小铺 */
 .shop-popup.shop-theme-bridge.bridge-module-commerce{
-  width:min(94%,760px);max-width:760px;max-height:min(82vh,760px);border-radius:0;
-  color:var(--bridge-text,var(--text,#16222c));background:var(--bridge-panel,var(--card,#eef3f5));
-  border:1px solid var(--bridge-line-strong,var(--accent,#23758a));
-  box-shadow:0 0 0 3px var(--bridge-panel,var(--card,#eef3f5)),0 0 0 4px var(--bridge-line,var(--divider,#91a5ad)),0 16px 38px rgba(5,20,27,.24);
-  font-family:var(--bridge-font-ui,'Microsoft YaHei','PingFang SC',sans-serif);
+  width:min(94%,760px);max-width:760px;max-height:min(82vh,760px);border-radius:var(--ub-popup-radius);
+  color:var(--bridge-text);background:var(--bridge-panel);
+  border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);
+  font-family:var(--bridge-font-ui);
 }
 .shop-popup.shop-theme-bridge .shop-head,.shop-popup.shop-theme-bridge .shop-detail-head{
-  background:linear-gradient(90deg,var(--bridge-panel-alt,#dde8eb),var(--bridge-panel,#eef3f5));
-  border-bottom:1px solid var(--bridge-line-strong,#23758a);padding:10px 14px;
+  background:var(--bridge-panel-2);
+  border-bottom:2px solid var(--bridge-line-strong);padding:10px 14px;
 }
-.shop-popup.shop-theme-bridge .shop-title{font-size:14px;letter-spacing:2px;text-transform:uppercase;}
-.shop-popup.shop-theme-bridge .shop-title::after{content:'  /  SUPPLY EXCHANGE';font-size:9px;font-weight:500;color:var(--bridge-text-muted,#62757c);letter-spacing:1.4px;}
-.shop-popup.shop-theme-bridge .shop-close,.shop-popup.shop-theme-bridge .shop-btn{min-height:34px;border-radius:0;border:1px solid var(--bridge-line-strong,#23758a);}
-.shop-popup.shop-theme-bridge .shop-tabs{padding:0 14px;background:var(--bridge-panel-inset,#d5e1e5);border-bottom:1px solid var(--bridge-line,#91a5ad);}
-.shop-popup.shop-theme-bridge .shop-tab{border:0;border-right:1px solid var(--bridge-line,#91a5ad);letter-spacing:1px;}
-.shop-popup.shop-theme-bridge .shop-tab:first-child{border-left:1px solid var(--bridge-line,#91a5ad);}
-.shop-popup.shop-theme-bridge .shop-tab.on{color:var(--bridge-signal,#0a7189);background:var(--bridge-panel,#eef3f5);box-shadow:inset 0 -3px 0 var(--bridge-signal,#0a7189);}
-.shop-popup.shop-theme-bridge .shop-bar{background:var(--bridge-panel-inset,#d5e1e5);border-bottom:1px solid var(--bridge-line,#91a5ad);}
-.shop-popup.shop-theme-bridge .shop-energy{border-radius:0;background:var(--bridge-screen,#152b32);color:var(--bridge-screen-text,#8eeaff);border:1px solid var(--bridge-line-strong,#23758a);font-family:var(--bridge-font-data,'Consolas',monospace);letter-spacing:1px;}
-.shop-popup.shop-theme-bridge .shop-btn{background:transparent;color:inherit;letter-spacing:.5px;}
-.shop-popup.shop-theme-bridge .shop-btn:hover,.shop-popup.shop-theme-bridge .shop-btn.primary{background:var(--bridge-signal,#0a7189);border-color:var(--bridge-signal,#0a7189);color:var(--bridge-signal-contrast,#fff);}
-.shop-popup.shop-theme-bridge .shop-body{background:linear-gradient(rgba(35,117,138,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(35,117,138,.035) 1px,transparent 1px);background-size:20px 20px;}
+.shop-popup.shop-theme-bridge .shop-title{font-size:14px;letter-spacing:1px;}
+.shop-popup.shop-theme-bridge .shop-close,.shop-popup.shop-theme-bridge .shop-btn{min-height:34px;border-radius:4px;border:1.5px solid var(--bridge-line);color:var(--bridge-text);}
+.shop-popup.shop-theme-bridge .shop-tabs{padding:6px 14px 8px;gap:6px;background:var(--bridge-panel-inset);border-bottom:1px solid var(--bridge-line);}
+.shop-popup.shop-theme-bridge .shop-tab{border:1.5px solid var(--bridge-line);border-radius:4px;letter-spacing:.5px;color:var(--bridge-muted);}
+.shop-popup.shop-theme-bridge .shop-tab.on{color:var(--bridge-screen-text);background:var(--bridge-screen);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-bar{background:var(--bridge-panel-2);border-bottom:1px solid var(--bridge-line);}
+.shop-popup.shop-theme-bridge .shop-energy{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);border:1.5px solid var(--bridge-line-strong);font-family:var(--bridge-font-ui);transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-btn{background:var(--bridge-panel-alt);letter-spacing:.5px;}
+.shop-popup.shop-theme-bridge .shop-btn:hover,.shop-popup.shop-theme-bridge .shop-btn.primary{background:var(--bridge-signal);border-color:var(--bridge-signal);color:var(--bridge-signal-contrast);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-body{background:var(--bridge-panel);}
 .shop-popup.shop-theme-bridge .shop-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
-.shop-popup.shop-theme-bridge .shop-card{border-radius:0;border:1px solid var(--bridge-line,#91a5ad);background:var(--bridge-panel,#eef3f5);text-align:left;}
-.shop-popup.shop-theme-bridge .shop-card:hover{transform:translateY(-1px);box-shadow:3px 3px 0 var(--bridge-shadow,#799098);}
-.shop-popup.shop-theme-bridge .shop-stars,.shop-popup.shop-theme-bridge .shop-quality,.shop-popup.shop-theme-bridge .shop-price,.shop-popup.shop-theme-bridge .shop-deco{font-family:var(--bridge-font-data,'Consolas',monospace);}
-.shop-popup.shop-theme-bridge .shop-stars{color:var(--bridge-signal,#0a7189);}
-.shop-popup.shop-theme-bridge .shop-r3{border-left:3px solid var(--bridge-signal,#0a7189);}
-.shop-popup.shop-theme-bridge .shop-r4{border-left:3px solid var(--bridge-warn,#b47a16);box-shadow:inset 0 0 0 1px rgba(180,122,22,.18);}
-.shop-popup.shop-theme-bridge .shop-r5{border:1px solid var(--bridge-warn,#b47a16);box-shadow:inset 0 0 0 3px var(--bridge-panel,#eef3f5),inset 0 0 0 4px var(--bridge-warn,#b47a16);}
-.shop-popup.shop-theme-bridge .shop-r5::after{content:'';position:absolute;inset:5px;border:1px solid rgba(180,122,22,.45);pointer-events:none;}
-.shop-popup.shop-theme-bridge .shop-sale{border-radius:0;background:var(--bridge-warn,#b47a16);}
-.shop-popup.shop-theme-bridge .shop-skill-card{border-radius:0;color:var(--bridge-signal,#0a7189);background:var(--bridge-panel-alt,#dde8eb);border-color:var(--bridge-signal,#0a7189);box-shadow:inset 0 0 0 3px var(--bridge-panel-alt,#dde8eb),inset 0 0 0 4px rgba(10,113,137,.4);}
-.shop-popup.shop-theme-bridge .shop-skill-card::before{border-radius:0;}
-.shop-popup.shop-theme-bridge .shop-skill-badge,.shop-popup.shop-theme-bridge .shop-skill-sigil{border-radius:0;}
-.shop-popup.shop-theme-bridge .shop-empty{border:1px dashed var(--bridge-line,#91a5ad);background:var(--bridge-panel,#eef3f5);}
+.shop-popup.shop-theme-bridge .shop-card{border-radius:4px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);text-align:left;box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-card:nth-child(even){border-left-color:var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-card:hover{transform:translateY(-1px);box-shadow:3px 3px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-quality,.shop-popup.shop-theme-bridge .shop-deco{font-family:var(--bridge-font-ui);color:var(--bridge-muted);}
+.shop-popup.shop-theme-bridge .shop-stars,.shop-popup.shop-theme-bridge .shop-price{font-family:var(--bridge-font-data);color:var(--bridge-alert);}
+.shop-popup.shop-theme-bridge .shop-r3{border-left-color:var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-r4{border-left-color:var(--bridge-alert);}
+.shop-popup.shop-theme-bridge .shop-r5{border-color:var(--bridge-alert);box-shadow:3px 3px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-r5::after{content:'';position:absolute;inset:5px;border:1px solid var(--bridge-alert);border-radius:3px;pointer-events:none;}
+.shop-popup.shop-theme-bridge .shop-sale{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-card{border-radius:4px;color:var(--bridge-text);background:var(--bridge-panel-alt);border-color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-card::before{border-radius:3px;border-color:var(--bridge-line-strong);}
+.shop-popup.shop-theme-bridge .shop-skill-card::after{background:none;}
+.shop-popup.shop-theme-bridge .shop-skill-badge{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
+.shop-popup.shop-theme-bridge .shop-skill-sigil{border-radius:4px;background:var(--bridge-panel-inset);color:var(--bridge-signal);box-shadow:2px 2px 0 var(--bridge-offset);}
+.shop-popup.shop-theme-bridge .shop-skill-status,.shop-popup.shop-theme-bridge .shop-skill-note,.shop-popup.shop-theme-bridge .shop-extra-label{color:var(--bridge-muted);}
+.shop-popup.shop-theme-bridge .shop-skill-owned,.shop-popup.shop-theme-bridge .shop-skill-card.is-skill-disabled .shop-skill-status,.shop-popup.shop-theme-bridge .shop-extra-label b{color:var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-skill-effect{border-left-color:var(--bridge-signal);border-radius:4px;background:var(--bridge-panel-inset);}
+.shop-popup.shop-theme-bridge .shop-extra-textarea{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.shop-popup.shop-theme-bridge .shop-extra-textarea:focus{border-color:var(--bridge-signal);}
+.shop-popup.shop-theme-bridge .shop-empty{border:1.5px dashed var(--bridge-line);border-radius:4px;background:var(--bridge-panel-alt);color:var(--bridge-muted);}
 @media(max-width:599px){
   /* height 用 var(--ub-ol-pad-total)（= applyMobileFixes 写入的 overlay 上下 padding 总额，index.ts）
      抵扣：内联 padding-top:60px 使 100dvh 弹窗底部推出视口，购买按钮不可见 */
@@ -303,7 +308,7 @@ const DECO: Record<StyleType, [string, string, string]> = {  // [史诗, 传说,
   sweet:       ['🌸', '🎀', '💖'],
   xianxia:     ['灵', '寶', '聖'],
   minimal:     ['EPIC', 'LEG', 'MYTH'],
-  bridge:      ['R4', 'R5', 'R6'],
+  bridge:      ['珍藏', '传说', '秘宝'],
   ios:         ['稀有', '传说', '神话'],
 };
 

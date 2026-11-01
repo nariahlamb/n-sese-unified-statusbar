@@ -792,30 +792,42 @@ export const calendarBaseCSS = /* css */ `
 
 /* 天气图标容器（在状态栏中显示） */
 
-/* 深空舰桥：历法与事件遥测 */
-.calendar-popup.cal-theme-bridge.bridge-module-calendar{
-  --ub-text:var(--bridge-text,#16222c);--ub-text-muted:var(--bridge-text-muted,#62757c);
-  --ub-divider:var(--bridge-line,#91a5ad);--ub-accent:var(--bridge-signal,#0a7189);
-  --ub-hover-bg:var(--bridge-panel-alt,#dde8eb);
-  width:min(94%,820px);max-width:820px;border-radius:0;
-  background:var(--bridge-panel,#eef3f5);border:1px solid var(--bridge-line-strong,#23758a);
-  box-shadow:0 0 0 3px var(--bridge-panel,#eef3f5),0 0 0 4px var(--bridge-line,#91a5ad),0 16px 38px rgba(5,20,27,.24);
-  font-family:var(--bridge-font-ui,'Microsoft YaHei','PingFang SC',sans-serif);
+/* 怪盗手记：日程与事件 */
+.cal-theme-bridge{
+  --ub-text:var(--bridge-text);--ub-text-muted:var(--bridge-text-muted);
+  --ub-divider:var(--bridge-line);--ub-accent:var(--bridge-signal);--ub-hover-bg:var(--bridge-signal-soft);
+  --ub-bg-card:var(--bridge-panel-alt);--ub-btn-radius:4px;
+  --ub-cal-world:var(--bridge-signal);--ub-cal-major:var(--bridge-alert);--ub-cal-character:var(--bridge-text);
+  --ub-cal-memo:var(--bridge-muted);--ub-cal-cycle:var(--bridge-danger);--ub-cal-birthday:var(--bridge-alert);--ub-cal-pregnancy:var(--bridge-signal);
+  font-family:var(--bridge-font-ui);
 }
-.cal-theme-bridge .cal-header{background:linear-gradient(90deg,var(--bridge-panel-alt,#dde8eb),var(--bridge-panel,#eef3f5));border-bottom:1px solid var(--bridge-line-strong,#23758a);}
-.cal-theme-bridge .cal-header::after{content:'CHRONOLOGY / EVENT TELEMETRY';font:9px/1 var(--bridge-font-data,'Consolas',monospace);letter-spacing:1.2px;color:var(--bridge-text-muted,#62757c);position:absolute;left:50%;bottom:4px;transform:translateX(-50%);}
-.cal-theme-bridge .cal-month-label{font-family:var(--bridge-font-data,'Consolas',monospace);letter-spacing:1.5px;}
-.cal-theme-bridge .cal-nav-btn,.cal-theme-bridge .cal-newspaper-btn,.cal-theme-bridge .cal-refresh-btn,.cal-theme-bridge .cal-close-btn{min-width:34px;min-height:34px;border-radius:0;border:1px solid var(--bridge-line,#91a5ad);background:transparent;color:var(--bridge-text,#16222c);}
-.cal-theme-bridge .cal-weekdays{background:var(--bridge-screen,#152b32);color:var(--bridge-screen-text,#8eeaff);font:10px/1 var(--bridge-font-data,'Consolas',monospace);letter-spacing:1px;}
-.cal-theme-bridge .cal-grid{gap:1px;background:var(--bridge-line,#91a5ad);border:1px solid var(--bridge-line,#91a5ad);}
-.cal-theme-bridge .cal-day{border-radius:0;border:0;background:var(--bridge-panel,#eef3f5);font-family:var(--bridge-font-data,'Consolas',monospace);aspect-ratio:1.6;}
-.cal-theme-bridge .cal-day:hover{background:var(--bridge-panel-alt,#dde8eb);}
-.cal-theme-bridge .cal-day.is-today{box-shadow:inset 0 0 0 2px var(--bridge-signal,#0a7189);}
-.cal-theme-bridge .cal-day.is-selected{background:var(--bridge-signal,#0a7189);color:var(--bridge-signal-contrast,#fff);}
-.cal-theme-bridge .cal-detail{background:var(--bridge-panel-inset,#d5e1e5);border-top:1px solid var(--bridge-line-strong,#23758a);}
-.cal-theme-bridge .cal-detail-event{border-radius:0;border-left:3px solid var(--bridge-signal,#0a7189);background:var(--bridge-panel,#eef3f5);}
-.cal-theme-bridge .cal-detail-event-type{border-radius:0;font-family:var(--bridge-font-data,'Consolas',monospace);}
-@media(max-width:599px){.calendar-popup.cal-theme-bridge.bridge-module-calendar{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.cal-theme-bridge .cal-header::after{display:none}.cal-theme-bridge .cal-detail{overflow-y:auto}}
+.calendar-popup.cal-theme-bridge.bridge-module-calendar{
+  width:min(94%,820px);max-width:820px;border-radius:var(--ub-popup-radius);
+  background:var(--bridge-panel);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);
+}
+.cal-theme-bridge .cal-header{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
+.cal-theme-bridge .cal-month-label{font-family:var(--bridge-font-ui);letter-spacing:1px;}
+.cal-theme-bridge .cal-nav-btn,.cal-theme-bridge .cal-newspaper-btn,.cal-theme-bridge .cal-refresh-btn,.cal-theme-bridge .cal-close-btn{min-width:34px;min-height:34px;border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.cal-theme-bridge .cal-close-btn:hover{background:var(--bridge-danger-soft);border-color:var(--bridge-danger);color:var(--bridge-danger);}
+.cal-theme-bridge .cal-weekdays{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal);font:10px/1 var(--bridge-font-ui);letter-spacing:1px;}
+.cal-theme-bridge .cal-grid{gap:3px;background:var(--bridge-panel-inset);border:1.5px solid var(--bridge-line);border-radius:4px;}
+.cal-theme-bridge .cal-day{border-radius:4px;border:1px solid var(--bridge-line-soft);background:var(--bridge-panel);font-family:var(--bridge-font-ui);aspect-ratio:1.6;}
+.cal-theme-bridge .cal-day:hover{background:var(--bridge-panel-alt);}
+.cal-theme-bridge .cal-day.is-today{border-color:var(--bridge-signal);color:var(--bridge-signal);box-shadow:inset 0 -2px 0 var(--bridge-signal);}
+.cal-theme-bridge .cal-day.is-selected{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
+.cal-theme-bridge .cal-day.is-selected .cal-memo-tag,.cal-theme-bridge .cal-day.is-selected .cal-birthday-mark{color:var(--bridge-screen-text);}
+.cal-theme-bridge .cal-detail{background:var(--bridge-panel-inset);border-top:2px solid var(--bridge-line-strong);}
+.calendar-popup.cal-theme-bridge .cal-detail-event{border-radius:4px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt);}
+.cal-theme-bridge .cal-detail-event:nth-child(even){border-left-color:var(--bridge-signal);}
+.cal-theme-bridge .cal-detail-event-type{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);font-family:var(--bridge-font-ui);transform:skewX(-8deg);}
+.cal-theme-bridge .cal-detail-weather,.cal-theme-bridge .cal-ev-chip{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
+.cal-theme-bridge .cal-ev-chip .ub-ic{color:var(--bridge-screen-muted);}
+.cal-theme-bridge .cal-cyc-chip b{font-family:var(--bridge-font-data);color:var(--bridge-alert);}
+.cal-theme-bridge .cal-cyc-chip.due.hot b{color:var(--bridge-danger);}
+.cal-theme-bridge .cal-cyc-bar{border-radius:3px;background:var(--bridge-panel-inset);}
+.cal-theme-bridge .cal-cyc-bar i{border-radius:3px;background:var(--bridge-signal);}
+.cal-theme-bridge .cal-edit-type-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
+@media(max-width:599px){.calendar-popup.cal-theme-bridge.bridge-module-calendar{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.cal-theme-bridge .cal-detail{overflow-y:auto}}
 
 /* ═══════════════════════════════════════════════════ */
 /*  主题专属样式 — 灵动玻璃（iOS，token 已由主题根接管，此处仅装饰） */

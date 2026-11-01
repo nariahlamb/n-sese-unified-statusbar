@@ -139,7 +139,7 @@ export function buildSkillButton(style: StyleType, config: StatusBarConfig): str
   if (style === 'flirtatious') return '<button class="item-head-btn" id="ac-skill-btn" type="button" title="主角技能与天赋树">技能</button>';
   if (style === 'sweet') return '<button class="candy-btn mint" id="ac-skill-btn" type="button" title="主角技能与天赋树" style="font-size:11px;padding:3px 8px;">🔮 技能</button>';
   if (style === 'xianxia') return '<button class="xx-header-action-btn" id="ac-skill-btn" type="button" title="主角技能与天赋树">技能</button>';
-  if (style === 'bridge') return '<button class="bridge-btn" id="ac-skill-btn" type="button" title="主角技能与天赋树">技能矩阵</button>';
+  if (style === 'bridge') return '<button class="bridge-btn" id="ac-skill-btn" type="button" title="主角技能与天赋树">技能</button>';
   if (style === 'ios') return '<button class="ios-action" id="ac-skill-btn" type="button" title="主角技能与天赋树">' + ubIcon('gem') + '技能</button>';
   return '';
 }
@@ -151,7 +151,7 @@ export function buildWardrobeButton(style: StyleType, config: StatusBarConfig): 
   if (style === 'flirtatious') return '<button class="item-head-btn" id="ac-wardrobe-btn" type="button" title="衣柜">衣柜</button>';
   if (style === 'sweet') return '<button class="candy-btn lav" id="ac-wardrobe-btn" type="button" title="衣柜" style="font-size:11px;padding:3px 8px;">👗 衣柜</button>';
   if (style === 'xianxia') return '<button class="xx-header-action-btn" id="ac-wardrobe-btn" type="button" title="衣柜">仙衣阁</button>';
-  if (style === 'bridge') return '<button class="bridge-btn" id="ac-wardrobe-btn" type="button" title="衣柜">装束库</button>';
+  if (style === 'bridge') return '<button class="bridge-btn" id="ac-wardrobe-btn" type="button" title="衣柜">衣柜</button>';
   if (style === 'ios') return '<button class="ios-action" id="ac-wardrobe-btn" type="button" title="衣柜">' + ubIcon('dress') + '衣柜</button>';
   return '';
 }
@@ -163,7 +163,7 @@ const WARDROBE_SUMMARY_LABELS: Record<StyleType, string> = {
   minimal: 'OUTFIT',
   sweet: '穿搭',
   xianxia: '仙衣',
-  bridge: 'CURRENT OUTFIT',
+  bridge: '穿搭',
   ios: '穿搭',
 };
 
@@ -603,7 +603,7 @@ export function buildOptionsBar(style: StyleType, opts?: { floating?: boolean })
     case 'minimal': headerLabel = 'OPTIONS'; break;
     case 'sweet': headerLabel = '甜蜜选择'; break;
     case 'xianxia': headerLabel = '天机抉择'; break;
-    case 'bridge': headerLabel = '指令序列'; break;
+    case 'bridge': headerLabel = '下一步'; break;
     case 'ios': headerLabel = '接下来的选择'; break;
     default: headerLabel = '选项栏';
   }

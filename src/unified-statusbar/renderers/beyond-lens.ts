@@ -20,7 +20,7 @@ export const BEYOND_LABELS: Record<StyleType, { chronicleSec: string; rumorSec: 
   minimal: { chronicleSec: '纪事', rumorSec: '市井', charSec: '镜头之外' },
   sweet: { chronicleSec: '甜事记', rumorSec: '街头小话', charSec: '镜头之外' },
   xianxia: { chronicleSec: '仙踪志', rumorSec: '市井流言', charSec: '镜外' },
-  bridge: { chronicleSec: 'LOG', rumorSec: 'INTEL', charSec: 'OFF-SCREEN' },
+  bridge: { chronicleSec: '手记', rumorSec: '情报', charSec: '镜头之外' },
   ios: { chronicleSec: '演化纪事', rumorSec: '传闻', charSec: '镜头之外' },
 };
 

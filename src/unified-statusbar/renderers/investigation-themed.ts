@@ -1489,23 +1489,24 @@ export function renderXianxiaDossier(data: InvestigationData, charName: string):
 }
 
 // ===================================================================
-// 深空舰桥 — 人员调查档案
+// 怪盗手记 — 人物调查档案
 // ===================================================================
 export function renderBridgeDossier(data: InvestigationData, charName: string): string {
   const css = `
-.iv-bridge{--ivb-bg:var(--bridge-panel,#eef3f5);--ivb-card:var(--bridge-panel-alt,#dde8eb);--ivb-text:var(--bridge-text,#16222c);--ivb-muted:var(--bridge-text-muted,#62757c);--ivb-line:var(--bridge-line,#91a5ad);--ivb-signal:var(--bridge-signal,#0a7189);--ivb-warn:var(--bridge-warn,#b47a16);color:var(--ivb-text);background:var(--ivb-bg);font-family:var(--bridge-font-ui,"Microsoft YaHei","PingFang SC",sans-serif);line-height:1.7}
-.iv-bridge .ivb-head{display:grid;grid-template-columns:1fr auto;gap:12px;padding:18px 22px;background:var(--bridge-screen,#152b32);color:var(--bridge-screen-text,#8eeaff);border-bottom:1px solid var(--bridge-line-strong,#23758a)}
-.iv-bridge .ivb-kicker,.iv-bridge .ivb-code{font:9px/1.4 var(--bridge-font-data,"Consolas",monospace);letter-spacing:1.5px}.iv-bridge .ivb-name{margin-top:5px;font-size:26px;font-weight:700;letter-spacing:3px}.iv-bridge .ivb-code{text-align:right}.iv-bridge .ivb-grade{display:inline-block;margin-top:5px;padding:2px 7px;border:1px solid var(--ivb-warn);color:var(--ivb-warn);font-size:10px}
-.iv-bridge .ivb-desc{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid rgba(142,234,255,.2);color:var(--bridge-screen-muted,#a3c2c9);font-size:12px}
-.iv-bridge .ivb-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px;background-image:linear-gradient(rgba(35,117,138,.035) 1px,transparent 1px);background-size:100% 22px}
-.iv-bridge .ivb-section{min-width:0;padding:12px;border:1px solid var(--ivb-line);border-left:3px solid var(--ivb-signal);background:var(--ivb-card)}.iv-bridge .ivb-wide{grid-column:1/-1}
-.iv-bridge .ivb-title{display:flex;justify-content:space-between;gap:8px;margin:-2px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--ivb-line);color:var(--ivb-signal);font:700 11px/1.2 var(--bridge-font-data,"Consolas",monospace);letter-spacing:1px}.iv-bridge .ivb-title::after{content:"DATA BLOCK";color:var(--ivb-muted);font-size:8px;font-weight:400}
-.iv-bridge .ivb-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.iv-bridge .ivb-field{padding:6px 8px;border:1px solid color-mix(in srgb,var(--ivb-line) 75%,transparent);background:var(--ivb-bg)}.iv-bridge .ivb-label{display:block;color:var(--ivb-muted);font:9px/1.3 var(--bridge-font-data,"Consolas",monospace);letter-spacing:.8px}.iv-bridge .ivb-value{display:block;margin-top:3px;font-size:12px;white-space:pre-line}
-.iv-bridge .ivb-score{display:grid;grid-template-columns:72px 1fr 34px;gap:8px;align-items:center;margin:7px 0}.iv-bridge .ivb-score-label{font-size:10px;color:var(--ivb-muted)}.iv-bridge .ivb-track{height:7px;border:1px solid var(--bridge-line-strong,#23758a);background:var(--bridge-screen,#152b32)}.iv-bridge .ivb-fill{height:100%;background:var(--ivb-signal)}.iv-bridge .ivb-score-num{font:700 11px var(--bridge-font-data,"Consolas",monospace);color:var(--ivb-signal)}.iv-bridge .ivb-score-desc{grid-column:2/-1;margin-top:-5px;color:var(--ivb-muted);font-size:10px}
-.iv-bridge .ivb-tags{display:flex;flex-wrap:wrap;gap:5px}.iv-bridge .ivb-tag{padding:2px 7px;border:1px solid var(--ivb-line);background:var(--ivb-bg);font-size:10px}.iv-bridge .ivb-tag.warn{border-color:var(--ivb-warn);color:var(--ivb-warn)}
-.iv-bridge .ivb-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.iv-bridge .ivb-stat{padding:8px;border:1px solid var(--ivb-line);background:var(--ivb-bg);text-align:center}.iv-bridge .ivb-stat b{display:block;color:var(--ivb-signal);font:700 18px var(--bridge-font-data,"Consolas",monospace)}.iv-bridge .ivb-stat span{color:var(--ivb-muted);font-size:9px}
-.iv-bridge .ivb-table{width:100%;border-collapse:collapse;font-size:10px}.iv-bridge .ivb-table th,.iv-bridge .ivb-table td{padding:5px 6px;border-bottom:1px solid var(--ivb-line);text-align:left}.iv-bridge .ivb-table th{color:var(--ivb-muted);font:9px var(--bridge-font-data,"Consolas",monospace);letter-spacing:.5px}
-.iv-bridge .ivb-note{padding:8px 10px;border-left:3px solid var(--ivb-warn);background:var(--ivb-bg);white-space:pre-line;font-size:11px}.iv-bridge .ivb-note+.ivb-note{margin-top:6px;border-left-color:var(--ivb-signal)}
+.iv-popup.bridge-module-investigation{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow)}
+.iv-bridge{--ivb-bg:var(--bridge-panel);--ivb-card:var(--bridge-panel-alt);--ivb-text:var(--bridge-text);--ivb-muted:var(--bridge-muted);--ivb-line:var(--bridge-line);--ivb-signal:var(--bridge-signal);--ivb-warn:var(--bridge-warn);color:var(--ivb-text);background:var(--ivb-bg);font-family:var(--bridge-font-ui);line-height:1.7}
+.iv-bridge .ivb-head{display:grid;grid-template-columns:1fr auto;gap:12px;padding:18px 22px;background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal)}
+.iv-bridge .ivb-kicker,.iv-bridge .ivb-code{font:9px/1.4 var(--bridge-font-ui);letter-spacing:1.5px}.iv-bridge .ivb-name{margin-top:5px;font-size:26px;font-weight:700;letter-spacing:3px}.iv-bridge .ivb-code{text-align:right}.iv-bridge .ivb-grade{display:inline-block;margin-top:5px;padding:2px 7px;border:1px solid var(--ivb-warn);color:var(--ivb-warn);font-size:10px}
+.iv-bridge .ivb-desc{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid var(--bridge-screen-muted);color:var(--bridge-screen-muted);font-size:12px}
+.iv-bridge .ivb-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
+.iv-bridge .ivb-section{min-width:0;padding:12px;border:1.5px solid var(--ivb-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;background:var(--ivb-card)}.iv-bridge .ivb-wide{grid-column:1/-1}
+.iv-bridge .ivb-title{display:flex;justify-content:space-between;gap:8px;margin:-2px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--ivb-line);color:var(--ivb-signal);font:700 11px/1.2 var(--bridge-font-ui);letter-spacing:1px}.iv-bridge .ivb-section:nth-child(even){border-left-color:var(--ivb-signal)}
+.iv-bridge .ivb-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.iv-bridge .ivb-field{padding:6px 8px;border:1.5px solid var(--ivb-line);border-radius:4px;background:var(--ivb-bg)}.iv-bridge .ivb-label{display:block;color:var(--ivb-muted);font:9px/1.3 var(--bridge-font-ui);letter-spacing:.8px}.iv-bridge .ivb-value{display:block;margin-top:3px;font-size:12px;white-space:pre-line}
+.iv-bridge .ivb-score{display:grid;grid-template-columns:72px 1fr 34px;gap:8px;align-items:center;margin:7px 0}.iv-bridge .ivb-score-label{font-size:10px;color:var(--ivb-muted)}.iv-bridge .ivb-track{height:7px;overflow:hidden;border:1px solid var(--ivb-line);border-radius:4px;background:var(--bridge-panel-inset)}.iv-bridge .ivb-fill{display:block;height:100%;border-radius:3px;background:var(--ivb-signal)}.iv-bridge .ivb-score-num{font:700 11px var(--bridge-font-data);color:var(--bridge-alert)}.iv-bridge .ivb-score-desc{grid-column:2/-1;margin-top:-5px;color:var(--ivb-muted);font-size:10px}
+.iv-bridge .ivb-tags{display:flex;flex-wrap:wrap;gap:5px}.iv-bridge .ivb-tag{padding:2px 7px;border:1px solid var(--bridge-line-strong);border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);font-size:10px}.iv-bridge .ivb-tag.warn{border-color:var(--ivb-warn);color:var(--ivb-warn)}
+.iv-bridge .ivb-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.iv-bridge .ivb-stat{padding:8px;border:1.5px solid var(--ivb-line);border-radius:4px;background:var(--ivb-bg);text-align:center}.iv-bridge .ivb-stat b{display:block;color:var(--bridge-alert);font:700 18px var(--bridge-font-data)}.iv-bridge .ivb-stat span{color:var(--ivb-muted);font-size:9px}
+.iv-bridge .ivb-table{width:100%;border-collapse:collapse;font-size:10px}.iv-bridge .ivb-table th,.iv-bridge .ivb-table td{padding:5px 6px;border-bottom:1px solid var(--ivb-line);text-align:left}.iv-bridge .ivb-table th{color:var(--ivb-muted);font:9px var(--bridge-font-ui);letter-spacing:.5px}
+.iv-bridge .ivb-note{padding:8px 10px;border-left:4px solid var(--ivb-warn);border-radius:4px;background:var(--ivb-bg);white-space:pre-line;font-size:11px}.iv-bridge .ivb-note+.ivb-note{margin-top:6px;border-left-color:var(--ivb-signal)}
 @media(max-width:599px){.iv-popup.bridge-module-investigation{width:100%;height:100vh;height:100dvh;max-width:none;max-height:none}.iv-bridge .ivb-head{padding:14px}.iv-bridge .ivb-body{grid-template-columns:1fr;padding:8px}.iv-bridge .ivb-wide{grid-column:auto}.iv-bridge .ivb-fields{grid-template-columns:1fr}.iv-bridge .ivb-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.iv-bridge .ivb-table{display:block;overflow-x:auto}}
 `;
   const field = (label: string, value: string): string => value
@@ -1543,23 +1544,23 @@ export function renderBridgeDossier(data: InvestigationData, charName: string): 
   ].map(([label, value]) => field(label, value)).join('');
 
   const html = '<div class="iv-popup bridge-window bridge-module-investigation"><div class="iv-popup-body"><div class="iv-wrap iv-bridge">'
-    + '<header class="ivb-head"><div><div class="ivb-kicker">PERSONNEL INTELLIGENCE / 调查档案</div><div class="ivb-name">' + esc(data.name || charName) + '</div>'
-    + (data.grade ? '<span class="ivb-grade">GRADE ' + esc(data.grade) + '</span>' : '') + '</div>'
-    + '<div class="ivb-code">' + (data.globalRank ? 'RANK ' + esc(data.globalRank) : 'UNRANKED') + '<br>ACCESS: RESTRICTED</div>'
+    + '<header class="ivb-head"><div><div class="ivb-kicker">调查档案</div><div class="ivb-name">' + esc(data.name || charName) + '</div>'
+    + (data.grade ? '<span class="ivb-grade">评级 ' + esc(data.grade) + '</span>' : '') + '</div>'
+    + '<div class="ivb-code">' + (data.globalRank ? '排名 ' + esc(data.globalRank) : '暂无排名') + '<br>私密档案</div>'
     + (data.description ? '<p class="ivb-desc">' + esc(data.description) + '</p>' : '') + '</header>'
     + '<main class="ivb-body">'
-    + section('身份与体征 / IDENTITY', '<div class="ivb-fields">' + field('性别', data.sex) + field('年龄', data.age) + field('身体数据', data.body) + field('取向', data.orientation) + '</div>')
-    + section('外观与着装 / APPEARANCE', '<div class="ivb-fields">' + field('日常着装', data.dailyClothes) + field('私密衣着', data.privateClothes) + field('妆容', data.makeup) + field('最佳部位', data.bestPart) + field('声音', data.voice) + '</div>')
-    + section('心理遥测 / PSYCHOMETRICS', score('羞耻指数', data.shameIndex) + score('性自信', data.confidenceIndex) + score('性开放', data.opennessIndex) + tags(data.coreFetishes), true)
-    + section('历史计数 / HISTORY', '<div class="ivb-stats">' + stats.map(([label, value]) => '<div class="ivb-stat"><b>' + esc(value) + '</b><span>' + esc(label) + '</span></div>').join('') + '</div>' + field('纯洁详情', data.purityDetails) + field('破处记录', data.defloration))
-    + section('人员关联 / PARTNERS', partners, true)
-    + section('偏好矩阵 / PREFERENCES', '<div class="ivb-fields">' + field('姿势', data.positions) + field('地点', data.locations) + '</div>' + tags(data.pornTags, true) + tags(data.charmTypes), true)
+    + section('身份与体征', '<div class="ivb-fields">' + field('性别', data.sex) + field('年龄', data.age) + field('身体数据', data.body) + field('取向', data.orientation) + '</div>')
+    + section('外观与着装', '<div class="ivb-fields">' + field('日常着装', data.dailyClothes) + field('私密衣着', data.privateClothes) + field('妆容', data.makeup) + field('最佳部位', data.bestPart) + field('声音', data.voice) + '</div>')
+    + section('心理状况', score('羞耻指数', data.shameIndex) + score('性自信', data.confidenceIndex) + score('性开放', data.opennessIndex) + tags(data.coreFetishes), true)
+    + section('过往记录', '<div class="ivb-stats">' + stats.map(([label, value]) => '<div class="ivb-stat"><b>' + esc(value) + '</b><span>' + esc(label) + '</span></div>').join('') + '</div>' + field('纯洁详情', data.purityDetails) + field('破处记录', data.defloration))
+    + section('人物关系', partners, true)
+    + section('偏好', '<div class="ivb-fields">' + field('姿势', data.positions) + field('地点', data.locations) + '</div>' + tags(data.pornTags, true) + tags(data.charmTypes), true)
     + (hasPositiveCount(data.pregnancy) || hasPositiveCount(data.impregnate)
-      ? section('生育记录 / REPRODUCTIVE', '<div class="ivb-fields">' + field('怀孕', hasPositiveCount(data.pregnancy) ? data.pregnancy : '') + field('怀孕详情', hasPositiveCount(data.pregnancy) ? data.pregnancyDetails : '') + field('使人怀孕', hasPositiveCount(data.impregnate) ? data.impregnate : '') + field('相关详情', hasPositiveCount(data.impregnate) ? data.impregnateDetails : '') + '</div>')
+      ? section('生育记录', '<div class="ivb-fields">' + field('怀孕', hasPositiveCount(data.pregnancy) ? data.pregnancy : '') + field('怀孕详情', hasPositiveCount(data.pregnancy) ? data.pregnancyDetails : '') + field('使人怀孕', hasPositiveCount(data.impregnate) ? data.impregnate : '') + field('相关详情', hasPositiveCount(data.impregnate) ? data.impregnateDetails : '') + '</div>')
       : '')
-    + section('开发状态 / DEVELOPMENT', '<div class="ivb-fields">' + development + '</div>')
-    + section('关键经历 / EVENT LOG', '<div class="ivb-fields">' + experiences + field('自慰次数', data.mastCount) + field('自慰频率', data.mastFreq) + field('首次自慰', data.mastFirst) + field('方式', data.mastWay) + '</div>', true)
-    + section('评议与结论 / ASSESSMENT', (data.reviews ? '<div class="ivb-note">' + esc(data.reviews) + '</div>' : '')
+    + section('开发状态', '<div class="ivb-fields">' + development + '</div>')
+    + section('关键经历', '<div class="ivb-fields">' + experiences + field('自慰次数', data.mastCount) + field('自慰频率', data.mastFreq) + field('首次自慰', data.mastFirst) + field('方式', data.mastWay) + '</div>', true)
+    + section('评议与结论', (data.reviews ? '<div class="ivb-note">' + esc(data.reviews) + '</div>' : '')
       + (data.protagonistNote ? '<div class="ivb-note">主角评议：' + esc(data.protagonistNote) + '</div>' : '')
       + (data.characterSelfNote ? '<div class="ivb-note">本人自评：' + esc(data.characterSelfNote) + '</div>' : '')
       + field('优势', data.rankAdvantages) + field('风险', data.rankDisadvantages), true)

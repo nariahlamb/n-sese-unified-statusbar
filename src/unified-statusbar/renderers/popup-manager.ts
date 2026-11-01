@@ -142,7 +142,7 @@ export function showMemoPopup(style: StyleType): void {
   }
 
   let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('memo','m') : 'panel-popup ub-popup--m') + '" data-popup="memo">';
-  const memoTitle = isMinimal ? '备忘录' : (style === 'ancient' ? '手札' : style === 'bridge' ? '舰桥日志' : '备忘录');
+  const memoTitle = isMinimal ? '备忘录' : (style === 'ancient' ? '手札' : style === 'bridge' ? '手记' : '备忘录');
   const memoGoalsTip = '让 AI 结合世界书、纪要与最近剧情生成游玩目标（长期/短期/人物相关），勾选后写入备忘录；不知道接下来做什么时用来找方向。';
   html += '<div class="panel-popup-head"><div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0;"><div class="panel-popup-title" style="flex:none">' + memoTitle + '</div>' + (getConfig().showHelpTips ? helpTipButton(memoGoalsTip) : '') + '</div><button class="panel-popup-warehouse-toggle" id="memoGoalsBtn">AI 规划</button><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="panel-popup-body">' + bodyHtml + '</div></div>';
@@ -185,7 +185,7 @@ function buildMemoBodyHtml(style: StyleType): string {
   const count = sheet ? (sheet.content.length - 1) : 0;
   let html = '';
   if (count === 0) {
-    html += '<div class="panel-empty">' + (style === 'ancient' ? '暂无手札记录' : style === 'bridge' ? '舰桥日志暂无记录' : '暂无备忘事项') + '</div>';
+    html += '<div class="panel-empty">' + (style === 'ancient' ? '暂无手札记录' : style === 'bridge' ? '暂无手记' : '暂无备忘事项') + '</div>';
   } else {
     for (let i = count; i >= 1; i--) {
       const title = getCellByHeader('备忘录', i, '备忘标题') || '未命名';
@@ -271,7 +271,7 @@ export function showMapCharPopup(name: string, style: StyleType, onClose?: () =>
   }
 
   // 构建 HTML（复用 char-info-popup 样式，无标签页）
-  const titleText = isMinimal ? 'CHARACTER' : (style === 'ancient' ? '人物' : style === 'xianxia' ? '仙缘' : style === 'bridge' ? '人员档案' : '角色信息');
+  const titleText = isMinimal ? 'CHARACTER' : (style === 'ancient' ? '人物' : style === 'xianxia' ? '仙缘' : style === 'bridge' ? '人物档案' : '角色信息');
   let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('character','m') + ' char-info-popup' : 'panel-popup char-info-popup ub-popup--m') + '">';
   html += '<div class="panel-popup-head"><div class="panel-popup-title">' + titleText + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="char-info-body"><div class="char-info-panel active">';
@@ -1218,7 +1218,7 @@ export function showDiaryPopup(charName: string, style: StyleType): void {
 
   const isMinimal = style === 'minimal';
   let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('diary','m') : 'panel-popup ub-popup--m') + '">';
-  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + escapeHtml(charName) + (style === 'ancient' ? ' 的情笺' : style === 'bridge' ? ' 的人员日志' : ' 的恋爱日记') + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
+  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + escapeHtml(charName) + (style === 'ancient' ? ' 的情笺' : style === 'bridge' ? ' 的日记' : ' 的恋爱日记') + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="panel-popup-body">';
   if (diaries.length === 0) {
     html += '<div class="panel-empty">' + (style === 'ancient' ? '暂无情笺' : '暂无恋爱日记') + '</div>';
@@ -1315,7 +1315,7 @@ export function showMissionPopup(style: StyleType): void {
   }
 
   let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('mission','m') : 'panel-popup ub-popup--m') + '" data-popup="mission">';
-  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + (style === 'ancient' ? '差事' : style === 'bridge' ? '任务队列' : '瑟瑟任务') + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
+  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + (style === 'ancient' ? '差事' : style === 'bridge' ? '任务' : '瑟瑟任务') + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="panel-popup-body">' + bodyHtml + '</div></div>';
 
   if (isMinimal) syncDarkClassMinimal(overlay);
@@ -1706,7 +1706,7 @@ export function showNsfwGuidanceExtraPromptDialog(onConfirm: (extraPrompt: strin
 function buildInvestigationHistoryList(history: DossierEntry[], style: StyleType, activeIndex?: number): string {
   if (history.length === 0) return '';
 
-  let html = '<div class="iv-hist-topbar"><span class="iv-hist-title">' + (style === 'ancient' ? '过往卷宗' : style === 'xianxia' ? '往昔仙籍' : style === 'flirtatious' ? 'NEON_LOG' : style === 'sweet' ? '情书记录' : style === 'bridge' ? '航行档案' : '历史档案') + '</span></div>';
+  let html = '<div class="iv-hist-topbar"><span class="iv-hist-title">' + (style === 'ancient' ? '过往卷宗' : style === 'xianxia' ? '往昔仙籍' : style === 'flirtatious' ? 'NEON_LOG' : style === 'sweet' ? '情书记录' : style === 'bridge' ? '过往手记' : '历史档案') + '</span></div>';
 
   for (let i = history.length - 1; i >= 0; i--) {
     const d = history[i];
@@ -1876,7 +1876,7 @@ async function showInvestigationContent(charName: string, style: StyleType, doss
   }
 
   // 顶栏：角色名 + 折叠按钮 + 操作按钮 + 关闭
-  const topBarLabel = style==='ancient'?'卷宗':style==='xianxia'?'玉简':style==='flirtatious'?'DOSSIER':style==='sweet'?'情书':style==='bridge'?'航行档案':'档案';
+  const topBarLabel = style==='ancient'?'卷宗':style==='xianxia'?'玉简':style==='flirtatious'?'DOSSIER':style==='sweet'?'情书':style==='bridge'?'手记':'档案';
   let topBarHTML = '<div class="iv-top-bar iv-top-bar-' + style + '">';
   topBarHTML += '<span class="iv-top-name">' + safeName + '</span>';
   topBarHTML += '<span class="iv-top-label">' + topBarLabel + '</span>';
@@ -2131,9 +2131,18 @@ body.dark-mode .iv-wb-overlay.iv-wb-minimal .iv-wb-mod{background:#222;border-co
 /* 云海仙踪 — 青蓝 */
 .iv-wb-xianxia{--ivw-bg:#e8f4f0;--ivw-head-bg:#f7fbf8;--ivw-mod-bg:#f0f7f4;--ivw-mod-bg-hover:#dff0e9;--ivw-text:#243d38;--ivw-muted:#708c85;--ivw-line:#a7c7be;--ivw-accent:#278c82;--ivw-accent-soft:rgba(39,140,130,.12);--ivw-accent-on:#e8f4f0;--ivw-preview-bg:#f4f9f6;--ivw-preview-text:#3a6048;--ivw-font:"Noto Serif SC","Noto Serif CJK SC","Songti SC","SimSun",serif;--ivw-radius:6px}
 
-/* 深空舰桥 — 复古未来(映射 --bridge-*) */
-.iv-wb-bridge{--ivw-bg:var(--bridge-panel,#eef3f5);--ivw-head-bg:var(--bridge-screen,#152b32);--ivw-mod-bg:var(--bridge-panel-alt,#dde8eb);--ivw-mod-bg-hover:var(--bridge-panel-inset,#cdd9dc);--ivw-text:var(--bridge-text,#16222c);--ivw-muted:var(--bridge-muted,#62757c);--ivw-line:var(--bridge-line,#91a5ad);--ivw-accent:var(--bridge-signal,#0a7189);--ivw-accent-soft:var(--bridge-signal-soft,rgba(10,113,137,.14));--ivw-accent-on:var(--bridge-signal-contrast,#fff);--ivw-preview-bg:var(--bridge-panel-inset,#152b32);--ivw-preview-text:var(--bridge-text,#16222c);--ivw-font:var(--bridge-font-ui,"Microsoft YaHei","PingFang SC",sans-serif);--ivw-radius:0}
-.iv-wb-bridge .iv-wb-title::after{content:" / WORLDBOOK UPLINK";font:8px var(--bridge-font-data,"Consolas",monospace);letter-spacing:1.2px;color:var(--bridge-screen-muted,#a3c2c9)}
+/* 怪盗手记 — 世界书收录 */
+.iv-wb-bridge,.iv-wb-overlay.iv-wb-bridge .iv-wb-dialog{--ivw-bg:var(--bridge-panel);--ivw-head-bg:var(--bridge-panel-2);--ivw-mod-bg:var(--bridge-panel-alt);--ivw-mod-bg-hover:var(--bridge-panel-inset);--ivw-text:var(--bridge-text);--ivw-muted:var(--bridge-muted);--ivw-line:var(--bridge-line);--ivw-accent:var(--bridge-signal);--ivw-accent-soft:var(--bridge-signal-soft);--ivw-accent-on:var(--bridge-signal-contrast);--ivw-preview-bg:var(--bridge-panel-inset);--ivw-preview-text:var(--bridge-text);--ivw-font:var(--bridge-font-ui);--ivw-radius:4px}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-dialog,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-dialog{background:var(--bridge-panel);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);box-shadow:var(--ub-popup-shadow)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-head,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-foot,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-foot{background:var(--bridge-panel-2);border-top:1.5px solid var(--bridge-line)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-meta,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-meta{border-color:var(--bridge-line-soft)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-mod{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-mod:nth-child(even){border-left-color:var(--bridge-signal)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-mod.checked,.iv-wb-overlay.iv-wb-bridge .iv-wb-btn.primary{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-preview-wrap,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-preview-wrap{background:var(--bridge-panel-2);border-color:var(--bridge-line)}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-preview,body.dark-mode .iv-wb-overlay.iv-wb-bridge .iv-wb-preview{border:1.5px solid var(--bridge-line);border-radius:4px}
+.iv-wb-overlay.iv-wb-bridge .iv-wb-btn{min-height:32px}
 
 /* === 深色模式：sweet/xianxia/minimal 浅色对话框的 --ivw-* 翻深（H2：深色下 vars 未翻转致 mod 卡/正文/预览文字不可读） === */
 .panel-overlay.dark .iv-wb-sweet,body.dark-mode .iv-wb-sweet{--ivw-bg:var(--sweet-bg,#241c28);--ivw-head-bg:var(--sweet-card,#2a1c2a);--ivw-mod-bg:#241c28;--ivw-mod-bg-hover:#2e2230;--ivw-text:var(--sweet-text,#e8d8e0);--ivw-muted:var(--sweet-text-soft,#b898a0);--ivw-line:var(--sweet-border,#3a2a38);--ivw-preview-bg:#1a141c;--ivw-preview-text:#d0a0b0}
@@ -2282,7 +2291,7 @@ const INTERVIEW_POPUP_CSS = `.interview-config-popup,.interview-popup{--itvc-bg:
    按钮消失且无滚动路径可达（PC 只裁掉按钮下半）。行高继承自宿主页，故该常量本质上不可预测。 */
 .interview-config-popup{display:flex;flex-direction:column}
 .interview-popup{max-width:900px;width:100%;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column}
-.itv-config-flirtatious{--itvc-bg:#0d0a18;--itvc-card:#171126;--itvc-text:#f4edff;--itvc-muted:#9a8cac;--itvc-line:#4f356d;--itvc-accent:#ff4f9f;font-family:"Courier New",monospace}.itv-config-minimal{--itvc-bg:#ededeb;--itvc-card:#fff;--itvc-text:#171717;--itvc-muted:#666;--itvc-line:#aaa;--itvc-accent:#b22038;font-family:"Courier New",monospace}.itv-config-sweet{--itvc-bg:var(--sweet-bg,#fff0f5);--itvc-card:var(--sweet-card,#fffafd);--itvc-text:var(--sweet-text,#572d42);--itvc-muted:var(--sweet-text-soft,#9b7386);--itvc-line:var(--sweet-border,#efb6c9);--itvc-accent:#d64e7c}.itv-config-xianxia{--itvc-bg:#e8f1ee;--itvc-card:#f7fbf8;--itvc-text:#243d38;--itvc-muted:#708c85;--itvc-line:#a7c7be;--itvc-accent:#278c82}.itv-config-bridge{--itvc-bg:var(--bridge-panel);--itvc-card:var(--bridge-panel-alt);--itvc-text:var(--bridge-text);--itvc-muted:var(--bridge-muted);--itvc-line:var(--bridge-line);--itvc-accent:var(--bridge-signal);border-radius:0;font-family:var(--bridge-font-ui)}.itv-config-ios{--itvc-bg:#f2f2f7;--itvc-card:#ffffff;--itvc-text:#1c1c1e;--itvc-muted:rgba(60,60,67,.62);--itvc-line:rgba(60,60,67,.12);--itvc-accent:#007aff;border-radius:20px;border:none;box-shadow:0 14px 44px rgba(0,0,0,.22);font-family:var(--ios-font,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei UI',sans-serif)}
+.itv-config-flirtatious{--itvc-bg:#0d0a18;--itvc-card:#171126;--itvc-text:#f4edff;--itvc-muted:#9a8cac;--itvc-line:#4f356d;--itvc-accent:#ff4f9f;font-family:"Courier New",monospace}.itv-config-minimal{--itvc-bg:#ededeb;--itvc-card:#fff;--itvc-text:#171717;--itvc-muted:#666;--itvc-line:#aaa;--itvc-accent:#b22038;font-family:"Courier New",monospace}.itv-config-sweet{--itvc-bg:var(--sweet-bg,#fff0f5);--itvc-card:var(--sweet-card,#fffafd);--itvc-text:var(--sweet-text,#572d42);--itvc-muted:var(--sweet-text-soft,#9b7386);--itvc-line:var(--sweet-border,#efb6c9);--itvc-accent:#d64e7c}.itv-config-xianxia{--itvc-bg:#e8f1ee;--itvc-card:#f7fbf8;--itvc-text:#243d38;--itvc-muted:#708c85;--itvc-line:#a7c7be;--itvc-accent:#278c82}.itv-config-bridge{--itvc-bg:var(--bridge-panel);--itvc-card:var(--bridge-panel-alt);--itvc-text:var(--bridge-text);--itvc-muted:var(--bridge-muted);--itvc-line:var(--bridge-line);--itvc-accent:var(--bridge-signal);border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui)}.itv-config-ios{--itvc-bg:#f2f2f7;--itvc-card:#ffffff;--itvc-text:#1c1c1e;--itvc-muted:rgba(60,60,67,.62);--itvc-line:rgba(60,60,67,.12);--itvc-accent:#007aff;border-radius:20px;border:none;box-shadow:0 14px 44px rgba(0,0,0,.22);font-family:var(--ios-font,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei UI',sans-serif)}
 .itv-config-ios .itv-config-section{border-radius:14px}
 .itv-config-ios .itv-config-close,.itv-config-ios .itv-top-action,.itv-config-ios .itv-sidebar-toggle{border:none;border-radius:999px;background:rgba(120,120,128,.1)}
 .itv-config-ios .itv-config-close:hover,.itv-config-ios .itv-top-action:hover{background:rgba(120,120,128,.18)}
@@ -2302,6 +2311,13 @@ const INTERVIEW_POPUP_CSS = `.interview-config-popup,.interview-popup{--itvc-bg:
 .itv-config-head,.itv-content-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--itvc-line);background:var(--itvc-card);flex-shrink:0}.itv-config-title,.itv-content-title{flex:1;font-size:15px;font-weight:700;letter-spacing:2px}.itv-config-sub{color:var(--itvc-muted);font-size:11px}.itv-config-close,.itv-top-action{border:1px solid var(--itvc-line);border-radius:4px;background:transparent;color:var(--itvc-text);cursor:pointer;padding:4px 9px;font:inherit;font-size:11px}.itv-config-close{border:0;font-size:18px;padding:0 4px}.itv-config-body{flex:1 1 auto;min-height:0;overflow:auto;padding:14px 16px}.itv-config-section{margin-bottom:12px;padding:11px;border:1px solid var(--itvc-line);border-radius:6px;background:var(--itvc-card)}.itv-section-title{display:flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--itvc-accent);font-size:11px;font-weight:700;letter-spacing:1px}.itv-section-title small{color:var(--itvc-muted);font-weight:400;letter-spacing:0}.itv-selected-tray,.itv-candidate-pool{display:flex;flex-wrap:wrap;gap:6px}.itv-selected-chip,.itv-candidate{display:inline-flex;align-items:center;gap:5px;padding:3px 7px 3px 3px;border:1px solid var(--itvc-line);border-radius:999px;background:var(--itvc-bg);font-size:11px}.itv-selected-chip button,.itv-candidate button{border:0;background:transparent;color:var(--itvc-accent);cursor:pointer;font:inherit;font-size:10px;padding:1px 3px}.itv-candidate button:disabled{opacity:.3;cursor:default}.itv-mini-avatar{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;overflow:hidden;border-radius:50%;background:color-mix(in srgb,var(--itvc-accent) 15%,var(--itvc-card));color:var(--itvc-accent);font-size:10px;font-weight:700}.itv-mini-avatar img{width:100%;height:100%;object-fit:cover}.itv-lock{color:var(--itvc-accent);font-size:9px}.itv-custom-row,.itv-location-row,.itv-candidate-head{display:flex;gap:7px;align-items:center;margin-top:8px}.itv-custom-row input,.itv-candidate-search,.itv-location-select,.itv-extra-prompt{min-width:0;border:1px solid var(--itvc-line);border-radius:4px;background:var(--itvc-bg);color:var(--itvc-text);font:inherit;font-size:11px;padding:6px 8px}.itv-custom-row input,.itv-candidate-search{flex:1}.itv-custom-row button,.itv-config-primary,.itv-config-secondary,.itv-location-mode{border:1px solid var(--itvc-line);border-radius:4px;background:var(--itvc-bg);color:var(--itvc-text);cursor:pointer;font:inherit;font-size:11px;padding:6px 10px}.itv-candidate-head{margin:0 0 8px}.itv-candidate-count{color:var(--itvc-muted);font-size:10px}.itv-candidate-pool{max-height:148px;overflow-y:auto;padding-right:3px}.itv-location-row{flex-wrap:wrap}.itv-location-mode.active,.itv-config-primary{border-color:var(--itvc-accent);background:var(--itvc-accent);color:#fff}.itv-location-select{flex:1}.itv-location-preview{margin-top:8px;padding:8px 10px;border-left:3px solid var(--itvc-accent);background:var(--itvc-bg);font-size:10px;color:var(--itvc-muted);white-space:pre-wrap}.itv-location-preview b{color:var(--itvc-text)}.itv-location-excluded{margin-top:5px;opacity:.72}.itv-toggle-row{display:flex;align-items:flex-start;gap:9px}.itv-toggle{position:relative;flex:0 0 38px;width:38px;height:21px;border:1px solid var(--itvc-line);border-radius:999px;background:var(--itvc-bg);cursor:pointer}.itv-toggle::after{content:"";position:absolute;left:2px;top:2px;width:15px;height:15px;border-radius:50%;background:var(--itvc-muted);transition:.2s}.itv-toggle.on{background:color-mix(in srgb,var(--itvc-accent) 25%,var(--itvc-bg));border-color:var(--itvc-accent)}.itv-toggle.on::after{left:18px;background:var(--itvc-accent)}.itv-toggle-copy{font-size:10px;color:var(--itvc-muted);line-height:1.55}.itv-extra-prompt{width:100%;box-sizing:border-box;resize:vertical}.itv-config-foot{display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;padding:10px 16px;border-top:1px solid var(--itvc-line);background:var(--itvc-card)}
 .itv-content-shell{display:flex;gap:0;flex:1;min-height:0;overflow:hidden}.itv-history{flex:0 0 190px;min-width:0;max-width:42%;overflow:auto;border-right:1px solid var(--itvc-line);background:var(--itvc-card);padding:8px}.itv-content-shell.itv-collapsed .itv-history{flex:0 0 0;max-width:0;padding:0;border-right:0;overflow:hidden}.itv-sidebar-toggle{width:26px;height:26px;border:1px solid var(--itvc-line);background:transparent;color:var(--itvc-text);cursor:pointer;font-size:11px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:4px;line-height:1;flex-shrink:0}.itv-history-item{display:flex;gap:4px;align-items:center;margin-bottom:5px;border:1px solid var(--itvc-line);border-radius:4px;padding:5px;background:var(--itvc-bg);font-size:10px;cursor:pointer}.itv-history-item.active{border-color:var(--itvc-accent)}.itv-history-item span{flex:1}.itv-history-delete{border:0;background:transparent;color:var(--itvc-accent);cursor:pointer}.itv-content-main{flex:1;min-width:0;min-height:0;overflow:auto}.itv-fallback{margin:0;padding:20px;white-space:pre-wrap;color:var(--itvc-text)}
 @media(max-width:600px){.interview-config-popup{width:100%}.interview-config-popup.itv-config-bridge,.interview-popup.itv-config-bridge{height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-height:none}.itv-config-head{flex-wrap:wrap}.itv-config-sub{order:3;width:100%}.itv-config-body{padding:10px}.itv-content-topbar{flex-wrap:wrap;gap:6px;padding:8px}.itv-content-topbar .itv-content-title{flex:1 1 auto;min-width:0}.itv-top-action{padding:3px 6px}.itv-history{flex-basis:172px;max-width:none}}
+.itv-config-bridge .itv-config-head,.itv-config-bridge .itv-content-topbar{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.itv-config-bridge .itv-config-section{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px}
+.itv-config-bridge .itv-config-section:nth-child(even){border-left-color:var(--bridge-signal)}
+.itv-config-bridge .itv-selected-chip,.itv-config-bridge .itv-candidate{border-radius:4px}
+.itv-config-bridge .itv-location-mode.active,.itv-config-bridge .itv-config-primary,.itv-config-bridge .itv-history-item.active{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal)}
+.itv-config-bridge .itv-history-item.active .itv-history-delete{color:var(--bridge-screen-text)}
+.panel-overlay.dark .itv-config-bridge,body.dark-mode .itv-config-bridge{--itvc-bg:var(--bridge-panel);--itvc-card:var(--bridge-panel-alt);--itvc-text:var(--bridge-text);--itvc-muted:var(--bridge-muted);--itvc-line:var(--bridge-line);--itvc-accent:var(--bridge-signal)}
 .itv-font-scale{display:inline-flex;align-items:center;gap:4px}
 .itv-font-val{display:inline-block;min-width:30px;text-align:center;font-size:11px;opacity:.7;padding:0 2px}
 .itv-font-scale .itv-top-action:disabled{opacity:.4;cursor:default}

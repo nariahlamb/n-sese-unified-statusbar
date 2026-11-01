@@ -22,23 +22,23 @@ export interface WarehouseLabels {
   target: string;
 }
 
-/** 仓库相关文案按主题统一出口：古风/舰桥沿用原有叫法，其余主题用通用词。 */
+/** 仓库相关文案按主题统一出口：古风/怪盗手记采用各自叫法，其余主题用通用词。 */
 export function warehouseLabels(style: StyleType): WarehouseLabels {
   const ancient = style === 'ancient';
   const bridge = style === 'bridge';
   return {
-    inventory: ancient ? '随身' : bridge ? '补给清单' : '物品栏',
-    backToInventory: ancient ? '随身' : bridge ? '补给清单' : '物品',
-    warehouse: ancient ? '库藏' : bridge ? '补给仓' : '仓库',
+    inventory: ancient ? '随身' : bridge ? '物品' : '物品栏',
+    backToInventory: ancient ? '随身' : bridge ? '物品' : '物品',
+    warehouse: ancient ? '库藏' : bridge ? '仓库' : '仓库',
     put: ancient ? '纳入库藏' : '放入仓库',
     remove: ancient ? '取出' : '移出仓库',
     discard: ancient ? '弃置' : '丢弃',
-    emptyWarehouse: ancient ? '库中无物' : bridge ? '补给仓为空' : '仓库为空',
-    emptyInventory: ancient ? '身无长物' : bridge ? '补给清单为空' : '暂无物品',
+    emptyWarehouse: ancient ? '库中无物' : bridge ? '仓库为空' : '仓库为空',
+    emptyInventory: ancient ? '身无长物' : bridge ? '暂无物品' : '暂无物品',
     groupsManage: '分组管理',
-    newGroup: ancient ? '新建库藏' : bridge ? '新建补给仓' : '新建仓库',
-    deleteGroup: ancient ? '删除库藏' : bridge ? '删除补给仓' : '删除仓库',
-    target: ancient ? '目标库藏' : bridge ? '目标补给仓' : '目标仓库',
+    newGroup: ancient ? '新建库藏' : bridge ? '新建仓库' : '新建仓库',
+    deleteGroup: ancient ? '删除库藏' : bridge ? '删除仓库' : '删除仓库',
+    target: ancient ? '目标库藏' : bridge ? '目标仓库' : '目标仓库',
   };
 }
 

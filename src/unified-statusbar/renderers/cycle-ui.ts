@@ -30,7 +30,7 @@ const PHASE_LABEL: Record<StyleType, Record<CyclePhase, string>> = {
   minimal:     { menstrual: '经期',       follicular: '卵泡期',  ovulation: '易孕期',    luteal: '黄体期' },
   sweet:       { menstrual: '小红的日子',  follicular: '清明',    ovulation: '危险期', luteal: '将临' },
   xianxia:     { menstrual: '红尘劫',      follicular: '清明',    ovulation: '桃花期',    luteal: '将临' },
-  bridge:      { menstrual: '周期红区',    follicular: '低风险段', ovulation: '高风险段', luteal: '待机段' },
+  bridge:      { menstrual: '经期',       follicular: '安全期',  ovulation: '危险期',    luteal: '将临' },
   ios:         { menstrual: '经期',       follicular: '卵泡期',  ovulation: '易孕期',    luteal: '黄体期' },
 };
 
@@ -52,7 +52,7 @@ const HIGH_RISK_SYMBOL: Record<StyleType, string> = {
   sweet: '💕',
   xianxia: '🌸',
   minimal: '◆',
-  bridge: '▲',
+  bridge: '★',
   ios: '◆',
 };
 

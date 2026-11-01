@@ -34,7 +34,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 function titleForStyle(style: StyleType): string {
   if (style === 'minimal') return 'RELATION WEB';
-  if (style === 'bridge') return 'RELATION CHART';
+  if (style === 'bridge') return '关系图';
   if (style === 'ancient') return '关系图谱';
   if (style === 'xianxia') return '因缘之网';
   return '人物关系网';

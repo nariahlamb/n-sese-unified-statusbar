@@ -127,18 +127,32 @@ export const CURRENCY_POPUP_CSS = /* css */ `
   --wk-radius:20px;--wk-btn:#fae7ee;--wk-btn-text:#a05070;
 }
 .ub-wallet[data-skin="bridge"]{
-  --wk-bg:#10161f;--wk-head:#141c28;--wk-line:#243447;--wk-line-2:#1e2b3b;
-  --wk-text:#c9d6e8;--wk-sub:#6b7f99;
-  --wk-accent:#37b8ff;--wk-accent-deep:#2a9fe0;--wk-accent-soft:rgba(55,184,255,.10);
-  --wk-panel:#131b26;--wk-gold:rgba(55,184,255,.08);
-  --wk-radius:6px;--wk-btn:#1a2534;--wk-btn-text:#9fb2c9;
-  font-family:"Consolas","Cascadia Mono","Courier New",monospace;
+  --wk-bg:var(--bridge-panel);--wk-head:var(--bridge-panel-2);--wk-line:var(--bridge-line);--wk-line-2:var(--bridge-line-soft);
+  --wk-text:var(--bridge-text);--wk-sub:var(--bridge-muted);
+  --wk-accent:var(--bridge-signal);--wk-accent-deep:var(--bridge-signal);--wk-accent-soft:var(--bridge-signal-soft);
+  --wk-panel:var(--bridge-panel-alt);--wk-gold:var(--bridge-alert-soft);
+  --wk-radius:var(--bridge-radius);--wk-btn:var(--bridge-panel-alt);--wk-btn-text:var(--bridge-text);
+  font-family:var(--bridge-font-ui);
 }
 .ub-wallet[data-skin="bridge"] .wk-ptitle{font-size:12px;letter-spacing:1px}
+.ub-wallet[data-skin="bridge"] .wk-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini,.ub-wallet[data-skin="bridge"] .wk-input,.ub-wallet[data-skin="bridge"] .wk-icon-cell,.ub-wallet[data-skin="bridge"] .wk-prop,.ub-wallet[data-skin="bridge"] .wk-panel{border-radius:4px}
+.ub-wallet[data-skin="bridge"] .wk-btn,.ub-wallet[data-skin="bridge"] .wk-mini{min-height:32px;border:1.5px solid var(--bridge-line)}
+.ub-wallet[data-skin="bridge"] .wk-btn.ai,.ub-wallet[data-skin="bridge"] .wk-mini.pri,.ub-wallet[data-skin="bridge"] .wk-icon-cell.on{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal)}
+.ub-wallet[data-skin="bridge"] .wk-panel,.ub-wallet[data-skin="bridge"] .wk-prop{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);background:var(--bridge-panel-alt)}
+.ub-wallet[data-skin="bridge"] .wk-prop.pick{border-left-color:var(--bridge-signal);background:var(--bridge-signal-soft)}
+.ub-wallet[data-skin="bridge"] .wk-cur.wk-primary{border-radius:4px}
+.ub-wallet[data-skin="bridge"] .wk-qty,.ub-wallet[data-skin="bridge"] .wk-led .wk-ledamt{font-family:var(--bridge-font-data);color:var(--bridge-alert)}
+.ub-wallet[data-skin="bridge"] .wk-qty.neg,.ub-wallet[data-skin="bridge"] .wk-led .wk-ledamt.out{color:var(--bridge-danger)}
+.ub-wallet[data-skin="bridge"] .wk-ptag{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg)}
+.ub-wallet[data-skin="bridge"] .wk-negtag{background:var(--bridge-danger-soft);color:var(--bridge-danger)}
+.ub-wallet[data-skin="bridge"] .wk-star,.ub-wallet[data-skin="bridge"] .wk-del{border-radius:4px;color:var(--bridge-muted)}
+.ub-wallet[data-skin="bridge"] .wk-star.on{color:var(--bridge-alert);background:var(--bridge-alert-soft)}
+.ub-wallet[data-skin="bridge"] .wk-del:hover{color:var(--bridge-danger);background:var(--bridge-danger-soft)}
 
 /* ═══ F37 钱包弹窗改版（2026-10-05 用户定稿）═══
    a 标题行合并：壳不再输出 panel-popup-head，标题/副题/两个按钮/关闭同一行；
-   b 深色适配：5 张浅色皮肤各配一套深色（仙侠/舰桥本就深色，不动）；
+   b 深色适配：5 张浅色皮肤各配一套深色（仙侠沿用深色，怪盗手记跟随主题变量）；
    c 字号跟随：正文/数据文本/输入控件走「弹窗/设置面板字号」token（--ub-ui-font-*），
      标题、按钮、图标、结构性小标签保持固定（与设置里那条契约一致）；
    d 浑然一体：列表与流水同底连续，常用行整行浅底（不再是渐变卡片）；
@@ -166,10 +180,10 @@ export const CURRENCY_POPUP_CSS = /* css */ `
 /* d 浑然一体 */
 .ub-wallet .wk-cur{padding:11px 6px;border-bottom:1px solid var(--wk-line-2)}
 .ub-wallet .wk-sect{padding:13px 2px 6px}
-/* ★ 主色按钮的浅底配深字（仙侠/舰桥皮肤本就存在同类对比度问题，一并修） */
+/* ★ 主色按钮的浅底配深字（仙侠与怪盗手记按各自主色配字） */
 .ub-wallet[data-skin="xianxia"]{--wk-accent-fg:#0d2b22}
-.ub-wallet[data-skin="bridge"]{--wk-accent-fg:#06121c}
-/* b 深色皮肤（值取自各风格状态栏既有深色变量；xianxia/bridge 不动） */
+.ub-wallet[data-skin="bridge"]{--wk-accent-fg:var(--bridge-signal-contrast)}
+/* b 深色皮肤（值取自各风格状态栏既有深色变量；bridge 由主题变量切换） */
 .panel-overlay.dark .ub-wallet[data-skin="ios"]{
   --wk-bg:#141416;--wk-head:#1a1a1c;--wk-line:#2c2c2e;--wk-line-2:#232325;
   --wk-text:#e8e8ea;--wk-sub:#8e8e93;

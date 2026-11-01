@@ -422,28 +422,38 @@ export const CYCLE_BASE_CSS = `
 .cycle-manager-confirm p { margin: 0; color: var(--text-muted, #666); line-height: 1.6; }
 .cycle-manager-confirm .cycle-manager-irreversible { color: #b42318; font-weight: 700; }
 
-/* 深空舰桥：周期遥测与参数终端 */
+/* 怪盗手记：周期条（米灰底 + 炭灰描边 + 暗红/暗金分档） */
 .cycle-bar.bridge-cycle-indicator{
-  display:grid;grid-template-columns:auto minmax(64px,1fr) auto;gap:7px;
-  padding:5px 7px;border:1px solid var(--bridge-line,#91a5ad);border-left:3px solid var(--bridge-signal,#0a7189);
-  background:var(--bridge-panel-inset,#d5e1e5);font-family:var(--bridge-font-data,'Consolas',monospace);
+  display:grid;grid-template-columns:auto minmax(64px,1fr) auto;gap:7px;align-items:center;
+  padding:4px 8px;border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-signal);border-radius:4px;
+  background:var(--bridge-panel-alt);font-family:var(--bridge-font-ui);
 }
-.cycle-bar.bridge-cycle-indicator .cycle-label{color:var(--bridge-text,#16222c);letter-spacing:.5px;}
-.cycle-bar.bridge-cycle-indicator .cycle-track{height:7px;border-radius:0;background:var(--bridge-screen,#152b32);border:1px solid var(--bridge-line-strong,#23758a);}
-.cycle-bar.bridge-cycle-indicator .cycle-fill{border-radius:0;animation:none!important;background:var(--bridge-signal,#0a7189)!important;}
+.cycle-bar.bridge-cycle-indicator .cycle-label{color:var(--bridge-text);font-weight:700;}
+.cycle-bar.bridge-cycle-indicator .cycle-track{height:6px;border-radius:3px;background:var(--bridge-panel-inset);border:1px solid var(--bridge-line);}
+.cycle-bar.bridge-cycle-indicator .cycle-fill{border-radius:3px;animation:none!important;background:var(--bridge-signal)!important;}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual{border-left-color:var(--bridge-danger,#a43b35);}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-menstrual .cycle-fill{background:var(--bridge-danger,#a43b35)!important;}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-ovulation{border-left-color:var(--bridge-warn,#b47a16);}
 .cycle-bar.bridge-cycle-indicator.cycle-phase-ovulation .cycle-fill{background:var(--bridge-warn,#b47a16)!important;}
 .cycle-bar.bridge-cycle-indicator .cycle-value{color:var(--bridge-text-muted,#62757c);}
-.cycle-manager-popup.bridge-module-cycle-manager{width:min(94%,620px);max-width:620px;border-radius:0;border:1px solid var(--bridge-line-strong,#23758a);background:var(--bridge-panel,#eef3f5);}
-.cycle-manager-popup.bridge-module-cycle-manager .panel-popup-head{background:linear-gradient(90deg,var(--bridge-panel-alt,#dde8eb),var(--bridge-panel,#eef3f5));border-bottom:1px solid var(--bridge-line-strong,#23758a);}
-.cycle-manager-popup.bridge-module-cycle-manager .panel-popup-title::after{content:' / BIOLOGICAL CYCLE';font:9px/1 var(--bridge-font-data,'Consolas',monospace);letter-spacing:1.2px;color:var(--bridge-text-muted,#62757c);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-summary{border-radius:0;background:var(--bridge-screen,#152b32);color:var(--bridge-screen-text,#8eeaff);font-family:var(--bridge-font-data,'Consolas',monospace);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-fields{border-radius:0;border-color:var(--bridge-line,#91a5ad);background:var(--bridge-panel-inset,#d5e1e5);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-input,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{border-radius:0;border-color:var(--bridge-line,#91a5ad);background:var(--bridge-panel,#eef3f5);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.primary{border-color:var(--bridge-signal,#0a7189);background:var(--bridge-signal,#0a7189);color:var(--bridge-signal-contrast,#fff);}
-.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-warning-icon{border-radius:0;background:rgba(164,59,53,.1);border:1px solid var(--bridge-danger,#a43b35);}
+.cycle-manager-popup.bridge-module-cycle-manager{width:min(94%,620px);max-width:620px;border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow);background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);}
+.cycle-manager-popup.bridge-module-cycle-manager .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-summary{border-radius:4px;background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal);font-family:var(--bridge-font-ui);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-fields{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-input,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn{min-height:34px}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.primary{border-color:var(--bridge-line-strong);background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-warning-icon{border-radius:4px;background:var(--bridge-danger-soft);border:1.5px solid var(--bridge-danger);color:var(--bridge-danger);}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-field-label,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-subtitle,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm p{color:var(--bridge-muted)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-field-value,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-person strong,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm h3{color:var(--bridge-text)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-person span,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger span{color:var(--bridge-muted)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-row{border-bottom-color:var(--bridge-line-soft)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-message{color:var(--bridge-signal)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-message.error,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger strong,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger{color:var(--bridge-danger)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-danger,.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger{border-color:var(--bridge-danger)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger:hover{background:var(--bridge-danger-soft)}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-radius:4px}
+.cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-irreversible{color:var(--bridge-danger)}
 @media(max-width:599px){.cycle-manager-popup.bridge-module-cycle-manager{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}}
 
 @media (max-width: 520px) {

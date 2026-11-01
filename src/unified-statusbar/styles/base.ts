@@ -499,9 +499,9 @@ export const baseCSS = /* css */ `
 /* 云海：灵石青 */
 .ub-hl-xianxia{--ub-hl-color:rgba(74,144,164,0.2)}
 .ub-hl-xianxia::after{background:rgba(74,144,164,0.04)}
-/* 舰桥：信号青 */
-.ub-hl-bridge{--ub-hl-color:rgba(8,127,133,0.22)}
-.ub-hl-bridge::after{background:rgba(8,127,133,0.045)}
+/* 怪盗手记：暗红淡色 */
+.ub-hl-bridge{--ub-hl-color:var(--bridge-signal-soft)}
+.ub-hl-bridge::after{background:color-mix(in srgb,var(--bridge-signal-soft) 35%,transparent)}
 /* 古风：朱砂印章 — 融合米黄金棕按钮调色 */
 .ub-badge-ancient{background:#b5362e;color:#f5e6d0;font-family:"Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","SimSun","NSimSun",serif;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.35);}
 /* 瑟瑟：霓虹光点 — 融合暗底粉紫按钮 */

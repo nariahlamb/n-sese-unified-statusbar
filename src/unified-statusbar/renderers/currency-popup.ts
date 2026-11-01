@@ -33,7 +33,7 @@ const THEME_COPY: Record<StyleType, { title: string; sub: string; empty: string 
   sweet: { title: '小金库', sub: '收支记录', empty: '小金库还是空的' },
   flirtatious: { title: '小金库', sub: '收支记录', empty: '小金库还是空的' },
   minimal: { title: 'WALLET', sub: 'LEDGER', empty: 'NO CURRENCY' },
-  bridge: { title: '舰桥金库', sub: '资金账目', empty: '资金账户未建档' },
+  bridge: { title: '钱包', sub: '收支记录', empty: '暂无币种' },
 };
 
 const ICON_COLORS: Record<CurrencyIconType, string> = {

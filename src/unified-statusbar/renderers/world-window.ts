@@ -27,7 +27,7 @@ function masthead(style: StyleType): string {
     case 'minimal': return 'WORLD · DAILY';
     case 'sweet': return '🍬 世界糖果报';
     case 'xianxia': return '灵霄世界录';
-    case 'bridge': return '航行世界报';
+    case 'bridge': return '世界手记';
     default: return '世界演化';
   }
 }
@@ -613,7 +613,7 @@ function buildIntrusionQueueHtml(state: any): string {
 /** 纯函数：生成窗口 HTML（可测）。today=当前日期（YYYY-MM-DD），用于相对时间徽标；缺省不显示。
  *  undoable=false 时撤回按钮置灰（无可撤回的快照）。 */
 export function buildWorldWindowHtml(style: StyleType, state: any, today = '', undoable = true): string {
-  // 台前展廊 ↔ 幕后暗室：ww-theme 分主题，bridge 走舰桥模块壳
+  // 台前展廊 ↔ 幕后暗室：ww-theme 分主题，bridge 走手记模块壳
   const bridgeClass = style === 'bridge' ? ' bridge-window bridge-module-world' : '';
   return `<div class="${WORLD_WINDOW_CLASS} ww-theme-${style}${bridgeClass}">
     <div class="ww-header"><button type="button" class="ww-manual-evolve">手动演化</button><button type="button" class="ww-undo-evolve"${undoable ? '' : ' disabled'}>${undoable ? '撤回演化' : '无可撤回'}</button><span class="ww-close-btn" id="panelClose">&times;</span></div>

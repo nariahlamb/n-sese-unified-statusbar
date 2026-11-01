@@ -137,26 +137,26 @@ export const beyondLensBaseCSS = /* css */ `
 .beyond-theme-xianxia .ub-beyond-bar span{background:#2e8ab0;}
 .beyond-theme-xianxia .ub-beyond-empty{color:#6a9cb0;}
 
-/* ═══ bridge 舰桥：深青全息 ═══ */
-.beyond-theme-bridge .ub-beyond-panel{background:#0e232b;color:#9fe8f5;font-family:Consolas,'Courier New',monospace;}
-.beyond-theme-bridge .ub-beyond-sec-title{border-color:#1e5a6b;color:#8eeaff;letter-spacing:2px;}
-.beyond-theme-bridge .ub-beyond-sec-title em{color:#4fb8d4;}
-.beyond-theme-bridge .ub-beyond-reshuffle{color:#8eeaff;border-color:#23758a;border-radius:2px;}
-.beyond-theme-bridge .ub-beyond-rumor{background:rgba(35,117,138,.1);border-color:#1e5a6b;border-radius:2px;}
-.beyond-theme-bridge .ub-beyond-rumor-top{color:#8eeaff;}
-.beyond-theme-bridge .ub-beyond-rumor-body{color:#9fe8f5;}
-.beyond-theme-bridge .ub-beyond-rumor-status{color:#5d8fa0;}
-.beyond-theme-bridge .ub-beyond-level-heard{background:#0d242e;color:#8eeaff;border:1px solid #1e5a6b;border-radius:2px;}
-.beyond-theme-bridge .ub-beyond-level-known{background:#23758a;color:#04141a;border-radius:2px;}
-.beyond-theme-bridge .ub-beyond-char{background:rgba(10,20,24,.6);border-color:#1e5a6b;border-radius:2px;}
-.beyond-theme-bridge .ub-beyond-char-name{color:#8eeaff;}
-.beyond-theme-bridge .ub-beyond-char-act{color:#9fe8f5;}
-.beyond-theme-bridge .ub-beyond-thread{color:#5d8fa0;}
-.beyond-theme-bridge .ub-beyond-bar{background:#0d242e;}
-.beyond-theme-bridge .ub-beyond-bar span{background:#5ef0c0;box-shadow:0 0 6px rgba(94,240,192,.6);}
-.beyond-theme-bridge .ub-beyond-empty{color:#4fb8d4;}
+/* ═══ bridge 怪盗手记：米灰纸卡 · 炭灰标签 · 暗红点缀（token 驱动，浅深随主题变量） ═══ */
+.beyond-theme-bridge .ub-beyond-panel{background:var(--bridge-panel);color:var(--bridge-text);font-family:var(--bridge-font-ui);border:1.5px solid var(--bridge-line);border-radius:var(--bridge-radius);padding:8px 10px 10px;box-shadow:2px 2px 0 var(--bridge-shadow-soft);}
+.beyond-theme-bridge .ub-beyond-sec-title{border-color:var(--bridge-line-strong);color:var(--bridge-text);letter-spacing:.06em;font-weight:900;}
+.beyond-theme-bridge .ub-beyond-sec-title em{color:var(--bridge-signal);font-weight:700;}
+.beyond-theme-bridge .ub-beyond-reshuffle{color:var(--bridge-text);border:1.5px solid var(--bridge-line);border-radius:4px;background:var(--bridge-panel);}
+.beyond-theme-bridge .ub-beyond-rumor{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-signal);border-radius:4px;}
+.beyond-theme-bridge .ub-beyond-rumor-top{color:var(--bridge-text);}
+.beyond-theme-bridge .ub-beyond-rumor-body{color:var(--bridge-text);}
+.beyond-theme-bridge .ub-beyond-rumor-status{color:var(--bridge-muted);}
+.beyond-theme-bridge .ub-beyond-level-heard{background:var(--bridge-panel);color:var(--bridge-text);border:1px solid var(--bridge-line-strong);border-radius:3px;}
+.beyond-theme-bridge .ub-beyond-level-known{background:var(--bridge-screen);color:var(--bridge-screen-text);border-radius:3px;}
+.beyond-theme-bridge .ub-beyond-char{background:var(--bridge-panel-alt);border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;}
+.beyond-theme-bridge .ub-beyond-char-name{color:var(--bridge-text);}
+.beyond-theme-bridge .ub-beyond-char-act{color:var(--bridge-text);}
+.beyond-theme-bridge .ub-beyond-thread{color:var(--bridge-muted);}
+.beyond-theme-bridge .ub-beyond-bar{background:var(--bridge-panel-inset);}
+.beyond-theme-bridge .ub-beyond-bar span{background:var(--bridge-signal);}
+.beyond-theme-bridge .ub-beyond-empty{color:var(--bridge-muted);}
 
-/* ═══ 深色（4 主题 .dark 祖先；minimal 走 body.dark-mode 变量；bridge 本就暗；按钮随人物按钮类自动适配） ═══ */
+/* ═══ 深色（4 主题 .dark 祖先；minimal 走 body.dark-mode 变量；bridge 走自身浅深变量；按钮随人物按钮类自动适配） ═══ */
 .dark .beyond-theme-ancient .ub-beyond-panel{background:#1B1916;color:#d8ccb8;}
 .dark .beyond-theme-ancient .ub-beyond-rumor,.dark .beyond-theme-ancient .ub-beyond-char{background:rgba(0,0,0,.35);border-color:#3a2e1c;}
 .dark .beyond-theme-ancient .ub-beyond-rumor-top,.dark .beyond-theme-ancient .ub-beyond-char-name{color:#c9a06a;}

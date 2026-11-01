@@ -26,14 +26,14 @@
 import { type StyleType } from '../core/constants';
 import { type NotifyAlign } from '../core/config-store';
 
-// 6 主题 ring 配色（取各主题 --ub-ft-ring-start/end/glow 实际值；bridge 取深色变体亮青，亮色根的暗 teal 在深色雾面底上不发光）
+// 主题 ring 配色（bridge 随主题变量切换亮暗）。
 const THEME_RING: Record<StyleType, { rs: string; re: string; rg: string }> = {
   ancient: { rs: '#e2c36c', re: '#c24a3f', rg: 'rgba(201,168,76,.34)' },
   flirtatious: { rs: '#f293bd', re: '#9b61d4', rg: 'rgba(208,96,160,.38)' },
   minimal: { rs: '#b8f5ff', re: '#669cff', rg: 'rgba(126,232,255,.34)' },
   sweet: { rs: '#ffb5c9', re: '#a98de6', rg: 'rgba(255,143,171,.4)' },
   xianxia: { rs: '#b6e2ce', re: '#c8a850', rg: 'rgba(104,176,144,.36)' },
-  bridge: { rs: '#77e5e0', re: '#ffbd5a', rg: 'rgba(119,229,224,.28)' },
+  bridge: { rs: 'var(--bridge-signal)', re: 'var(--bridge-alert)', rg: 'var(--bridge-shadow-soft)' },
   ios: { rs: '#64d2ff', re: '#0a84ff', rg: 'rgba(10,132,255,.32)' },
 };
 
@@ -354,6 +354,30 @@ ${themeRingCss()}
 #toast-container.ub-notify-container .toast .toast-message button:focus-visible{
   outline:2px solid var(--ub-ntf-rs) !important; outline-offset:1px;
 }
+
+/* 怪盗手记：纸面通知与错位描边 */
+#toast-container.ub-notify-container.ub-theme-bridge{
+  --ubn-bg1:var(--bridge-panel);--ubn-bg2:var(--bridge-panel);
+  --ubn-ink:var(--bridge-text);--ubn-ink2:var(--bridge-text);
+  --ubn-inset:inset 0 0 0 0 transparent;--ubn-sh:2px 2px 0 var(--bridge-offset);--ubn-sh-h:2px 2px 0 var(--bridge-offset);--ubn-hover:none;
+  --ubn-ok:var(--bridge-signal);--ubn-ok-bg:var(--bridge-signal-soft);--ubn-ok-ring:var(--bridge-line);
+  --ubn-info:var(--bridge-text);--ubn-info-bg:var(--bridge-panel-inset);--ubn-info-ring:var(--bridge-line);
+  --ubn-warn:var(--bridge-warn);--ubn-warn-bg:var(--bridge-alert-soft);--ubn-warn-ring:var(--bridge-warn);
+  --ubn-err:var(--bridge-danger);--ubn-err-bg:var(--bridge-danger-soft);--ubn-err-ring:var(--bridge-danger);
+  --ubn-warn1:var(--bridge-panel);--ubn-warn2:var(--bridge-panel);--ubn-warn-ink:var(--bridge-warn);
+  --ubn-err1:var(--bridge-panel);--ubn-err2:var(--bridge-panel);--ubn-err-ink:var(--bridge-danger);
+  --ubn-ab-bd:var(--bridge-line);--ubn-ab-bg:var(--bridge-panel-alt);--ubn-ab-ink:var(--bridge-text);--ubn-ab-ink2:var(--bridge-screen-text);
+  --ubn-close-hover:var(--bridge-signal-soft);
+}
+#toast-container.ub-notify-container.ub-theme-bridge .toast,#toast-container.ub-notify-container.ub-theme-bridge .toast.acu-toast{
+  border:1.5px solid var(--bridge-line)!important;border-left:4px solid var(--bridge-signal)!important;border-radius:5px!important;
+  background:var(--bridge-panel)!important;box-shadow:2px 2px 0 var(--bridge-offset)!important;
+  backdrop-filter:none;-webkit-backdrop-filter:none;font-family:var(--bridge-font-ui)!important;text-shadow:none;
+}
+#toast-container.ub-notify-container.ub-theme-bridge .toast.toast-warning{border-left-color:var(--bridge-warn)!important}
+#toast-container.ub-notify-container.ub-theme-bridge .toast.toast-error{border-left-color:var(--bridge-danger)!important}
+#toast-container.ub-notify-container.ub-theme-bridge .toast .ub-ntf-bar,#toast-container.ub-notify-container.ub-theme-bridge .toast .toast-progress{background:var(--bridge-signal)!important;border-radius:3px}
+#toast-container.ub-notify-container.ub-theme-bridge .toast .toast-message button:hover{background:var(--bridge-screen)!important;color:var(--bridge-screen-text)!important;border-color:var(--bridge-line-strong)!important}
 
 /* ===== reduced motion ===== */
 @media (prefers-reduced-motion: reduce){

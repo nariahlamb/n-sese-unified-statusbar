@@ -7,7 +7,7 @@ import { escapeHtml as esc } from '../core/html-escape';
 
 export function buildPastExperienceHTML(charName: string, style: StyleType, pastExp: string): string {
   const { intro, days } = parsePastExperience(pastExp);
-  const titleSuffix = style === 'ancient' ? ' 的往事' : style === 'bridge' ? ' 的航行档案' : ' 的过往经历';
+  const titleSuffix = style === 'ancient' ? ' 的往事' : style === 'bridge' ? ' 的过往手记' : ' 的过往经历';
 
   let html = '<div class="panel-popup ub-popup--l'
     + (style === 'bridge' ? ' bridge-window bridge-module-timeline bridge-timeline' : '') + '">';

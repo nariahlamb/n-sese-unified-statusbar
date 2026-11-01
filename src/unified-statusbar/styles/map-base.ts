@@ -123,14 +123,13 @@ export const MAP_BASE_CSS = `
 /* 深色：minimal 深色地图底 (#1a1a1a) 上 #2e7d32/#d4a017/#b07800 约 2.5:1，提亮状态色 */
 .panel-overlay.dark,body.dark-mode{--map-status-ready:#66bb6a;--map-status-loading:#ffb74d;--map-status-pending:#ffb74d;--map-status-error:#ef5350;--map-status-ready-bg:rgba(102,187,106,0.2);--map-status-pending-bg:rgba(255,183,77,0.2)}
 /* 深色：非 bridge 地图弹窗整体切暗色地图变量——复用 minimal 的暗色地图配色（minimal 自身本就是暗色盘，值为恒等覆盖）。
-   挂 .map-popup 层就近覆盖各主题 :root 亮色值与 ios 深色块的部分变量；:not 排除 bridge（其 --map-* 本就是暗青盘，且不受深色切换影响） */
+   挂 .map-popup 层就近覆盖各主题 :root 亮色值与 ios 深色块的部分变量；bridge 在弹窗内单独绑定随主题浅深切换的 --bridge-*。 */
 .panel-overlay.dark .map-popup:not(.bridge-module-navigation),body.dark-mode .map-popup{--map-bg:#1a1a1a;--map-stroke:#aaa;--map-stroke-soft:#b8b8b8;--map-title-color:#f0f0f0;--map-text:#f0f0f0;--map-text-soft:#c0c0c0;--map-panel-border:#666;--map-panel-bg:rgba(30,30,30,.6);--map-btn-bg:rgba(255,255,255,.08);--map-btn-hover:rgba(255,255,255,.14);--map-input-bg:rgba(255,255,255,.08);--map-divider:rgba(255,255,255,.22);--map-room-fill:none;--map-room-label-color:#f0f0f0;--map-marker-name-fill:#f0f0f0;--map-marker-name-stroke:#1a1a1a;--map-exit-label-stroke:#1a1a1a;--marker-protagonist:#f0c040;--marker-protagonist-text:#1a1a1a;--marker-ally:#4aa;--marker-npc:#69a;--marker-enemy:#e55}
 /* 深色：⋯更多二级菜单挂在 .panel-overlay 直下（不在 .map-popup 内），上面的弹窗级翻转够不到它；
    ios 深色块又把 --map-panel-bg 翻暗而 --map-text 仍是 :root 深字色 → 暗底暗字（菜单漆黑）。
    故对菜单元素自身翻所需的最小变量集（元素自带变量恒胜祖先继承，也压过 ios 深色块） */
 .panel-overlay.dark .map-more-menu,body.dark-mode .map-more-menu{--map-panel-bg:rgba(30,30,30,.6);--map-panel-border:#666;--map-text:#f0f0f0;--map-text-soft:#c0c0c0;--map-btn-hover:rgba(255,255,255,.14);--map-divider:rgba(255,255,255,.22);--marker-ally:#4aa}
-/* bridge 风格菜单保住暗青盘（值同 MAP_THEME_VARS.bridge，须排在深色翻转之后；选择器带 .panel-overlay 保特异性压平规则） */
-.panel-overlay .map-more-menu.bridge-module-menu{--map-panel-bg:rgba(21,43,50,.84);--map-panel-border:#23758a;--map-text:#d5f7ff;--map-text-soft:#8bb8c1;--marker-ally:#47bfcf}
+.panel-overlay .map-more-menu.bridge-module-menu{background:var(--bridge-panel);border:1.5px solid var(--bridge-line);border-radius:5px;color:var(--bridge-text);font-family:var(--bridge-font-ui);box-shadow:3px 3px 0 var(--bridge-offset)}
 @keyframes map-status-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 /* ========== 地点信息右侧抽屉 ========== */
@@ -474,35 +473,52 @@ export const MAP_BASE_CSS = `
 .map-alias-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 2px; border-top: 1px dashed var(--map-divider, rgba(0,0,0,0.1)); }
 .map-alias-actions .map-btn { min-width: 60px; height: 28px; font-size: 13px; }
 
-/* 深空舰桥：导航阵列 */
-.panel-popup.map-popup.bridge-module-navigation{width:min(96%,980px);max-width:980px;max-height:min(88vh,860px);border-radius:0;border:1px solid var(--bridge-line-strong,#23758a);background:var(--bridge-panel,#eef3f5);font-family:var(--bridge-font-ui,'Microsoft YaHei','PingFang SC',sans-serif);}
-.bridge-module-navigation .panel-popup-head{background:linear-gradient(90deg,var(--bridge-panel-alt,#dde8eb),var(--bridge-panel,#eef3f5));border-bottom:1px solid var(--bridge-line-strong,#23758a);}
-.bridge-module-navigation .panel-popup-title{font-family:var(--bridge-font-data,'Consolas',monospace);letter-spacing:1.5px;}
-.bridge-module-navigation .map-section-head,.bridge-module-navigation .map-breadcrumb,.bridge-module-navigation .map-library-head,.bridge-module-navigation .map-info-drawer-head{border-radius:0;background:var(--bridge-panel-inset,#d5e1e5);border-color:var(--bridge-line,#91a5ad);}
-.bridge-module-navigation .map-btn{border-radius:0;border-color:var(--bridge-line,#91a5ad);background:var(--bridge-panel,#eef3f5);color:var(--bridge-text,#16222c);}
-.bridge-module-navigation .map-container{border-radius:0;border-color:var(--bridge-line-strong,#23758a);background-color:var(--bridge-screen,#152b32);background-image:linear-gradient(rgba(142,234,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(142,234,255,.055) 1px,transparent 1px);background-size:24px 24px;}
-.bridge-module-navigation .map-svg{filter:saturate(.78) contrast(1.08);}
-.bridge-module-navigation .map-status{position:relative;border-radius:0;border-top:1px solid var(--bridge-line,#91a5ad);background:var(--bridge-panel-inset,#d5e1e5);font-family:var(--bridge-font-data,'Consolas',monospace);}
-.bridge-module-navigation .map-status:has(.status-indicator.error)::after{content:attr(data-stale-label);margin-left:auto;padding:2px 6px;border:1px solid var(--bridge-warn,#b47a16);color:var(--bridge-warn,#b47a16);font-size:9px;letter-spacing:1px;}
-.bridge-module-navigation .map-library{background:var(--bridge-panel,#eef3f5);}
-.bridge-module-navigation .map-library-item{border-radius:0;border-color:var(--bridge-line,#91a5ad);background:var(--bridge-panel-alt,#dde8eb);}
-.bridge-module-navigation .map-library-preview{border-radius:0;border-color:var(--bridge-line,#91a5ad);background:var(--bridge-screen,#152b32);}
-.bridge-module-navigation .map-info-drawer{border-radius:0;border-left:1px solid var(--bridge-line-strong,#23758a);background:var(--bridge-panel,#eef3f5);}
-.bridge-module-navigation .map-info-section{border-radius:0;border-color:var(--bridge-line,#91a5ad);}
-.bridge-module-navigation .map-move-modal,.bridge-module-navigation .map-extra-modal,.bridge-module-navigation .map-merge-modal{border-radius:0;border-color:var(--bridge-line-strong,#23758a);background:var(--bridge-panel,#eef3f5);}
-.bridge-module-navigation .map-merge-modal-overlay{border-radius:0;}
-.bridge-module-navigation .map-merge-candidates,.bridge-module-navigation .map-merge-choice-group{border-color:var(--bridge-line,#91a5ad);background:var(--bridge-panel-alt,#dde8eb);}
-.bridge-module-navigation .map-merge-title,.bridge-module-navigation .map-merge-choice-group label,.bridge-module-navigation .map-merge-candidate-name{color:var(--bridge-text,#16222c);}
-.bridge-module-navigation .map-merge-hint,.bridge-module-navigation .map-merge-section-label,.bridge-module-navigation .map-merge-candidate-path,.bridge-module-navigation .map-merge-resource-status{color:var(--bridge-text-muted,#52636b);}
-.bridge-module-navigation .map-more-menu,.bridge-module-navigation .map-alias-modal{border-radius:0;border-color:var(--bridge-line-strong,#23758a);background:var(--bridge-panel,#eef3f5);color:var(--bridge-text,#16222c);}
-/* bridge 浅色模式：光板上的地图文字须用深色 --bridge-text，不能用给深色画布调的 --map-text。
-   仅覆盖面板/导航/图库/抽屉/编辑器的文字与输入背景；SVG 画布(深色 --bridge-screen)内文字保持 --map-text。 */
+/* 怪盗手记：探索地图 */
+/* 别名在弹窗和独立菜单内重新求值，跟随 overlay 上的亮暗主题变量。 */
+.panel-popup.map-popup.bridge-module-navigation,.panel-overlay .map-more-menu.bridge-module-menu{
+  --map-bg:var(--bridge-bg);--map-stroke:var(--bridge-line-strong);--map-stroke-soft:var(--bridge-muted);
+  --map-title-color:var(--bridge-text);--map-text:var(--bridge-text);--map-text-soft:var(--bridge-muted);
+  --map-panel-border:var(--bridge-line);--map-panel-bg:var(--bridge-panel);--map-panel-radius:5px;
+  --map-btn-bg:var(--bridge-panel-alt);--map-btn-hover:var(--bridge-signal-soft);--map-input-bg:var(--bridge-panel-alt);--map-divider:var(--bridge-line-soft);
+  --map-room-fill:var(--bridge-panel-alt);--map-corridor-fill:var(--bridge-panel-inset);--map-room-label-color:var(--bridge-text);
+  --map-marker-name-fill:var(--bridge-text);--map-marker-name-stroke:var(--bridge-bg);--map-exit-label-stroke:var(--bridge-bg);
+  --marker-protagonist:var(--bridge-alert);--marker-protagonist-fill:var(--bridge-alert-soft);--marker-protagonist-text:var(--bridge-text);
+  --marker-ally:var(--bridge-signal);--marker-ally-fill:var(--bridge-signal-soft);--marker-npc:var(--bridge-text);--marker-npc-fill:var(--bridge-panel-alt);
+  --marker-enemy:var(--bridge-danger);--marker-enemy-fill:var(--bridge-danger-soft);--marker-item:var(--bridge-muted);--marker-item-fill:var(--bridge-panel-inset);
+  --map-status-ready:var(--bridge-signal);--map-status-loading:var(--bridge-alert);--map-status-pending:var(--bridge-alert);--map-status-error:var(--bridge-danger);
+  --map-status-ready-bg:var(--bridge-signal-soft);--map-status-pending-bg:var(--bridge-alert-soft);--map-status-text-only:var(--bridge-muted);
+  --map-accent:var(--bridge-signal);--map-accent-bg:var(--bridge-signal-soft);
+}
+.panel-popup.map-popup.bridge-module-navigation{width:min(96%,980px);max-width:980px;max-height:min(88vh,860px);border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui);}
+.bridge-module-navigation .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
+.bridge-module-navigation .panel-popup-title{font-family:var(--bridge-font-ui);letter-spacing:1px;}
+.bridge-module-navigation .map-section{border:1.5px solid var(--bridge-line);border-radius:5px;}
+.bridge-module-navigation .map-section-head,.bridge-module-navigation .map-breadcrumb,.bridge-module-navigation .map-library-head,.bridge-module-navigation .map-info-drawer-head{border-radius:4px;background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong);}
+.bridge-module-navigation .map-btn{border-radius:4px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt);color:var(--bridge-text);}
+.bridge-module-navigation .map-btn:hover{background:var(--bridge-signal-soft);}
+.bridge-module-navigation .map-container{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-bg);}
+.bridge-module-navigation .map-title-text,.bridge-module-navigation .map-room-label,.bridge-module-navigation .map-empty-text{font-family:var(--bridge-font-ui);}
+.bridge-module-navigation .map-status{position:relative;border-radius:4px;border-top:1px solid var(--bridge-line);background:var(--bridge-panel-inset);font-family:var(--bridge-font-ui);}
+.bridge-module-navigation .map-status:has(.status-indicator.error)::after{content:attr(data-stale-label);margin-left:auto;padding:2px 6px;border:1px solid var(--bridge-warn);border-radius:3px;background:var(--bridge-alert-soft);color:var(--bridge-warn);font-size:9px;letter-spacing:.5px;}
+.bridge-module-navigation .map-library{background:var(--bridge-panel);}
+.bridge-module-navigation .map-library-item{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;background:var(--bridge-panel-alt);margin-bottom:3px;}
+.bridge-module-navigation .map-library-item:nth-child(even){border-left-color:var(--bridge-signal);}
+.bridge-module-navigation .map-library-item.active{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal);}
+.bridge-module-navigation .map-library-item.active .map-lib-toggle{color:var(--bridge-screen-muted);}
+.bridge-module-navigation .map-library-preview{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-bg);}
+.bridge-module-navigation .map-info-drawer{border-radius:5px;border-left:2px solid var(--bridge-line-strong);background:var(--bridge-panel);box-shadow:-3px 0 10px var(--bridge-shadow);}
+.bridge-module-navigation .map-info-section{border-radius:4px;border-color:var(--bridge-line);}
+.bridge-module-navigation .map-move-modal,.bridge-module-navigation .map-extra-modal,.bridge-module-navigation .map-merge-modal,.bridge-module-navigation .map-alias-modal{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:var(--ub-popup-shadow);}
+.bridge-module-navigation .map-merge-modal-overlay{border-radius:5px;}
+.bridge-module-navigation .map-merge-candidates,.bridge-module-navigation .map-merge-choice-group{border:1.5px solid var(--bridge-line);border-radius:4px;background:var(--bridge-panel-alt);}
+.bridge-module-navigation .map-merge-title,.bridge-module-navigation .map-merge-choice-group label,.bridge-module-navigation .map-merge-candidate-name{color:var(--bridge-text);}
+.bridge-module-navigation .map-merge-hint,.bridge-module-navigation .map-merge-section-label,.bridge-module-navigation .map-merge-candidate-path,.bridge-module-navigation .map-merge-resource-status{color:var(--bridge-text-muted);}
+.bridge-module-navigation .map-more-menu{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:3px 3px 0 var(--bridge-offset);}
 .bridge-module-navigation .map-location,
 .bridge-module-navigation .map-breadcrumb,
 .bridge-module-navigation .breadcrumb-item,
 .bridge-module-navigation .breadcrumb-item.current,
 .bridge-module-navigation .map-library-title,
-.bridge-module-navigation .map-library-item,
 .bridge-module-navigation .map-info-drawer-title,
 .bridge-module-navigation .map-info-summary,
 .bridge-module-navigation .map-info-items,
@@ -518,7 +534,7 @@ export const MAP_BASE_CSS = `
 .bridge-module-navigation .map-lib-alias,
 .bridge-module-navigation .map-lib-large,
 .bridge-module-navigation .map-lib-scene,
-.bridge-module-navigation .map-lib-more{color:var(--bridge-text,#16222c);}
+.bridge-module-navigation .map-lib-more{color:var(--bridge-text);}
 .bridge-module-navigation .breadcrumb-sep,
 .bridge-module-navigation .map-info-section-title,
 .bridge-module-navigation .map-info-log,
@@ -532,14 +548,24 @@ export const MAP_BASE_CSS = `
 .bridge-module-navigation .map-alias-hint,
 .bridge-module-navigation .map-alias-remove,
 .bridge-module-navigation .map-alias-conflict .map-alias-remove,
-.bridge-module-navigation .map-more-menu-item.disabled{color:var(--bridge-muted,#55747a);}
-.bridge-module-navigation{--map-input-bg:var(--bridge-panel-2,#dbe8e9);}
+.bridge-module-navigation .map-more-menu-item.disabled{color:var(--bridge-muted);}
 .bridge-module-navigation .map-library-list,
-.bridge-module-navigation .map-alias-list{background:var(--bridge-panel-alt,#edf5f5);}
+.bridge-module-navigation .map-alias-list{background:var(--bridge-panel-alt);}
 .bridge-module-navigation .map-edit-desc-field textarea,
 .bridge-module-navigation .map-edit-log-row input,
 .bridge-module-navigation .map-edit-log-row textarea,
-.bridge-module-navigation .map-alias-input{background:var(--bridge-panel-2,#dbe8e9);}
+.bridge-module-navigation .map-alias-input{background:var(--bridge-panel-alt);}
+.bridge-module-navigation .map-library-item .map-lib-status{border-radius:3px;background:var(--bridge-screen);color:var(--bridge-screen-text);transform:skewX(-8deg);}
+.bridge-module-navigation .map-library-item .map-lib-del:hover,.bridge-module-navigation .map-alias-remove:hover{background:var(--bridge-danger-soft);color:var(--bridge-danger);border-color:var(--bridge-danger);}
+.bridge-module-navigation .map-library-item .map-lib-fav.active{background:var(--bridge-alert-soft);border-color:var(--bridge-alert);}
+.bridge-module-navigation .map-library-item .map-lib-fav.active .ub-ic{color:var(--bridge-alert);}
+.bridge-module-navigation .map-library-item .map-lib-fav:hover{background:var(--bridge-alert-soft);}
+.bridge-module-navigation .map-library-item .map-lib-large:hover,.bridge-module-navigation .map-library-item .map-lib-scene:hover,.bridge-module-navigation .map-library-item .map-lib-edit:hover,.bridge-module-navigation .map-library-item .map-lib-alias:hover{background:var(--bridge-signal-soft);}
+.bridge-module-navigation .map-scene-viewport,.bridge-module-navigation .map-library-preview-scene{background:var(--bridge-bg);}
+.bridge-module-navigation .map-scene-status{background:var(--bridge-screen);color:var(--bridge-screen-text);}
+.bridge-module-navigation .map-scene-status.loading{color:var(--bridge-alert);}
+.bridge-module-navigation .map-scene-status.error{color:var(--bridge-danger);}
+.bridge-module-navigation .map-zoom-btn{box-shadow:2px 2px 0 var(--bridge-offset);}
 @media(max-width:599px){.panel-popup.map-popup.bridge-module-navigation{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.bridge-module-navigation .map-info-drawer{width:100%}}
 /* 手机端地点信息抽屉全宽（推广 bridge 行为到全部主题）：45% 半屏宽会遮挡地图与缩放钮 */
 @media(max-width:599px){.map-info-drawer{width:100%;max-width:none}}
@@ -769,8 +795,51 @@ export const MAP_BASE_CSS = `
   .map-organize-tool { height: 28px; }
   .map-organize-btn { height: 30px; }
 }
-.bridge-module-navigation .map-organize-modal { border-radius: 0; border-color: var(--bridge-line-strong, #23758a); background: var(--bridge-panel, #eef3f5); color: var(--bridge-text, #16222c); }
-.bridge-module-navigation .map-organize-overlay { border-radius: 0; }
+.bridge-module-navigation .map-organize-modal { border-radius: var(--ub-popup-radius); border: var(--ub-popup-border); background: var(--bridge-panel); color: var(--bridge-text); box-shadow: var(--ub-popup-shadow); }
+.bridge-module-navigation .map-organize-overlay { border-radius: 5px; }
+.bridge-module-navigation .map-organize-head { background: var(--bridge-panel-2); border-bottom: 2px solid var(--bridge-line-strong); }
+.bridge-module-navigation .map-organize-modal .map-organize-card,
+.bridge-module-navigation .map-organize-modal .map-organize-merge-node,
+.bridge-module-navigation .map-organize-modal .map-organize-input,
+.bridge-module-navigation .map-organize-modal .map-organize-choice label,
+.bridge-module-navigation .map-organize-modal .map-organize-confirm-row,
+.bridge-module-navigation .map-organize-modal .map-organize-step,
+.bridge-module-navigation .map-organize-modal .map-organize-done-row { background: var(--bridge-panel-alt); border: 1.5px solid var(--bridge-line); border-radius: 4px; }
+.bridge-module-navigation .map-organize-modal .map-organize-card.on { background: var(--bridge-signal-soft); border-color: var(--bridge-line-strong); box-shadow: 2px 2px 0 var(--bridge-signal); }
+.bridge-module-navigation .map-organize-modal .map-organize-seg button.on,
+.bridge-module-navigation .map-organize-modal .map-organize-tabs button.on { background: var(--bridge-screen); color: var(--bridge-screen-text); border-color: var(--bridge-line-strong); box-shadow: 2px 2px 0 var(--bridge-signal); }
+.bridge-module-navigation .map-organize-overlay .map-organize-modal .map-organize-op,
+.bridge-module-navigation .map-organize-overlay .map-organize-modal .map-organize-count,
+.bridge-module-navigation .map-organize-overlay .map-organize-modal .map-organize-tag,
+.bridge-module-navigation .map-organize-overlay .map-organize-modal .map-organize-preview-badge { background: var(--bridge-screen); color: var(--bridge-screen-text); border-color: var(--bridge-line-strong); border-radius: 3px; transform: skewX(-8deg); }
+.bridge-module-navigation .map-organize-modal .map-organize-count b { color: var(--bridge-screen-text); }
+.bridge-module-navigation .map-organize-modal .map-organize-tool { background: var(--bridge-panel-alt); color: var(--bridge-text); }
+.bridge-module-navigation .map-organize-modal .map-organize-btn.primary { background: var(--bridge-signal); color: var(--bridge-signal-contrast); }
+.bridge-module-navigation .map-organize-modal .map-organize-btn.danger { background: var(--bridge-danger-soft); color: var(--bridge-danger); border-color: var(--bridge-danger); }
+.bridge-module-navigation .map-organize-modal .map-organize-note { background: var(--bridge-panel-inset); color: var(--bridge-muted); }
+.bridge-module-navigation .map-organize-modal .map-organize-note.bad { background: var(--bridge-danger-soft); color: var(--bridge-danger); }
+.bridge-module-navigation .map-organize-modal .map-organize-note.warn { background: var(--bridge-alert-soft); color: var(--bridge-alert); }
+.bridge-module-navigation .map-organize-bar { border-radius: 4px; background: var(--bridge-panel-inset); }
+.bridge-module-navigation .map-organize-bar i { border-radius: 4px; background: var(--bridge-signal); }
+.bridge-module-navigation .map-organize-modal .map-organize-title-text .new,
+.bridge-module-navigation .map-organize-modal .map-organize-path .to,
+.bridge-module-navigation .map-organize-modal .map-organize-preview-name .new { color: var(--bridge-signal); }
+.bridge-module-navigation .map-organize-modal .map-organize-done-row .reason,
+.bridge-module-navigation .map-organize-modal .map-organize-selected .danger { color: var(--bridge-danger); }
+.bridge-module-navigation .map-organize-modal .map-organize-card.invalid,
+.bridge-module-navigation .map-organize-modal .map-organize-input.bad,
+.bridge-module-navigation .map-organize-modal .map-organize-step.failed,
+.bridge-module-navigation .map-organize-modal .map-organize-done-row.failed { border-color: var(--bridge-danger); }
+.bridge-module-navigation .map-organize-modal .map-organize-pill { background: var(--bridge-danger-soft); color: var(--bridge-danger); border-color: var(--bridge-danger); border-radius: 3px; }
+.bridge-module-navigation .map-organize-modal .map-organize-pill.gray { background: var(--bridge-panel-inset); color: var(--bridge-muted); border-color: var(--bridge-line); }
+.bridge-module-navigation .map-organize-modal .map-organize-spark,
+.bridge-module-navigation .map-organize-modal .map-organize-done-icon { background: var(--bridge-signal-soft); color: var(--bridge-signal); }
+.bridge-module-navigation .map-organize-modal .map-organize-done-icon.warn { background: var(--bridge-alert-soft); color: var(--bridge-alert); }
+.bridge-module-navigation .map-organize-modal .map-organize-step.done .map-organize-step-mk { background: var(--bridge-signal); border-color: var(--bridge-signal); color: var(--bridge-signal-contrast); }
+.bridge-module-navigation .map-organize-modal .map-organize-step.failed .map-organize-step-mk { background: var(--bridge-danger); border-color: var(--bridge-danger); color: var(--bridge-signal-contrast); }
+.bridge-module-navigation .map-organize-modal .map-organize-confirm-row.warn .dot { background: var(--bridge-alert); }
+.bridge-module-navigation .map-organize-modal .map-organize-confirm-row.bad .dot { background: var(--bridge-danger); }
+.bridge-module-navigation .map-organize-modal .map-organize-preview-row.ghost { background: var(--bridge-danger-soft); }
 `;
 
 // ─────────────────────────────────────────────────────────────
@@ -878,21 +947,45 @@ export const MAP_THEME_VARS: Record<string, MapThemeVars> = {
     '--marker-enemy': '#d06070',
   },
   bridge: {
-    '--map-bg': '#152b32',
-    '--map-stroke': '#8eeaff',
-    '--map-stroke-soft': '#4aa9bb',
-    '--map-title-color': '#8eeaff',
-    '--map-text': '#d5f7ff',
-    '--map-text-soft': '#8bb8c1',
-    '--map-panel-border': '#23758a',
-    '--map-panel-bg': 'rgba(21,43,50,.84)',
-    '--map-panel-radius': '0',
-    '--map-room-fill': 'rgba(10,113,137,.12)',
-    '--map-room-label-color': '#d5f7ff',
-    '--marker-protagonist': '#d5f7ff',
-    '--marker-ally': '#47bfcf',
-    '--marker-npc': '#8eeaff',
-    '--marker-enemy': '#d46c61',
+    '--map-bg': 'var(--bridge-bg)',
+    '--map-stroke': 'var(--bridge-line-strong)',
+    '--map-stroke-soft': 'var(--bridge-muted)',
+    '--map-title-color': 'var(--bridge-text)',
+    '--map-text': 'var(--bridge-text)',
+    '--map-text-soft': 'var(--bridge-muted)',
+    '--map-panel-border': 'var(--bridge-line)',
+    '--map-panel-bg': 'var(--bridge-panel)',
+    '--map-panel-radius': '5px',
+    '--map-btn-bg': 'var(--bridge-panel-alt)',
+    '--map-btn-hover': 'var(--bridge-signal-soft)',
+    '--map-input-bg': 'var(--bridge-panel-alt)',
+    '--map-divider': 'var(--bridge-line-soft)',
+    '--map-room-fill': 'var(--bridge-panel-alt)',
+    '--map-corridor-fill': 'var(--bridge-panel-inset)',
+    '--map-room-label-color': 'var(--bridge-text)',
+    '--map-marker-name-fill': 'var(--bridge-text)',
+    '--map-marker-name-stroke': 'var(--bridge-bg)',
+    '--map-exit-label-stroke': 'var(--bridge-bg)',
+    '--marker-protagonist': 'var(--bridge-alert)',
+    '--marker-protagonist-fill': 'var(--bridge-alert-soft)',
+    '--marker-protagonist-text': 'var(--bridge-text)',
+    '--marker-ally': 'var(--bridge-signal)',
+    '--marker-ally-fill': 'var(--bridge-signal-soft)',
+    '--marker-npc': 'var(--bridge-text)',
+    '--marker-npc-fill': 'var(--bridge-panel-alt)',
+    '--marker-enemy': 'var(--bridge-danger)',
+    '--marker-enemy-fill': 'var(--bridge-danger-soft)',
+    '--marker-item': 'var(--bridge-muted)',
+    '--marker-item-fill': 'var(--bridge-panel-inset)',
+    '--map-status-ready': 'var(--bridge-signal)',
+    '--map-status-loading': 'var(--bridge-alert)',
+    '--map-status-pending': 'var(--bridge-alert)',
+    '--map-status-error': 'var(--bridge-danger)',
+    '--map-status-ready-bg': 'var(--bridge-signal-soft)',
+    '--map-status-pending-bg': 'var(--bridge-alert-soft)',
+    '--map-status-text-only': 'var(--bridge-muted)',
+    '--map-accent': 'var(--bridge-signal)',
+    '--map-accent-bg': 'var(--bridge-signal-soft)',
   },
   ios: {
     '--map-bg': '#f2f2f7',

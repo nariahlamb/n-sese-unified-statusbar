@@ -59,7 +59,6 @@ export function walletEntryHtml(style: WalletEntryStyle): string {
   const cls = 'ub-wallet-entry' + (s.empty ? ' ub-wallet-empty' : '');
   if (style === 'bridge') {
     return '<button class="' + cls + '" id="ac-wallet-btn" type="button" title="' + escapeAttr(s.title) + '">'
-      + '<span class="bridge-en-label">FUNDS</span>'
       + '<strong>' + currencyIconSvg(s.icon, 11) + ' ' + escapeHtml(s.name) + ' ' + qtyHtml(s) + '</strong></button>';
   }
   if (style === 'minimal') {

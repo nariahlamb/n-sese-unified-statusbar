@@ -45,12 +45,12 @@ export const SKILL_THEME_VARS: Record<StyleType, Record<string, string>> = {
     '--skill-edge': '#ccc', '--skill-shape': 'rect', '--skill-conn': 'ortho', '--skill-font': 'sans',
   },
   bridge: {
-    '--skill-bg': '#152b32', '--skill-bg2': '#0d2027',
-    '--skill-accent': '#8eeaff', '--skill-gold': '#b47a16',
-    '--skill-act': '#082027', '--skill-act-bg': '#8eeaff',
-    '--skill-lock': '#1d343c', '--skill-lock-text': '#66828a',
-    '--skill-text': '#d5f7ff', '--skill-muted': '#91b5bd',
-    '--skill-edge': '#23758a', '--skill-shape': 'rect', '--skill-conn': 'ortho', '--skill-font': 'monospace',
+    '--skill-bg': 'var(--bridge-panel)', '--skill-bg2': 'var(--bridge-panel-2)',
+    '--skill-accent': 'var(--bridge-signal)', '--skill-gold': 'var(--bridge-alert)',
+    '--skill-act': 'var(--bridge-signal-contrast)', '--skill-act-bg': 'var(--bridge-signal)',
+    '--skill-lock': 'var(--bridge-panel-inset)', '--skill-lock-text': 'var(--bridge-muted)',
+    '--skill-text': 'var(--bridge-text)', '--skill-muted': 'var(--bridge-muted)',
+    '--skill-edge': 'var(--bridge-line)', '--skill-shape': 'rect', '--skill-conn': 'ortho', '--skill-font': 'var(--bridge-font-ui)',
   },
   ios: {
     '--skill-bg': '#f2f2f7', '--skill-bg2': '#e8e8ed',
@@ -63,7 +63,7 @@ export const SKILL_THEME_VARS: Record<StyleType, Record<string, string>> = {
 };
 
 // 浅色主题（ancient/sweet/minimal）的 --skill-* 在深色 overlay 内仍是浅底，需深色覆盖。
-// xianxia/flirtatious/bridge 本即深色调，无需覆盖。
+// xianxia/flirtatious 本即深色调；bridge 的画布与弹窗均通过 --bridge-* 跟随主题浅深。
 export const SKILL_DARK_VARS: Partial<Record<StyleType, Record<string, string>>> = {
   ancient: {
     '--skill-bg': '#2a2018', '--skill-bg2': '#1e1610',
@@ -120,20 +120,17 @@ export function buildSkillDarkVarsCss(style: string): string {
   return `.panel-overlay.dark,.settings-overlay.dark,.nsfw-overlay.dark,#ac-content.dark,body.dark-mode{\n  ${decls}\n}`;
 }
 
-/**
- * 深空舰桥浅色模式：技能弹窗落在浅色 --bridge-panel 上，技能画布仍是深色
- * （SKILL_THEME_VARS.bridge 是给深色画布调的），需把列表/详情弹窗的文本字色换成桥深色。
- */
+/** 怪盗手记：技能弹窗与画布共用随主题浅深切换的纸面变量。 */
 export const SKILL_BRIDGE_LIGHT_VARS: Record<string, string> = {
-  '--skill-text': 'var(--bridge-text,#14353b)',
-  '--skill-muted': 'var(--bridge-muted,#55747a)',
-  '--skill-edge': 'var(--bridge-line,#779ca2)',
-  '--skill-bg': 'var(--bridge-panel,#f7fbfb)',
-  '--skill-bg2': 'var(--bridge-panel-2,#dbe8e9)',
-  '--skill-lock-text': 'var(--bridge-muted,#55747a)',
+  '--skill-text': 'var(--bridge-text)',
+  '--skill-muted': 'var(--bridge-muted)',
+  '--skill-edge': 'var(--bridge-line)',
+  '--skill-bg': 'var(--bridge-panel)',
+  '--skill-bg2': 'var(--bridge-panel-2)',
+  '--skill-lock-text': 'var(--bridge-muted)',
 };
 
-/** 舰桥浅色模式技能弹窗变量覆盖：仅浅色（body 非 dark-mode 且面板非 .dark）生效，深色维持原观感。 */
+/** 浅色技能弹窗的局部主题变量。 */
 export function buildSkillBridgeLightVarsCss(): string {
   const decls = Object.entries(SKILL_BRIDGE_LIGHT_VARS).map(([k, v]) => `${k}: ${v};`).join('\n  ');
   return `body:not(.dark-mode) #panelOverlay:not(.dark) .sk-popup,\nbody:not(.dark-mode) #panelOverlay:not(.dark) .bridge-module-skill-tree,\nbody:not(.dark-mode) #panelOverlay:not(.dark) .bridge-module-skill-detail{\n  ${decls}\n}`;
@@ -176,7 +173,7 @@ export const SKILL_BASE_CSS = `
 .sk-btn.close{font-size:16px}
 /* 天赋树弹窗头部是主题浅色 panel-popup-head，.sk-btn 的 --skill-act 亮字是为深色强调头设计的，需换自适配配色 */
 .skill-tree-popup:not(.bridge-window) .panel-popup-head .sk-btn{color:var(--skill-text);background:var(--skill-bg2);border-color:var(--skill-gold)}
-.skill-tree-popup.bridge-window .panel-popup-head .sk-btn{color:var(--bridge-text,#14353b);background:var(--bridge-panel-2,#dbe8e9);border-color:var(--bridge-line-strong,#23758a)}
+.skill-tree-popup.bridge-window .panel-popup-head .sk-btn{color:var(--bridge-text);background:var(--bridge-panel-2);border-color:var(--bridge-line-strong)}
 .sk-body{padding:8px;max-height:72vh;max-height:72dvh;overflow:auto}
 .sk-tip{font-size:10px;color:var(--skill-muted);padding:0 4px 6px;border-bottom:1px dashed var(--skill-edge);margin-bottom:4px}
 .sk-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--skill-edge);flex-wrap:wrap}
@@ -231,21 +228,44 @@ b.num,.num{font-variant-numeric:tabular-nums}
 .sk-extra-dialog{background:var(--skill-bg);border:1px solid var(--skill-edge);border-radius:10px;width:90%;max-width:360px;padding:14px}
 .sk-extra-dialog textarea{width:100%;min-height:80px;box-sizing:border-box;font-family:inherit;font-size:var(--ub-ui-font-12,12px);padding:8px;border:1px solid var(--skill-edge);border-radius:6px;background:var(--skill-bg2);color:var(--skill-text)}
 .sk-extra-dialog .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-/* 深空舰桥：技能矩阵 */
-.bridge-module-skill-tree,.bridge-module-skill-detail{border-radius:0!important;border:1px solid var(--bridge-line-strong,#23758a)!important;background:var(--bridge-panel,#eef3f5)!important}
-.bridge-module-skill-tree .panel-popup-head,.bridge-module-skill-detail .panel-popup-head{background:linear-gradient(90deg,var(--bridge-panel-alt,#dde8eb),var(--bridge-panel,#eef3f5));border-bottom:1px solid var(--bridge-line-strong,#23758a)}
-.bridge-module-skill-tree .panel-popup-title::after{content:" / CAPABILITY MATRIX";font:9px var(--bridge-font-data,"Consolas",monospace);letter-spacing:1.1px;color:var(--bridge-text-muted,#62757c)}
-.bridge-module-skill-detail .panel-popup-title::after{content:" / NODE CONTROL";font:9px var(--bridge-font-data,"Consolas",monospace);letter-spacing:1.1px;color:var(--bridge-text-muted,#62757c)}
-.bridge-module-skill-tree .skill-tree-container{border-radius:0;border:1px solid var(--bridge-line-strong,#23758a);background-color:var(--skill-bg);background-image:linear-gradient(rgba(142,234,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(142,234,255,.05) 1px,transparent 1px);background-size:24px 24px}
-.bridge-module-skill-tree .sk-zoom-btn,.bridge-module-skill-detail .sk-act-btn{border-radius:0}
-.bridge-module-skill-tree .sk-legend{font-family:var(--bridge-font-data,"Consolas",monospace);letter-spacing:.4px}
-.bridge-module-skill-detail .sk-detail,.bridge-module-skill-detail .sk-confirm{border-radius:0}
-.bridge-module-skill-detail .sk-d-desc,.bridge-module-skill-detail .sk-d-warn{border-radius:0}
-.sk-popup.bridge-module-skill-detail{border-radius:0}
-.sk-popup.bridge-module-skill-detail .sk-head{background:var(--bridge-screen,#152b32);color:var(--bridge-screen-text,#8eeaff);border-bottom:1px solid var(--bridge-line-strong,#23758a)}
-.sk-popup.bridge-module-skill-detail .sk-title::after{content:" / SKILL REGISTRY";font:9px var(--bridge-font-data,"Consolas",monospace);letter-spacing:1px}
-.sk-popup.bridge-module-skill-detail .sk-row{border-color:var(--bridge-line,#91a5ad)}
-.sk-popup.bridge-module-skill-detail .sk-badge,.sk-popup.bridge-module-skill-detail .sk-exp,.sk-popup.bridge-module-skill-detail .sk-tree-btn,.sk-popup.bridge-module-skill-detail .sk-del-btn{border-radius:0}
+/* 怪盗手记：技能手册 */
+.bridge-module-skill-tree,.bridge-module-skill-detail{
+  --skill-bg:var(--bridge-panel);--skill-bg2:var(--bridge-panel-2);
+  --skill-accent:var(--bridge-signal);--skill-gold:var(--bridge-alert);
+  --skill-act:var(--bridge-signal-contrast);--skill-act-bg:var(--bridge-signal);
+  --skill-lock:var(--bridge-panel-inset);--skill-lock-text:var(--bridge-muted);
+  --skill-text:var(--bridge-text);--skill-muted:var(--bridge-muted);--skill-edge:var(--bridge-line);--skill-font:var(--bridge-font-ui);
+  --ub-touch-min:32px;
+  border-radius:var(--ub-popup-radius)!important;border:var(--ub-popup-border)!important;background:var(--bridge-panel)!important;
+  color:var(--bridge-text);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui)
+}
+.bridge-module-skill-tree .panel-popup-head,.bridge-module-skill-detail .panel-popup-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.bridge-module-skill-tree .skill-tree-container{border-radius:5px;border:1.5px solid var(--bridge-line);background:var(--bridge-panel-alt)}
+.bridge-module-skill-tree .skill-node rect{rx:4px;ry:4px}
+.bridge-module-skill-tree .skill-tree-svg{font-family:var(--bridge-font-ui)}
+.bridge-module-skill-tree .skill-node:hover{filter:drop-shadow(2px 2px 0 var(--bridge-offset))}
+.bridge-module-skill-tree .skill-node.sk-n-next{filter:drop-shadow(2px 2px 0 var(--bridge-signal))}
+.bridge-module-skill-tree .sk-zoom-btn,.bridge-module-skill-detail .sk-act-btn{border-radius:4px;min-height:32px;box-shadow:2px 2px 0 var(--bridge-offset)}
+.bridge-module-skill-tree .sk-zoom-btn{background:var(--bridge-panel);border:1.5px solid var(--bridge-line);color:var(--bridge-text)}
+.bridge-module-skill-tree .sk-zoom-btn:active{background:var(--bridge-screen);color:var(--bridge-screen-text)}
+.bridge-module-skill-tree .sk-legend{font-family:var(--bridge-font-ui);letter-spacing:.4px}
+.bridge-module-skill-tree .sk-flavor{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:3px;transform:skewX(-8deg);box-shadow:2px 2px 0 var(--bridge-offset)}
+.bridge-module-skill-detail .sk-detail,.bridge-module-skill-detail .sk-confirm{border:1.5px solid var(--bridge-line);border-radius:5px;background:var(--bridge-panel-alt)}
+.bridge-module-skill-detail .sk-detail .hd,.bridge-module-skill-detail .sk-confirm .hd{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal)}
+.bridge-module-skill-detail .sk-d-desc,.bridge-module-skill-detail .sk-d-warn{border-radius:4px;background:var(--bridge-panel-inset)}
+.sk-popup.bridge-module-skill-detail .sk-head{background:var(--bridge-screen);color:var(--bridge-screen-text);border-bottom:3px solid var(--bridge-signal)}
+.bridge-module-skill-detail .sk-head .sk-btn,.bridge-module-skill-detail .hd .sk-btn{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-screen-muted)}
+.sk-popup.bridge-module-skill-detail .sk-row{border:1.5px solid var(--bridge-line);border-left:4px solid var(--bridge-line-strong);border-radius:4px;background:var(--bridge-panel-alt);margin-bottom:6px;padding:7px}
+.sk-popup.bridge-module-skill-detail .sk-row:nth-child(even){border-left-color:var(--bridge-signal)}
+.sk-popup.bridge-module-skill-detail .sk-badge{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);border-radius:3px;transform:skewX(-8deg)}
+.sk-popup.bridge-module-skill-detail .sk-exp,.sk-popup.bridge-module-skill-detail .sk-tree-btn,.sk-popup.bridge-module-skill-detail .sk-del-btn{border-radius:4px}
+.bridge-module-skill-detail .sk-exp b.num,.bridge-module-skill-detail .sk-have b.num{font-family:var(--bridge-font-data);color:var(--bridge-alert)}
+.bridge-module-skill-detail .sk-dot.on{background:var(--bridge-signal)}
+.bridge-module-skill-detail .sk-d-state.activated,.bridge-module-skill-detail .sk-d-pre.on{color:var(--bridge-signal)}
+.bridge-module-skill-detail .sk-d-pre.off,.bridge-module-skill-detail .sk-del-btn:hover{color:var(--bridge-danger);border-color:var(--bridge-danger)}
+.bridge-module-skill-detail .sk-seg{border-radius:4px;overflow:visible}
+.bridge-module-skill-detail .sk-seg button{border-radius:3px}
+.bridge-module-skill-detail .sk-seg button.seg-active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal)}
 @media(max-width:599px){.panel-popup.bridge-module-skill-tree,.panel-popup.bridge-module-skill-detail{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0!important;border-right:0!important}}
 `;
 

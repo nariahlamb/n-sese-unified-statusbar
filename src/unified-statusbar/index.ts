@@ -1455,7 +1455,7 @@ function bindEvents(): void {
     } else if (currentStyle === 'sweet') {
       this.textContent = isDark ? '☀️' : '🌙';
     } else if (currentStyle === 'bridge') {
-      this.textContent = isDark ? '晨雾模式' : '深空模式';
+      this.textContent = isDark ? '亮色' : '暗色';
     } else if (currentStyle === 'ios') {
       this.textContent = isDark ? '浅色' : '深色';
     } else {

@@ -50,8 +50,13 @@ const URE_CSS = `<style>
 /* 云海仙踪 — 青蓝 */
 .ure-xianxia{--ure-bg:#e8f1ee;--ure-card:#f7fbf8;--ure-text:#243d38;--ure-muted:#708c85;--ure-line:#a7c7be;--ure-accent:#278c82;--ure-accent-on:#e8f4f0;--ure-font:"Noto Serif SC","Noto Serif CJK SC","Songti SC","SimSun",serif;--ure-radius:6px}
 
-/* 深空舰桥 — 复古未来（映射 --bridge-*） */
-.ure-bridge{--ure-bg:var(--bridge-panel,#eef3f5);--ure-card:var(--bridge-panel-alt,#dde8eb);--ure-text:var(--bridge-text,#16222c);--ure-muted:var(--bridge-muted,#62757c);--ure-line:var(--bridge-line,#91a5ad);--ure-accent:var(--bridge-signal,#0a7189);--ure-accent-on:var(--bridge-signal-contrast,#fff);--ure-font:var(--bridge-font-ui,"Microsoft YaHei","PingFang SC",sans-serif);--ure-radius:0}
+/* 怪盗手记 — 原文编辑 */
+.ure-bridge,.ure-bridge .ure-dialog{--ure-bg:var(--bridge-panel);--ure-card:var(--bridge-panel-alt);--ure-text:var(--bridge-text);--ure-muted:var(--bridge-muted);--ure-line:var(--bridge-line);--ure-accent:var(--bridge-signal);--ure-accent-on:var(--bridge-signal-contrast);--ure-font:var(--bridge-font-ui);--ure-radius:4px}
+.ure-bridge .ure-dialog{border-radius:var(--ub-popup-radius);border:var(--ub-popup-border);box-shadow:var(--ub-popup-shadow)}
+.ure-bridge .ure-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.ure-bridge .ure-textarea{border-width:1.5px}
+.ure-bridge .ure-btn{min-height:32px}
+.ure-bridge .ure-btn.primary{background:var(--bridge-screen);color:var(--bridge-screen-text);border-color:var(--bridge-line-strong);box-shadow:2px 2px 0 var(--bridge-signal)}
 
 /* 灵动玻璃 — 系统灰面 · 系统蓝 */
 .ure-ios{--ure-bg:#f2f2f7;--ure-card:#ffffff;--ure-text:#1c1c1e;--ure-muted:rgba(60,60,67,.62);--ure-line:rgba(60,60,67,.12);--ure-accent:#007aff;--ure-accent-on:#fff;--ure-font:var(--ios-font,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei UI',sans-serif);--ure-radius:18px}
@@ -65,6 +70,7 @@ const URE_CSS = `<style>
 .panel-overlay.dark .ure-ios,body.dark-mode .ure-ios{--ure-bg:#1c1c1e;--ure-card:#2c2c2e;--ure-text:#f2f2f7;--ure-muted:rgba(235,235,245,.62);--ure-line:rgba(235,235,245,.12);--ure-accent:#0a84ff}
 
 @media(max-width:599px){.ure-overlay{padding:0}.ure-overlay .ure-dialog{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0}.ure-textarea{min-height:56vh}}
+.ure-overlay.ure-bridge .ure-dialog{border-radius:var(--ub-popup-radius)}
 </style>`;
 
 /** 打开原始文本编辑器（叠在当前弹窗之上，模态套模态）。 */

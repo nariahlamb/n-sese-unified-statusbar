@@ -366,7 +366,7 @@ export function buildMapPopupHTML(_config: StatusBarConfig): string {
     : '';
   return `<div class="panel-popup map-popup ub-popup--xl${bridgeClass}">
     <div class="panel-popup-head">
-      <div class="panel-popup-title">${_config.style === 'bridge' ? '导航阵列 / NAV ARRAY' : ubIcon('map') + ' 地图'}</div>
+      <div class="panel-popup-title">${_config.style === 'bridge' ? '地图' : ubIcon('map') + ' 地图'}</div>
       <button class="panel-popup-close" id="panelClose">&times;</button>
     </div>
     <div class="panel-popup-body">
@@ -1294,7 +1294,7 @@ async function showNodeMoreMenu(nodeId: string, anchorEl: HTMLElement): Promise<
     ${phone ? `<div class="map-more-menu-item" data-act="del"><span class="mi-icon">${ubIcon('trash')}</span>删除节点</div>` : ''}`;
   overlayEl.appendChild(menu);
 
-  // bridge 风格打标：菜单保住暗青盘（.map-more-menu.bridge-module-menu），不进深色中性翻转
+  // bridge 菜单跟随主题变量（.map-more-menu.bridge-module-menu）。
   if (anchorEl.closest('.map-popup.bridge-module-navigation')) menu.classList.add('bridge-module-menu');
 
   // 定位（共用 placeAnchoredMenu，与立绘 ⋮ 菜单同一口径）：默认向下展开；下方放不下翻到行上方，

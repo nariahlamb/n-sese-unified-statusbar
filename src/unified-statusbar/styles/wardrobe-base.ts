@@ -24,7 +24,6 @@ export const WARDROBE_BASE_CSS = `
 .wardrobe-theme-minimal{--wr-accent:#222;--wr-bg:#f4f4f2;--wr-panel:#fff;--wr-line:#c8c8c4;border-radius:2px}
 .wardrobe-theme-sweet{--wr-accent:#df7198;--wr-bg:var(--sweet-bg,#fff0f5);--wr-panel:var(--sweet-card,#fffafd);--wr-line:var(--sweet-border,#efbdd0)}
 .wardrobe-theme-xianxia{--wr-accent:#247f76;--wr-bg:#edf5f1;--wr-panel:#f9fcfa;--wr-line:#abcac2}
-.wardrobe-theme-bridge{--wr-accent:#2d6074;--wr-bg:#eef4f5;--wr-panel:#f9fcfc;--wr-line:#afc6ca}
 .wardrobe-theme-ios{--wr-accent:#007aff;--wr-bg:#f2f2f7;--wr-panel:#ffffff;--wr-line:rgba(60,60,67,.12);--wr-text:#1c1c1e;--wr-muted:rgba(60,60,67,.62);--wr-accent-soft:rgba(0,122,255,.1)}
 .panel-overlay.dark .wardrobe-theme-ios,
 body.dark-mode .wardrobe-theme-ios{
@@ -252,6 +251,11 @@ body.dark-mode .wardrobe-window{
   .wardrobe-extraction-row{grid-template-columns:auto 1fr}
   .wardrobe-extraction-row textarea{grid-column:1/-1}
 }
+.wardrobe-theme-bridge,.panel-overlay.dark .wardrobe-theme-bridge,body.dark-mode .wardrobe-theme-bridge{--wr-accent:var(--bridge-signal);--wr-accent-soft:var(--bridge-signal-soft);--wr-bg:var(--bridge-panel);--wr-panel:var(--bridge-panel-alt);--wr-line:var(--bridge-line);--wr-text:var(--bridge-text);--wr-muted:var(--bridge-muted)}
+.wardrobe-theme-bridge{border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);box-shadow:var(--ub-popup-shadow);font-family:var(--bridge-font-ui)}
+.wardrobe-theme-bridge .wardrobe-head{background:var(--bridge-panel-2);border-bottom:2px solid var(--bridge-line-strong)}
+.wardrobe-theme-bridge .wardrobe-route,.wardrobe-theme-bridge .wardrobe-btn,.wardrobe-theme-bridge .wardrobe-filter,.wardrobe-theme-bridge .wardrobe-mobile-step{min-height:32px;border-radius:4px;border-width:1.5px}
+.wardrobe-theme-bridge .wardrobe-route[aria-selected="true"],.wardrobe-theme-bridge .wardrobe-filter[aria-pressed="true"],.wardrobe-theme-bridge .wardrobe-mobile-step[aria-current="step"]{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:2px 2px 0 var(--bridge-signal)}
 @media (prefers-reduced-motion:reduce){
   .wardrobe-window *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }

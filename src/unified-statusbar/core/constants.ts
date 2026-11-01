@@ -364,7 +364,7 @@ export const STYLE_LABELS: Record<StyleType, string> = {
   minimal: '萦绕灵感',
   sweet: '甜恋糖果',
   xianxia: '云海仙踪',
-  bridge: '深空舰桥',
+  bridge: '怪盗手记',
   ios: '灵动玻璃',
 };
 
