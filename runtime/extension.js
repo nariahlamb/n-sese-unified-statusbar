@@ -25,6 +25,7 @@ export function createExtension(win, config, {
   let message = '等待启动';
   let activePromise = null;
   let template = '';
+  let shell;
   let status;
   let button;
   let chatTimer;
@@ -67,7 +68,12 @@ export function createExtension(win, config, {
 
   function ensureShell() {
     if (!config.template || doc.getElementById('ac-statusbar-wrapper')) return;
+    if (shell) {
+      doc.body.append(shell);
+      return;
+    }
     const wrapper = doc.createElement('div');
+    shell = wrapper;
     wrapper.id = 'ac-statusbar-wrapper';
     wrapper.innerHTML = template;
     // 原入口会把弹层移到 body，恢复壳时保留已有弹层及其事件。
@@ -85,9 +91,11 @@ export function createExtension(win, config, {
     observedChat = chat;
     if (!chat) return;
     chatObserver = new win.MutationObserver(() => {
-      if (phase !== 'ready' || doc.getElementById('ac-statusbar-wrapper')) return;
-      ensureShell();
-      win.__ub_on_reinject?.();
+      win.queueMicrotask(() => {
+        if (phase !== 'ready' || doc.getElementById('ac-statusbar-wrapper')) return;
+        ensureShell();
+        win.__ub_on_reinject?.();
+      });
     });
     chatObserver.observe(chat, { childList: true });
   }

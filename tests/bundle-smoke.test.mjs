@@ -6,7 +6,7 @@ import jquery from 'jquery';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import { config } from '../runtime/config.js';
 
-test('真实构建产物在无聊天的模拟酒馆中启动，不发送 AI 请求', async () => {
+for (const managed of [false, true]) test(`真实构建产物：虚拟化${managed ? '开启' : '关闭'}时跟随底部并恢复投影，不发送 AI 请求`, async () => {
   const errors = [];
   const vc = new VirtualConsole();
   vc.on('jsdomError', error => {
@@ -35,6 +35,10 @@ test('真实构建产物在无聊天的模拟酒馆中启动，不发送 AI 请�
     saveSettingsDebounced() {}, async saveMetadata() {}, name1: 'User', name2: '',
   };
   win.SillyTavern = { getContext: () => context };
+  if (managed) win.__TAURITAVERN__ = { api: { chatSurface: {
+    protocolVersion: 1, isManagedOwnershipRequired: () => true,
+    registerParticipant() { throw new Error('首次投影后不允许注册 participant'); },
+  } } };
   win.$ = win.jQuery = jquery(win);
   win.TextEncoder = TextEncoder;
   win.TextDecoder = TextDecoder;
@@ -89,6 +93,58 @@ test('真实构建产物在无聊天的模拟酒馆中启动，不发送 AI 请�
     assert.equal(win[config.bootFlag], true, `${config.title}启动标记缺失`);
     if (config.id === 'sese-phone') assert(win.document.getElementById('ubp-root')?.shadowRoot, '手机壳未挂载');
     if (config.id === 'sese-ledger') assert(win.SeseLedgerAPI, '台账 API 未挂载');
+    if (config.template) {
+      const doc = win.document;
+      const chat = doc.getElementById('chat');
+      const wrapper = doc.getElementById('ac-statusbar-wrapper');
+      const message = id => {
+        const el = doc.createElement('div');
+        el.className = 'mes';
+        el.setAttribute('mesid', String(id));
+        el.innerHTML = '<div class="mesAvatarWrapper"><div class="avatar"></div></div><div class="mes_block"><div class="mes_text">正文</div></div>';
+        return el;
+      };
+      doc.getElementById('ac-persistent-settings').click();
+      const select = doc.getElementById('positionSelector');
+      assert(select, '真实设置页的布局选择器缺失');
+      const position = value => { select.value = value; select.dispatchEvent(new win.Event('change')); };
+      context.chat = Array.from({ length: 1000 }, () => ({ mes: '正文', is_user: false }));
+      let last = message(999);
+      chat.append(message(998), last);
+      position('follow-bottom');
+      await new Promise(resolve => setTimeout(resolve, 40));
+      assert.equal(wrapper.style.position, 'relative');
+      assert.equal(wrapper.style.zIndex, 'auto');
+      assert(wrapper.classList.contains('ub-anim-off'));
+      assert.equal(managed ? wrapper.closest('.mes') : wrapper.parentElement, managed ? last : chat);
+      win.__ub_on_resize();
+      assert.equal(wrapper.style.position, 'relative');
+      if (managed) {
+        doc.getElementById('ac-fixed-toggle').click();
+        assert(wrapper.classList.contains('ub-collapsed'));
+        chat.replaceChildren();
+        await new Promise(resolve => setTimeout(resolve, 5));
+        assert.equal(wrapper.isConnected, true);
+        assert.equal(wrapper.parentElement.style.display, 'none');
+        last = message(999);
+        chat.append(last);
+        await new Promise(resolve => setTimeout(resolve, 5));
+        assert.equal(wrapper.closest('.mes'), last);
+        assert(wrapper.classList.contains('ub-collapsed'));
+        doc.getElementById('ac-fixed-toggle').click();
+        assert(!wrapper.classList.contains('ub-collapsed'));
+        assert.equal(wrapper.style.position, 'relative');
+      }
+      position('fixed-top');
+      assert.equal(wrapper.parentElement, doc.body);
+      assert.equal(wrapper.style.position, 'fixed');
+      assert.equal(doc.querySelector('.ub-chat-tail-host'), null);
+      position('follow-bottom');
+      await new Promise(resolve => setTimeout(resolve, 40));
+      assert.equal(managed ? wrapper.closest('.mes') : wrapper.parentElement, managed ? last : chat);
+      assert.equal(doc.querySelectorAll('#ac-statusbar-wrapper').length, 1);
+      assert.equal(doc.querySelectorAll('#settingsOverlay').length, 1);
+    }
     assert.equal(aiRequests, 0);
     assert.deepEqual(errors, [], '模拟启动出现错误日志');
   } finally {

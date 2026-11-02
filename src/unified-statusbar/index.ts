@@ -25,7 +25,7 @@ import { type StyleType, setFollowBottomActive } from './core/constants';
 import { SKILL_TABLE_NAME, SKILL_COL } from './core/skill-types';
 import { readSkillTree } from './core/skill-store';
 import { getToastr } from './core/env';
-import { isTtManagedChatSurface, effectivePositionMode } from './core/tt-chat-surface';
+import { isTtManagedChatSurface, createManagedChatTail } from './core/tt-chat-surface';
 import { createPersistentSettingsBtn, positionSettingsBtn, updateFloatingBtnVisibility, createFixedToggleBtn, updateFixedToggleBtn, refreshCollapseMenuItems, showFixedToggleOnboarding, initFloatingChrome, resetFixedToggleBtnSignature, syncFixedToggleAi } from './chrome/floating-chrome';
 import { initAiActivityBar, syncAiActivityBar } from './renderers/ai-activity-bar';
 import { initAiActivityNotify, refreshAiActivityNotify } from './core/ai-activity-notify';
@@ -773,9 +773,8 @@ function renderAncientOrFlirtatious(): void {
     || htmlKeys.some((k) => !domKeys.includes(k));
 
   // fixed-top 下 wrapper 是滚动容器，替换会改内容高度 → 先记再恢复
-  // （effective 口径：TT 托管聊天区下 follow-bottom 回退 fixed-top，滚动容器判定随之）
   const wrapper = document.getElementById('ac-statusbar-wrapper') as HTMLElement | null;
-  const fixedTop = effectivePositionMode(getConfig().positionMode) === 'fixed-top' && !!wrapper;
+  const fixedTop = getConfig().positionMode === 'fixed-top' && !!wrapper;
   const savedTop = fixedTop ? wrapper!.scrollTop : 0;
 
   if (structureChanged) {
@@ -1891,7 +1890,7 @@ function _isAnyOverlayOpen(): boolean {
 }
 
 function syncAnimState(wrapper: HTMLElement): void {
-  const followBottom = effectivePositionMode(getConfig().positionMode) === 'follow-bottom';
+  const followBottom = getConfig().positionMode === 'follow-bottom';
   setFollowBottomActive(followBottom);
   // 跟随底部：关动画；页面不可见：冻结。两者可并存（hidden 时无可见内容，无害）。
   wrapper.classList.toggle('ub-anim-off', followBottom);
@@ -1957,6 +1956,7 @@ function applyMobileFixes(): void {
 // 关键：用「按 config 确定性选取唯一 tail 元素」的规则，任意一次回调最多移动一个元素，
 // 避免早期「两个观察者各抢一个元素当末尾」互相 appendChild 的无限循环（曾导致整个页面卡死）。
 const OPTIONS_BAR_FLOATING_ID = 'ac-options-bar-floating';
+const _managedChatTail = createManagedChatTail();
 let _chatTailObserver: MutationObserver | null = null;
 let _chatTailChatEl: HTMLElement | null = null;
 // 防抖贴底：重建期间 #chat 连续 append N 条 .mes 会触发 N 次 childList mutation，
@@ -1970,16 +1970,14 @@ let _chatTailLastFlush = 0;
 const CHAT_TAIL_DEBOUNCE_MS = 200;
 const CHAT_TAIL_MAX_STALE_MS = 1000;
 
-/** 当前「选项栏跟随底部」是否生效（TT 托管聊天区下 #chat 容纳不了外来子节点，恒不生效） */
+/** 当前「选项栏跟随底部」是否生效。 */
 function isOptionsBarFollowBottomActive(): boolean {
-  if (isTtManagedChatSurface()) return false;
   const cfg = getConfig();
-  return cfg.optionsBarEnabled && cfg.optionsBarFollowBottom && effectivePositionMode(cfg.positionMode) !== 'follow-bottom';
+  return cfg.optionsBarEnabled && cfg.optionsBarFollowBottom && cfg.positionMode !== 'follow-bottom';
 }
 
 /** 当前应在 #chat 末尾的唯一元素：按 config 确定性选取（不依赖 DOM 状态，杜绝乒乓） */
 function _getChatTailEl(): HTMLElement | null {
-  if (isTtManagedChatSurface()) return null; // #chat 被托管：wrapper 与浮动栏都不进 #chat
   const cfg = getConfig();
   if (cfg.positionMode === 'follow-bottom') {
     return document.getElementById('ac-statusbar-wrapper');
@@ -1987,9 +1985,8 @@ function _getChatTailEl(): HTMLElement | null {
   return document.getElementById(OPTIONS_BAR_FLOATING_ID);
 }
 
-/** 是否需要 #chat 末尾观察者（TT 托管聊天区无 tail 元素，不需要） */
+/** 是否需要维护消息流末尾元素。 */
 function _isChatTailObserverNeeded(): boolean {
-  if (isTtManagedChatSurface()) return false;
   const cfg = getConfig();
   if (cfg.positionMode === 'follow-bottom') return true;
   return cfg.optionsBarEnabled && cfg.optionsBarFollowBottom;
@@ -2049,6 +2046,12 @@ function _stopChatTailObserver(): void {
 
 /** 同步观察者生命周期：需要时启动，不需要时停止（功能关闭后不占用资源） */
 function _syncChatTailObserver(): void {
+  if (isTtManagedChatSurface()) {
+    _stopChatTailObserver();
+    _managedChatTail.sync(_isChatTailObserverNeeded() ? _getChatTailEl() : null);
+    return;
+  }
+  _managedChatTail.dispose();
   const chat = document.getElementById('chat');
   if (_isChatTailObserverNeeded() && chat) {
     _ensureChatTailObserver(chat);
@@ -2068,7 +2071,10 @@ function syncOptionsBarFloating(): void {
 
   // 纯浪费情形早退：选项未开 + 无残留浮动栏 + 不需观察者时，跳过每次渲染的冗余查找。
   // 需清理（有残留栏）或需观察者（follow-bottom）时不早退，落入下方分支处理。
-  if (!active && !document.getElementById(OPTIONS_BAR_FLOATING_ID) && !_isChatTailObserverNeeded()) return;
+  if (!active && !document.getElementById(OPTIONS_BAR_FLOATING_ID) && !_isChatTailObserverNeeded()) {
+    _syncChatTailObserver();
+    return;
+  }
 
   if (!active) {
     const existing = document.getElementById(OPTIONS_BAR_FLOATING_ID);
@@ -2088,7 +2094,7 @@ function syncOptionsBarFloating(): void {
     fb = document.createElement('div');
     fb.id = OPTIONS_BAR_FLOATING_ID;
     fb.className = 'ac-options-bar-floating';
-    chat.appendChild(fb);
+    if (!isTtManagedChatSurface()) chat.appendChild(fb);
   }
   // 内容刷新（强制浮动渲染，绕过内联抑制）；未变化时跳过 DOM 写（解析/重建为零）
   const barHtml = buildOptionsBar(currentStyle, { floating: true });
@@ -2103,7 +2109,8 @@ function syncOptionsBarFloating(): void {
   // 改为触发一次防抖 flush：与 chat 观察者共用 200ms 静默窗口 + 1s 兜底上限，
   // 内容已刷新到 fb，贴底时机交给防抖，渲染期不再逐次移动。
   // _flushChatTail 内部已判断 last===tail 则不移动，与观察者不会重复 appendChild。
-  _scheduleChatTailFlush(chat);
+  if (isTtManagedChatSurface()) _managedChatTail.sync(fb);
+  else _scheduleChatTailFlush(chat);
   _syncChatTailObserver();
 }
 
@@ -2140,10 +2147,7 @@ function updateWrapperStyle(): void {
 
   const heightVh = cfg.customHeightPercent + 'vh';
 
-  // 生效布局口径：TT 托管聊天区（虚拟化开启）下 follow-bottom 回退 fixed-top——
-  // 托管后的 #chat 容纳不了外来子节点，resize/handleReinject 重算样式时也必须同口径，
-  // 否则会把 loader 建好的 fixed-top wrapper 重新挪回 #chat（只修 loader = 半修）。
-  const posMode = effectivePositionMode(cfg.positionMode);
+  const posMode = cfg.positionMode;
 
   // ===== 模式 1: 固定顶部 =====
   if (posMode === 'fixed-top') {
@@ -2165,13 +2169,14 @@ function updateWrapperStyle(): void {
     }
     if (wrapper.parentNode !== document.body) document.body.appendChild(wrapper);
     if (isMobile) applyMobileFixes();
+    _syncChatTailObserver();
     return;
   }
 
-  // ===== 模式 2: 跟随底部（嵌入 #chat 末尾，sticky 贴底跟随消息滚动） =====
+  // ===== 模式 2: 跟随底部 =====
   if (posMode === 'follow-bottom') {
     const chat = document.getElementById('chat');
-    if (chat) {
+    if (chat || isTtManagedChatSurface()) {
       // 宽度：跟随底部模式下默认占满消息流宽度；自定义宽度时居中
       let innerW = '100%';
       let innerMargin = '0 auto';
@@ -2188,7 +2193,7 @@ function updateWrapperStyle(): void {
         + 'flex-shrink:0;'
         + 'overflow-anchor:none;' // 关闭浏览器滚动锚定，避免它与下方观察者的贴底移动争抢 scrollTop
         + 'z-index:auto;';
-      if (wrapper.parentNode !== chat) chat.appendChild(wrapper);
+      if (!isTtManagedChatSurface() && wrapper.parentNode !== chat) chat.appendChild(wrapper);
       _syncChatTailObserver();
       if (isMobile) applyMobileFixes();
     } else {
@@ -3698,6 +3703,7 @@ if (!(window as any).__ub_pagehide_bound) {
   stopStoryImageFloorButton();
   stopStoryImageTextViewer();
   _stopChatTailObserver();
+  _managedChatTail.dispose();
   if (_dataUpdateTimer) { clearTimeout(_dataUpdateTimer); _dataUpdateTimer = null; }
   _pendingTableUpdateData = null;
   if (_tooltipHideTimer) { clearTimeout(_tooltipHideTimer); _tooltipHideTimer = null; }
