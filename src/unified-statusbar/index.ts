@@ -2008,6 +2008,15 @@ function _isChatTailObserverNeeded(): boolean {
 
 /** 实际执行 tail 贴底移动。仅在 tail 确在 chat 内且不在末尾时 appendChild，并记录贴底时间。 */
 function _flushChatTail(chat: HTMLElement): void {
+  if (isTtManagedChatSurface()) {
+    // 托管模式由 createManagedChatTail 独占迁移；旧直系节点先收回，不能由贴底逻辑再插回。
+    _stopChatTailObserver();
+    const tail = _getChatTailEl();
+    if (tail?.parentElement === chat) document.body.appendChild(tail);
+    _managedChatTail.sync(_isChatTailObserverNeeded() ? tail : null);
+    return;
+  }
+  _managedChatTail.dispose();
   const tail = _getChatTailEl();
   // 不在 #chat 内则不干预（如 wrapper 处于 body 的 fixed 模式 / 已切到固定布局）
   if (!tail || tail.parentElement !== chat) return;
@@ -2211,7 +2220,13 @@ function updateWrapperStyle(): void {
         + 'flex-shrink:0;'
         + 'overflow-anchor:none;' // 关闭浏览器滚动锚定，避免它与下方观察者的贴底移动争抢 scrollTop
         + 'z-index:auto;';
-      if (!isTtManagedChatSurface() && wrapper.parentNode !== chat) chat.appendChild(wrapper);
+      if (isTtManagedChatSurface()) {
+        // 托管模式绝不直挂 #chat；先收回历史遗留的直系 wrapper，再交给末楼 slot。
+        if (wrapper.parentNode === chat) document.body.appendChild(wrapper);
+        _managedChatTail.sync(wrapper);
+      } else if (wrapper.parentNode !== chat) {
+        chat.appendChild(wrapper);
+      }
       _syncChatTailObserver();
       if (isMobile) applyMobileFixes();
     } else {
@@ -2571,6 +2586,11 @@ function showPopupOrToggle(popupId: string, showFn: () => void): void {
 
 // loader 重注入 wrapper 后调用，恢复 overlay 和按钮状态
 function handleReinject(): void {
+  if (isTtManagedChatSurface() && getConfig().positionMode === 'follow-bottom') {
+    // loader 重建的新壳默认在 body；先交给托管 slot，再恢复布局和渲染。
+    // 不让本次回调中的旧直系 wrapper 被贴底逻辑重新抢回 #chat。
+    _managedChatTail.sync(document.getElementById('ac-statusbar-wrapper'));
+  }
   invalidateAssistantUIForChatChange();
   advanceWardrobeProjectionEpoch();
   // F47(第十二轮)：wrapper 可能刚被 loader 重建（跟随底部切聊清空 #chat 等），

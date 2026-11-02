@@ -41,6 +41,13 @@ export function createManagedChatTail(win: Window = window) {
   function place(): void {
     if (!tail || !slot) return;
     const nextChat = doc.getElementById('chat');
+    // 生命周期兜底：宿主重载/切聊天时，旧的非托管挂载可能晚于托管判断落地。
+    // 先收回任何仍直接挂在 #chat 的本扩展节点，再决定 slot 的目标，避免遗留直系 div。
+    if (nextChat) {
+      for (const element of [tail, slot]) {
+        if (element && element.parentElement === nextChat) doc.body.appendChild(element);
+      }
+    }
     let lastId = -1;
     try {
       const context = (win as any).SillyTavern?.getContext?.();

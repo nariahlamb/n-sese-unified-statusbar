@@ -105,6 +105,31 @@ test('重建投影、添加/删除末楼和 swipe 后迁移同一实例，保留
   } finally { f.close(); }
 });
 
+test('托管切换时收回旧的直系 wrapper，新建聊天不会把它留在 #chat', async () => {
+  const f = fixture(0);
+  try {
+    f.chat.append(f.tail);
+    f.context.chat = [{}];
+    f.manager.sync(f.tail);
+    await settle();
+    f.check(f.chat.querySelector('.mes'));
+  } finally { f.close(); }
+});
+
+test('末楼不存在时先停放，再等新建聊天的首楼投影', async () => {
+  const f = fixture(0);
+  try {
+    f.manager.sync(f.tail);
+    assert.equal(f.tail.parentElement.parentElement, f.win.document.body);
+    f.context.chat = [{}];
+    const first = f.message(0);
+    f.chat.append(first);
+    await settle();
+    f.check(first);
+    assert.equal(f.tail.parentElement.style.display, 'block');
+  } finally { f.close(); }
+});
+
 test('清空聊天和切换聊天时隐藏停放，新投影出现后恢复且不重复创建', async () => {
   const f = fixture();
   try {

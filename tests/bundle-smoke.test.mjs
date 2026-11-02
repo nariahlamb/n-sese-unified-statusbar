@@ -134,6 +134,17 @@ for (const managed of [false, true]) test(`真实构建产物：虚拟化${manag
         doc.getElementById('ac-fixed-toggle').click();
         assert(!wrapper.classList.contains('ub-collapsed'));
         assert.equal(wrapper.style.position, 'relative');
+        // 现场回归：遗留直系 wrapper + 新建聊天追加首楼时，不得再贴回 #chat。
+        chat.append(wrapper);
+        context.chat = [];
+        chat.querySelectorAll('.mes').forEach(element => element.remove());
+        context.chat = [{ mes: '正文', is_user: false }];
+        const first = message(0);
+        chat.append(first);
+        await new Promise(resolve => setTimeout(resolve, 1250));
+        assert.equal(wrapper.closest('.mes'), first);
+        assert.equal(wrapper.parentElement.className, 'ub-chat-tail-slot');
+        last = first;
       }
       position('fixed-top');
       assert.equal(wrapper.parentElement, doc.body);
