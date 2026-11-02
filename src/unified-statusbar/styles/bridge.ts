@@ -1365,24 +1365,31 @@ export const bridgeCSS = bridgeCoreCSS + /* css */ `
   .bridge-container .bridge-system-controls>*:active{color:var(--bridge-text);background:var(--bridge-signal-soft)}
 
   /* ---- 2. 快捷指令：左刃色带 + 弹性满排（不留缺角） ---- */
-  .bridge-container .bridge-quick-actions{display:flex;flex-wrap:wrap;gap:6px;padding:0 3px 3px 0}
-  .bridge-container .bridge-quick-actions>*{flex:1 1 calc(25% - 6px);min-width:0}
+  /* 整颗按钮 skewX(-12deg)：34px 高时上下边各横移约 3.6px，容器左右各留 6px 吸收，不出界。
+     用 skew 而不用 clip-path：clip-path 会把边框和硬阴影一起剪掉（见 629d3d2）。
+     --bridge-tilt 同步设置，按下态 transform:var(--bridge-tilt) translate() 才不会回正。 */
+  .bridge-container .bridge-quick-actions{display:flex;flex-wrap:wrap;gap:7px 8px;padding:0 7px 3px 6px}
+  .bridge-container .bridge-quick-actions>*{flex:1 1 calc(25% - 8px);min-width:0}
   .bridge-container .bridge-quick-actions .bridge-btn,
   .bridge-container .bridge-quick-actions .bridge-btn:hover{
+    --bridge-tilt:skewX(-12deg);
+    transform:var(--bridge-tilt);
     min-height:34px;
-    padding:6px 4px 6px 10px;
+    padding:6px 4px 6px 12px;
     color:var(--bridge-text);
-    background:linear-gradient(105deg,var(--bridge-line-strong) 0 5px,transparent 5px),var(--bridge-panel);
+    background:linear-gradient(90deg,var(--bridge-line-strong) 0 6px,transparent 6px),var(--bridge-panel);
     border:2px solid var(--bridge-line-strong);
-    box-shadow:2px 2px 0 var(--bridge-shadow-soft);
+    box-shadow:3px 3px 0 var(--bridge-shadow-soft);
     font-size:12.5px;
+    font-weight:900;
+    letter-spacing:.08em;
   }
   .bridge-container .bridge-quick-actions .bridge-btn.is-primary,
   .bridge-container .bridge-quick-actions .bridge-btn.is-primary:hover{
     color:var(--bridge-signal-contrast);
-    background:linear-gradient(105deg,var(--bridge-screen) 0 5px,transparent 5px),var(--bridge-signal);
+    background:linear-gradient(90deg,var(--bridge-screen) 0 6px,transparent 6px),var(--bridge-signal);
     border-color:var(--bridge-line-strong);
-    box-shadow:2px 2px 0 var(--bridge-shadow-soft);
+    box-shadow:3px 3px 0 var(--bridge-shadow-soft);
   }
 
   /* ---- 3. 角色索引签：贴住下方档案卡 ---- */
