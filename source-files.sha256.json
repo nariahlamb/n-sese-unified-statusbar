@@ -226,7 +226,7 @@
     "src/unified-statusbar/core/text-fence.ts": "385e495f00096744cb44828b13fb386c20c1a94b54ce96647ff64e275749aea1",
     "src/unified-statusbar/core/time-anchor.ts": "3bc9b39a1b336a71c51fdc4578cd136a2609a3d68192349627f123ceb478857b",
     "src/unified-statusbar/core/timing.ts": "4e4454561c6ff2c350c24e486b4dfd372a44c09440efc169ca4651d627c6b483",
-    "src/unified-statusbar/core/tt-chat-surface.ts": "a3765512efe65ddc9a4ad5e9455feb43ce3387893b1a2d6166a735a7934540e7",
+    "src/unified-statusbar/core/tt-chat-surface.ts": "2065b9b31d8ba3c66bb665b7581d217970fc2580eb9543fc12034e4d6bba6da1",
     "src/unified-statusbar/core/type-guards.ts": "7cfd3053f31ab3c460b73fd1cacb134dac0256a6b75c61cf550d4179cffdfe9a",
     "src/unified-statusbar/core/ui-font-scale.ts": "1606ff784c3c20e32a9f04d38c3cec79ec628e62241410b90a043b0d2f7fb8f0",
     "src/unified-statusbar/core/wardrobe-actors.ts": "cdd86ede61fb3895908659ea2c81a16f551f7166de72ba890bc5bc58d9b3d225",

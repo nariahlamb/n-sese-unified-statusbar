@@ -64,6 +64,8 @@ test('挂在真实末楼，不把可见投影的最后一楼当成聊天尾部',
     f.check(last);
     assert.equal(f.chat.scrollTop, 345);
     assert.equal(last.lastElementChild, f.tail.parentElement);
+    assert.equal(f.tail.parentElement.style.flexBasis, 'auto');
+    assert.equal(f.tail.parentElement.style.width, '100%');
   } finally { f.close(); }
 });
 

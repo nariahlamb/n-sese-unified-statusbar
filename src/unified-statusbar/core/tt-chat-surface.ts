@@ -95,8 +95,9 @@ export function createManagedChatTail(win: Window = window) {
     if (!slot) {
       slot = doc.createElement('div');
       slot.className = 'ub-chat-tail-slot';
-      slot.style.cssText = 'display:none;flex:0 0 100%;width:100%;min-width:0;grid-column:1 / -1;order:1;';
+      slot.style.cssText = 'display:none;flex:0 0 auto;width:100%;min-width:0;grid-column:1 / -1;order:1;';
       style = doc.createElement('style');
+      // 宽度与主轴基线分开：flex-basis:100% 会按整楼高度撑出空档，而非按状态栏内容换行。
       style.textContent = '#chat > .mes.ub-chat-tail-host{flex-wrap:wrap}'
         + '#chat > .mes.ub-chat-tail-host > .mes_block{flex:1;min-width:0}'
         + '#chat > .mes.ub-chat-tail-host > .swipe_left{bottom:calc(var(--ub-chat-tail-height,0px) + var(--swipeCounterHeight) + var(--swipeCounterMargin))}'
