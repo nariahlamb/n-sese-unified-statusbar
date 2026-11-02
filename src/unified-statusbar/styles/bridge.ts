@@ -693,13 +693,7 @@ body.dark-mode,
 .bridge-window input[type="checkbox"]{accent-color:var(--bridge-signal)}
 .bridge-window select option{color:var(--bridge-text);background:var(--bridge-panel)}
 
-#ac-fixed-toggle{
-  color:var(--bridge-screen-text);
-  background:var(--bridge-screen);
-  border:2px solid var(--bridge-line-strong)!important;
-  border-radius:0!important;
-  box-shadow:4px 4px 0 var(--bridge-offset)!important;
-}
+/* 悬浮按钮统一透明热区 + 主题半透明面；不要让桥接主题的实心底覆盖触控外框。 */
 #ac-statusbar-wrapper.ub-collapsed{display:none!important;visibility:hidden!important;pointer-events:none!important;overflow:hidden!important}
 #ac-collapse-menu{
   color:var(--bridge-text)!important;

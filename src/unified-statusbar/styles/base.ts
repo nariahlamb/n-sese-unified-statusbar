@@ -305,22 +305,31 @@ export const baseCSS = /* css */ `
 .dark .iv-top-bar-xianxia{background:linear-gradient(180deg,#0a1a18,#0d1e1c);border-bottom-color:rgba(126,184,201,0.25);color:#c0d8d0}
 .dark .iv-top-bar-xianxia .iv-top-btn{border-color:rgba(126,184,201,0.2);color:#a0d0c0}
 
-/* === 固定模式通用 === */
-#ac-fixed-toggle{z-index:100001;border:1px solid rgba(128,128,128,.3);background:rgba(30,30,30,.85);color:#ccc;box-shadow:0 2px 12px rgba(0,0,0,.3)}
-#ac-fixed-toggle:not(.ub-ft-icon-mode):hover{background:rgba(60,60,60,.9);color:#fff}
-#ac-fixed-toggle.ub-ft-icon-mode{
-  border:1.5px solid transparent;
-  background:
-    linear-gradient(155deg,rgba(50,56,65,.98),rgba(17,20,25,.97)) padding-box,
-    linear-gradient(145deg,var(--ub-ft-ring-start,#b8f5ff),var(--ub-ft-ring-end,#669cff)) border-box;
-  color:#f3fbff;
-  box-shadow:0 4px 14px rgba(0,0,0,.31),0 0 10px var(--ub-ft-ring-glow,rgba(126,232,255,.34));
-  transition:box-shadow .18s ease,filter .18s ease;
+/* === 悬浮按钮：透明 48px 触控外框 + 独立视觉面 ===
+ * 外框不参与装饰，手机视觉面 32px；主题 RGB 在主题更新时由 chrome 写入。
+ * 不用 color-mix/backdrop-filter，也不给 left/top 加 transition，避免 WebView 重绘与拖拽追赶。 */
+#ac-persistent-settings,#ac-fixed-toggle{background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
+#ac-persistent-settings .ub-float-face,#ac-fixed-toggle .ub-float-face{
+  width:44px;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid rgba(var(--ub-float-rgb,144,80,192),.42);border-radius:50%;
+  background:rgba(var(--ub-float-rgb,144,80,192),.68);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.16);
+  transition:transform .14s ease,filter .14s ease;pointer-events:none;position:relative;
 }
-#ac-fixed-toggle.ub-ft-icon-mode:hover{filter:brightness(1.08);box-shadow:0 5px 16px rgba(0,0,0,.34),0 0 15px var(--ub-ft-ring-glow,rgba(126,232,255,.34))}
-#ac-fixed-toggle.ub-ft-icon-mode svg{display:block;width:19px;height:19px;color:inherit;filter:drop-shadow(0 0 4px var(--ub-ft-ring-glow,rgba(126,232,255,.34)));pointer-events:none}
-#ac-fixed-toggle.ub-ft-icon-mode.ub-ft-menu svg circle{fill:currentColor}
-@media(prefers-reduced-motion:reduce){#ac-fixed-toggle.ub-ft-icon-mode{transition:none}#ac-fixed-toggle.ub-onboarding{animation:none!important}}
+#ac-fixed-toggle .ub-float-pill{width:auto;min-width:44px;height:36px;padding:0 14px;border-radius:18px;white-space:nowrap}
+#ac-persistent-settings .ub-float-face svg,#ac-fixed-toggle .ub-float-face svg{display:block;width:19px;height:19px;color:inherit;pointer-events:none}
+#ac-fixed-toggle.ub-ft-menu .ub-float-face svg circle{fill:currentColor}
+#ac-persistent-settings.ub-dock-left .ub-float-face,#ac-fixed-toggle.ub-dock-left .ub-float-face{transform:translateX(-55%)}
+#ac-persistent-settings.ub-dock-right .ub-float-face,#ac-fixed-toggle.ub-dock-right .ub-float-face{transform:translateX(55%)}
+#ac-persistent-settings.ub-dragging .ub-float-face,#ac-fixed-toggle.ub-dragging .ub-float-face{transition:none;transform:none}
+#ac-persistent-settings.ub-mobile-lite .ub-float-face,#ac-fixed-toggle.ub-mobile-lite .ub-float-face:not(.ub-float-pill){width:32px;height:32px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#ac-fixed-toggle.ub-mobile-lite .ub-float-pill{width:auto;min-width:32px;height:32px;padding:0 12px;border-radius:16px}
+#ac-persistent-settings.ub-mobile-lite .ub-float-face svg,#ac-fixed-toggle.ub-mobile-lite .ub-float-face svg{width:17px;height:17px}
+@media(max-width:600px),(pointer:coarse){
+  #ac-persistent-settings .ub-float-face,#ac-fixed-toggle .ub-float-face:not(.ub-float-pill){width:32px;height:32px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  #ac-fixed-toggle .ub-float-face.ub-float-pill{width:auto;min-width:32px;height:32px;padding:0 12px;border-radius:16px}
+  #ac-persistent-settings .ub-float-face svg,#ac-fixed-toggle .ub-float-face svg{width:17px;height:17px}
+}
+@media(prefers-reduced-motion:reduce){#ac-persistent-settings .ub-float-face,#ac-fixed-toggle .ub-float-face{transition:none}#ac-fixed-toggle.ub-onboarding .ub-float-face{animation:none!important}}
 /* === 折叠按钮菜单下拉 === */
 #ac-collapse-menu{font-family:inherit}
 /* 菜单项样式自 JS 内联上收；hover 高亮纯 CSS（触屏走 :active），移动端触控高度达标 */
@@ -362,7 +371,7 @@ export const baseCSS = /* css */ `
   animation-play-state:paused!important;
 }
 
-/* === 跟随底部模式：彻底关闭所有动画/过渡（保流畅） ===
+/* === 手机轻量模式 / 跟随底部：关闭装饰动画与过渡（保流畅） ===
  * 与 ub-anim-paused（play-state:paused，停在当前帧）不同，此处用 animation:none
  * 彻底移除动画 —— 因为许多一次性入场动画从 opacity:0 起步（popup-in / char-panel
  * fade-in / book-page page-flip / ub-badge-pop），paused 会把它们冻在 0% 帧导致
@@ -375,6 +384,13 @@ export const baseCSS = /* css */ `
   animation:none!important;
   transition:none!important;
 }
+/* 功能反馈不属于装饰：AI 请求与存储同步继续给出进行中信号。 */
+#ac-statusbar-wrapper.ub-anim-off .ub-ai-bar .ub-ai-dot,
+#ac-statusbar-wrapper.ub-anim-off .ub-ai-row .r-dot{animation:ub-ai-dot-breathe 1.4s ease-in-out infinite!important}
+#ac-statusbar-wrapper.ub-anim-off .ub-storage-sync-indicator::before{animation:ub-storage-spin .75s linear infinite!important}
+#ac-statusbar-wrapper.ub-anim-off .status-indicator.loading{animation:map-status-pulse 1s infinite!important}
+#ac-persistent-settings.ub-dragging .ub-float-face,#ac-fixed-toggle.ub-dragging .ub-float-face{transition:none!important}
+#ac-fixed-toggle.ub-onboarding .ub-float-face{animation:ub-ft-pulse 2s ease-in-out infinite}
 
 /* === 选项栏跟随底部：独立浮动容器（嵌入 #chat 末尾，随消息流贴底） ===
  * 独立于 #ac-statusbar-wrapper，不受折叠按钮影响。
@@ -1531,14 +1547,14 @@ background:var(--card,var(--sweet-card,var(--jade-surface-1,#222)));color:var(--
 }
 
 /* ===== 悬浮展开按钮：AI 活动呼吸（圆形）/ 扫光（时间窗药丸） ===== */
-#ac-fixed-toggle.ub-ft-ai-breath{animation:ub-ft-ai-breath-glow 1.8s ease-in-out infinite}
-#ac-fixed-toggle.ub-ft-ai-breath::after{
+#ac-fixed-toggle.ub-ft-ai-breath .ub-float-face{animation:ub-ft-ai-breath-glow 1.8s ease-in-out infinite}
+#ac-fixed-toggle.ub-ft-ai-breath .ub-float-face::after{
   content:'';position:absolute;inset:-7px;border-radius:50%;
   border:2px solid var(--ub-ft-ring-start,#b8f5ff);pointer-events:none;
   animation:ub-ft-ai-breath-ring 1.8s ease-in-out infinite;
 }
-#ac-fixed-toggle.ub-ft-ai-sweep{position:fixed;overflow:hidden}
-#ac-fixed-toggle.ub-ft-ai-sweep::after{
+#ac-fixed-toggle.ub-ft-ai-sweep .ub-float-face{overflow:hidden}
+#ac-fixed-toggle.ub-ft-ai-sweep .ub-float-face::after{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.34),transparent);
   background-size:200% 100%;animation:ub-ft-ai-sweep 1.8s linear infinite;opacity:.55;
@@ -1550,8 +1566,8 @@ background:var(--card,var(--sweet-card,var(--jade-surface-1,#222)));color:var(--
 @keyframes ub-ft-ai-breath-ring{0%,100%{transform:scale(.94);opacity:.12}50%{transform:scale(1.1);opacity:.55}}
 @keyframes ub-ft-ai-sweep{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @media(prefers-reduced-motion:reduce){
-  #ac-fixed-toggle.ub-ft-ai-breath,#ac-fixed-toggle.ub-ft-ai-breath::after,
-  #ac-fixed-toggle.ub-ft-ai-sweep::after,.ub-ai-bar .ub-ai-dot,.ub-ai-row .r-dot{animation:none!important}
+  #ac-fixed-toggle.ub-ft-ai-breath .ub-float-face,#ac-fixed-toggle.ub-ft-ai-breath .ub-float-face::after,
+  #ac-fixed-toggle.ub-ft-ai-sweep .ub-float-face::after,.ub-ai-bar .ub-ai-dot,.ub-ai-row .r-dot{animation:none!important}
 }
 
 /* 帮助提示气泡置顶（必须高于一切弹窗与悬浮件） */

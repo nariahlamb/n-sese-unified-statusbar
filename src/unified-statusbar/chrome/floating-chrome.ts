@@ -9,6 +9,8 @@ import { ubIcon } from '../core/icons';
 import { escapeHtml, escapeAttr } from '../core/html-escape';
 import { getCellByHeader } from '../core/data-manager';
 import { bindFloatingDrag, dragJustEnded, readSavedPos, applyClampedPosition } from './floating-drag';
+import { floatingEdgeAt, type FloatingEdge } from '../core/floating-dock';
+import { cssColorChannels, isMobileLiteEnvironment } from '../core/mobile-environment';
 import { listCurrentChatAiActivities } from '../core/ai-activity';
 import { syncDarkClass, syncDarkClassMinimal } from '../renderers/html-builder';
 import { showConfigPanel } from '../panels/config-panel';
@@ -37,36 +39,74 @@ export function initFloatingChrome(theDeps: FloatingChromeDeps): void {
 }
 
 // ===== 持久化设置按钮（放在消息窗口右边缘，确保移动端可见） =====
-// 齿轮尺寸常量：拖拽钳制/恢复/重置三处共用（cssText 与之一致，改动须同步）
-const GEAR_SIZE = 44;
+// 按钮外框维持 ≥44px 热区；背景/图标由 .ub-float-face 在手机上缩至 32px。
+const GEAR_SIZE = 48;
 const GEAR_POS_KEY = 'statusbar-gear-pos';
+
+/** 主题变化时才读计算样式；拖拽路径不触发样式重算，也不依赖 color-mix()。 */
+function syncFloatingTheme(): void {
+  const wrapper = document.getElementById('ac-statusbar-wrapper');
+  const style = getComputedStyle(wrapper || document.documentElement);
+  const rgb = cssColorChannels(style.getPropertyValue('--ub-accent')) || '144,80,192';
+  for (const id of ['ac-persistent-settings', 'ac-fixed-toggle']) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    btn.style.setProperty('--ub-float-rgb', rgb);
+    btn.classList.toggle('ub-mobile-lite', isMobileLiteEnvironment());
+  }
+}
+
+function syncFloatingDock(btn: HTMLElement, edge: FloatingEdge): void {
+  btn.classList.toggle('ub-dock-left', edge === 'left');
+  btn.classList.toggle('ub-dock-right', edge === 'right');
+  btn.classList.toggle('ub-dragging', false);
+}
+
+const _revealedFloating = new WeakSet<HTMLElement>();
+function revealFloatingDock(btn: HTMLElement): void {
+  _revealedFloating.add(btn);
+  btn.classList.remove('ub-dock-left', 'ub-dock-right');
+}
+
+function restoreFloatingDock(btn: HTMLElement, x: number, width: number): void {
+  if (_revealedFloating.has(btn)) return;
+  syncFloatingDock(btn, floatingEdgeAt(x, width, window.innerWidth));
+}
 
 export function createPersistentSettingsBtn(): void {
   if (document.getElementById('ac-persistent-settings')) return;
   const btn = document.createElement('button');
   btn.id = 'ac-persistent-settings';
-  btn.innerHTML = ubIcon('gear', 'ub-persist-gear');
+  btn.innerHTML = '<span class="ub-float-face">' + ubIcon('gear', 'ub-persist-gear') + '</span>';
   btn.title = '状态栏设置';
   btn.type = 'button';
   const initTop = window.innerWidth <= 600 ? '60px' : '8px';
-  // touch-action:none + user-select:none：pointer 拖拽前置条件（小手机悬浮球同款）；
-  // transition 只保留颜色反馈——left/top 若进 transition，拖拽会拖出 0.2s 的「追赶」延迟
-  btn.style.cssText = 'position:fixed;z-index:99999;top:' + initTop + ';left:8px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(128,128,128,0.3);background:rgba(30,30,30,0.85);color:#ccc;font-size:22px;cursor:grab;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.3);transition:background 0.2s,color 0.2s;line-height:1;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent;';
-  btn.onmouseenter = function() { btn.style.background = 'rgba(60,60,60,0.9)'; btn.style.color = '#fff'; };
-  btn.onmouseleave = function() { btn.style.background = 'rgba(30,30,30,0.85)'; btn.style.color = '#ccc'; };
+  // 外框透明，真正的按钮面收进 .ub-float-face；点击/拖拽仍落在原有按钮上。
+  btn.style.cssText = 'position:fixed;z-index:99999;top:' + initTop + ';left:8px;width:48px;height:48px;border:0;border-radius:50%;background:transparent;color:#fff;font-size:22px;cursor:grab;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent;';
+  if (!isMobileLiteEnvironment()) {
+    btn.onmouseenter = function() { btn.querySelector<HTMLElement>('.ub-float-face')?.style.setProperty('filter', 'brightness(1.1)'); };
+    btn.onmouseleave = function() { btn.querySelector<HTMLElement>('.ub-float-face')?.style.removeProperty('filter'); };
+  }
   btn.onclick = function(e) {
     if (dragJustEnded()) return; // 拖完的残留 click 不算点击
     e.stopPropagation();
+    revealFloatingDock(btn);
     deps.showPopupOrToggle('settings', () => showConfigPanel(getConfig().style));
   };
   document.body.appendChild(btn);
   // 恢复拖拽存档（经视口钳制——旧 loader 恢复路径无钳制，窗口缩小/缩放变化后齿轮会停在视口外且无恢复出口）
   const savedGearPos = readSavedPos(GEAR_POS_KEY);
-  if (savedGearPos) applyClampedPosition(btn, savedGearPos.x, savedGearPos.y, GEAR_SIZE, GEAR_SIZE);
-  // 拖拽绑定在创建处完成（小手机同款：元素由本模块创建，监听随元素生死），loader 不再代绑
+  if (savedGearPos) {
+    applyClampedPosition(btn, savedGearPos.x, savedGearPos.y, GEAR_SIZE, GEAR_SIZE);
+    restoreFloatingDock(btn, savedGearPos.x, GEAR_SIZE);
+  }
+  syncFloatingTheme();
+  // 沿用原拖拽；吸附只增加终点计算，不改变事件单轨或 dragJustEnded。
   bindFloatingDrag(btn, btn, GEAR_POS_KEY, () => GEAR_SIZE, () => GEAR_SIZE, {
-    onDragStart() { btn.style.cursor = 'grabbing'; },
+    onDragStart() { _revealedFloating.delete(btn); btn.style.cursor = 'grabbing'; },
+    onDragging() { btn.classList.add('ub-dragging'); },
     onDragEnd() { btn.style.cursor = 'grab'; },
+    onSnap(edge) { syncFloatingDock(btn, edge); },
   });
   updateFloatingBtnVisibility();
 }
@@ -80,11 +120,13 @@ export function positionSettingsBtn(): void {
   const savedGearPos = readSavedPos(GEAR_POS_KEY);
   if (savedGearPos) {
     applyClampedPosition(btn, savedGearPos.x, savedGearPos.y, GEAR_SIZE, GEAR_SIZE);
+    restoreFloatingDock(btn, savedGearPos.x, GEAR_SIZE);
   } else {
     const isPhone = window.innerWidth <= 600;
     applyClampedPosition(btn, 8, isPhone ? 60 : 8, GEAR_SIZE, GEAR_SIZE);
   }
   btn.style.position = 'fixed';
+  syncFloatingTheme();
 }
 
 export function updateFloatingBtnVisibility(): void {
@@ -92,6 +134,7 @@ export function updateFloatingBtnVisibility(): void {
   if (!ps) return;
   const config = getConfig();
   ps.style.display = config.showFloatingBtn ? '' : 'none';
+  syncFloatingTheme();
 }
 
 // ===== 固定模式展开/折叠按钮 =====
@@ -109,14 +152,14 @@ export function createFixedToggleBtn(): void {
   _ftBtnCreated = true;
   const btn = document.createElement('button');
   btn.id = 'ac-fixed-toggle';
-  btn.innerHTML = FT_PLUS_ICON;
+  btn.innerHTML = '<span class="ub-float-face">' + FT_PLUS_ICON + '</span>';
   btn.title = '展开状态栏';
   btn.setAttribute('aria-label', '展开状态栏');
   btn.type = 'button';
   const isPhone = window.innerWidth <= 600;
   btn.style.cssText = 'position:fixed;z-index:100000;'
-    + (isPhone ? 'width:40px;height:40px;' : 'width:36px;height:36px;')
-    + 'border-radius:50%;font-size:14px;cursor:grab;display:none;align-items:center;justify-content:center;line-height:1;padding:0;user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent;';
+    + 'width:48px;height:48px;'
+    + 'border:0;border-radius:50%;background:transparent;color:#fff;font-size:14px;cursor:grab;display:none;align-items:center;justify-content:center;line-height:1;padding:0;user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent;';
 
   // ===== 拖拽（chrome/floating-drag：与小手机 bindDrag 同一实现——pointer 单轨 +
   //       移动/落盘/恢复三点视口钳制 + 时间戳吞拖后 click；宽高惰性取值适配模式换形） =====
@@ -124,14 +167,17 @@ export function createFixedToggleBtn(): void {
     () => btn.offsetWidth || 36,
     () => btn.offsetHeight || 36,
     {
-      onDragStart() { _ftDrag = true; btn.style.cursor = 'grabbing'; },
+      onDragStart() { _revealedFloating.delete(btn); _ftDrag = true; btn.style.cursor = 'grabbing'; },
+      onDragging() { btn.classList.add('ub-dragging'); },
       onDragEnd() { _ftDrag = false; btn.style.cursor = 'grab'; },
+      onSnap(edge) { syncFloatingDock(btn, edge); },
     });
 
   // 点击事件：根据当前样式分发行为（拖完 600ms 内的残留 click 不算点击）
   btn.addEventListener('click', function(e: MouseEvent) {
     if (dragJustEnded()) return;
     e.stopPropagation();
+    revealFloatingDock(btn);
     const cfg = getConfig();
     if (cfg.collapseBtnStyle === 'menu' || cfg.collapseBtnStyle === 'time-window-menu') {
       toggleCollapseMenu();
@@ -345,6 +391,13 @@ export function closeCollapseMenu(): void {
 /** 重置折叠按钮签名早退缓存（重注入/resize 等布局变化后强制刷新按钮）。 */
 export function resetFixedToggleBtnSignature(): void {
   _ftLastSig = '';
+  // 「重置到屏幕中间」复用本重置入口：清掉旧贴边态，随后恢复自由坐标。
+  for (const id of ['ac-persistent-settings', 'ac-fixed-toggle']) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    _revealedFloating.delete(btn);
+    btn.classList.remove('ub-dock-left', 'ub-dock-right');
+  }
 }
 
 /**
@@ -377,7 +430,11 @@ export function updateFixedToggleBtn(): void {
   const savedPosSig = _ftDrag ? '' : (_lsGet('statusbar-fixed-btn-pos') || '');
   // 签名早退：状态未变时跳过 innerHTML 重建与 getBoundingClientRect 强制布局
   // （doRender 与 300ms tick 各调一次=同 tick 两次，稳定时纯无谓开销）
-  const sig = btnStyle + '|' + fixedExpanded + '|' + isPhone + '|' + savedPosSig + '|' + currentTime + '|' + currentLocation + '|' + _ftDrag;
+  const themeOwner = document.getElementById('ac-statusbar-wrapper') || document.documentElement;
+  const currentThemeRgb = cssColorChannels(getComputedStyle(themeOwner).getPropertyValue('--ub-accent')) || '144,80,192';
+  btn.style.setProperty('--ub-float-rgb', currentThemeRgb);
+  btn.classList.toggle('ub-mobile-lite', isMobileLiteEnvironment());
+  const sig = btnStyle + '|' + fixedExpanded + '|' + isPhone + '|' + savedPosSig + '|' + currentTime + '|' + currentLocation + '|' + _ftDrag + '|' + currentThemeRgb;
   if (!_ftDrag && sig === _ftLastSig) return;
   _ftLastSig = sig;
 
@@ -397,7 +454,8 @@ export function updateFixedToggleBtn(): void {
     // 视口钳制：窗口缩小后存量坐标可能越界（移动/落盘/恢复三点同一 helper 钳制=根治按钮飞出屏外）
     const savedPos = readSavedPos('statusbar-fixed-btn-pos');
     if (savedPos) {
-      applyClampedPosition(btn, savedPos.x, savedPos.y, btn.offsetWidth || 36, btn.offsetHeight || 36);
+      applyClampedPosition(btn, savedPos.x, savedPos.y, btn.offsetWidth || 48, btn.offsetHeight || 48);
+      restoreFloatingDock(btn, savedPos.x, btn.offsetWidth || 48);
     } else {
     const chat = document.getElementById('chat');
     if (chat) {
@@ -425,39 +483,39 @@ export function updateFixedToggleBtn(): void {
     const locationDisplay = currentLocation || '位置未知';
 
     btn.style.width = 'auto';
-    btn.style.height = isPhone ? '36px' : '32px';
-    btn.style.borderRadius = '18px';
-    btn.style.padding = '0 14px';
+    btn.style.height = isPhone ? '48px' : '40px';
+    btn.style.borderRadius = '24px';
+    btn.style.padding = '0';
     btn.style.fontSize = isPhone ? '11px' : '12px';
     btn.style.whiteSpace = 'nowrap';
-    btn.style.gap = '8px';
-    btn.innerHTML = '<span style="color:#a0d8f0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('clock') + escapeHtml(timeDisplay) + '</span>'
+    btn.style.gap = '0';
+    btn.innerHTML = '<span class="ub-float-face ub-float-pill"><span style="color:#a0d8f0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('clock') + escapeHtml(timeDisplay) + '</span>'
       + '<span style="color:rgba(200,200,200,0.5);margin:0 2px;">|</span>'
-      + '<span style="color:#c0d0a0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('pin') + escapeHtml(locationDisplay) + '</span>';
+      + '<span style="color:#c0d0a0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('pin') + escapeHtml(locationDisplay) + '</span></span>';
     // 纯时间窗：点击折叠/展开状态栏；时间窗+菜单：点击打开功能菜单
     btn.title = btnStyle === 'time-window-menu' ? '点击打开功能菜单' : (fixedExpanded ? '点击收回状态栏' : '点击展开状态栏');
     btn.setAttribute('aria-label', btn.title);
   } else if (btnStyle === 'menu') {
     // 菜单模式：圆形按钮 + 四点图标
-    btn.style.width = isPhone ? '40px' : '36px';
-    btn.style.height = isPhone ? '40px' : '36px';
+    btn.style.width = '48px';
+    btn.style.height = '48px';
     btn.style.borderRadius = '50%';
     btn.style.padding = '0';
     btn.style.fontSize = '16px';
     btn.style.gap = '0';
-    btn.innerHTML = FT_MENU_ICON;
+    btn.innerHTML = '<span class="ub-float-face">' + FT_MENU_ICON + '</span>';
     btn.title = '菜单';
     btn.setAttribute('aria-label', '打开功能菜单');
     // 当展开/折叠状态变化时，不改变菜单按钮内容
   } else {
     // 极简模式（默认）：圆形按钮 + −/+
-    btn.style.width = isPhone ? '40px' : '36px';
-    btn.style.height = isPhone ? '40px' : '36px';
+    btn.style.width = '48px';
+    btn.style.height = '48px';
     btn.style.borderRadius = '50%';
     btn.style.padding = '0';
     btn.style.fontSize = '14px';
     btn.style.gap = '0';
-    btn.innerHTML = fixedExpanded ? FT_MINUS_ICON : FT_PLUS_ICON;
+    btn.innerHTML = '<span class="ub-float-face">' + (fixedExpanded ? FT_MINUS_ICON : FT_PLUS_ICON) + '</span>';
     btn.title = fixedExpanded ? '收回状态栏' : '展开状态栏';
     btn.setAttribute('aria-label', btn.title);
   }
@@ -487,7 +545,7 @@ export function showFixedToggleOnboarding(): void {
 
   // 注入脉冲动画样式（仅一次）
   // U35：收编幂等注入（内容与 id 逐字保持）
-  ensureStyleOnce('ub-onboarding-style', '@keyframes ub-ft-pulse{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.31),0 0 10px var(--ub-ft-ring-glow,rgba(126,232,255,.34))}50%{box-shadow:0 5px 16px rgba(0,0,0,.34),0 0 22px 7px var(--ub-ft-ring-glow,rgba(126,232,255,.34))}}#ac-fixed-toggle.ub-onboarding{animation:ub-ft-pulse 2s ease-in-out infinite}');
+  ensureStyleOnce('ub-onboarding-style', '@keyframes ub-ft-pulse{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.31),0 0 10px var(--ub-ft-ring-glow,rgba(126,232,255,.34))}50%{box-shadow:0 5px 16px rgba(0,0,0,.34),0 0 22px 7px var(--ub-ft-ring-glow,rgba(126,232,255,.34))}}#ac-fixed-toggle.ub-onboarding .ub-float-face{animation:ub-ft-pulse 2s ease-in-out infinite}');
 
   btn.classList.add('ub-onboarding');
 

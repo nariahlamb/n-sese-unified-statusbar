@@ -110,11 +110,11 @@ export function resetFloatingBtnToCenter(): void {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     let resetCount = 0;
-    // 齿轮：固定 44×44
+    // 齿轮：48×48 透明触控外框（手机可见主题面为 32×32）
     const gearBtn = document.getElementById('ac-persistent-settings');
     if (gearBtn) {
-      const gx = Math.round(vw / 2 - 22);
-      const gy = Math.round(vh / 2 - 22);
+      const gx = Math.round(vw / 2 - 24);
+      const gy = Math.round(vh / 2 - 24);
       try { localStorage.setItem('statusbar-gear-pos', JSON.stringify({ x: gx, y: gy })); } catch (_e) { /* ignore */ }
       gearBtn.style.left = gx + 'px';
       gearBtn.style.top = gy + 'px';
@@ -122,12 +122,12 @@ export function resetFloatingBtnToCenter(): void {
       gearBtn.style.bottom = 'auto';
       resetCount++;
     }
-    // 折叠按钮：尺寸随模式变化（36/40px/时间窗药丸），取实际尺寸；取不到按 40 估算
+    // 折叠按钮：48px 热区/时间窗药丸，取实际尺寸；取不到按 48 估算
     const ftBtn = document.getElementById('ac-fixed-toggle');
     if (ftBtn) {
       const rect = ftBtn.getBoundingClientRect();
-      const bw = rect ? rect.width : 40;
-      const bh = rect ? rect.height : 40;
+      const bw = rect ? rect.width : 48;
+      const bh = rect ? rect.height : 48;
       const cx = Math.round(vw / 2 - bw / 2);
       const cy = Math.round(vh / 2 - bh / 2);
       try { localStorage.setItem('statusbar-fixed-btn-pos', JSON.stringify({ x: cx, y: cy })); } catch (_e) { /* ignore */ }

@@ -1,4 +1,5 @@
 import { parseJsonWith } from '../core/safe-json';
+import { snapFloatingToEdge, type FloatingEdge } from '../core/floating-dock';
 // ===== 悬浮按钮拖拽（与 UBS_phone renderers/phone-ui.ts 的 bindDrag 同一实现形式）=====
 // 齿轮（#ac-persistent-settings）与固定模式折叠按钮（#ac-fixed-toggle）共用。
 // 纪律沿用小手机：pointer events 元素级 + setPointerCapture 单轨（鼠标/触摸/笔统一），
@@ -49,9 +50,13 @@ export interface FloatingDragOpts {
   onDragStart?(): void;
   /** 拖拽结束（moved=本次是否有位移；cancel 中断时以 moved=false 触发）。 */
   onDragEnd?(moved: boolean): void;
+  /** 位移后交给调用方加拖拽态：禁用 :active 缩放，保证指针与按钮逐像素一致。 */
+  onDragging?(): void;
+  /** 松手后由调用方应用边缘视觉态；自由位置 edge=null。 */
+  onSnap?(edge: FloatingEdge): void;
 }
 
-/** 通用拖拽绑定（小手机 bindDrag 同款；宽高惰性取值以适配折叠按钮的模式换形 36/40/时间窗药丸）。 */
+/** 通用拖拽绑定（小手机 bindDrag 同款；宽高惰性取值适配 48px 热区/时间窗药丸）。 */
 export function bindFloatingDrag(
   handle: HTMLElement,
   target: HTMLElement,
@@ -84,16 +89,23 @@ export function bindFloatingDrag(
     const dy = e.clientY - startY;
     if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
     if (!moved) return;
+    // 只写 left/top：不读 computed style、不碰 transform、不做缓动追赶。
     applyClampedPosition(target, baseLeft + dx, baseTop + dy, width(), height());
+    opts?.onDragging?.();
   });
   handle.addEventListener('pointerup', (e: PointerEvent) => {
     if (!dragging) return;
     dragging = false;
     opts?.onDragEnd?.(moved);
     if (moved) {
-      // 落盘取钳制后的实际渲染矩形，杜绝出界坐标进 localStorage
       const rect = target.getBoundingClientRect();
-      writeSavedPos(posKey, rect.left, rect.top);
+      const snapped = snapFloatingToEdge(
+        rect.left, rect.top, window.innerWidth, window.innerHeight, width(), height(),
+      );
+      applyClampedPosition(target, snapped.left, snapped.top, width(), height());
+      opts?.onSnap?.(snapped.edge);
+      // 存储仍是旧的 {x,y}：保存完整可见按钮的坐标，半隐藏只存在于视觉态。
+      writeSavedPos(posKey, snapped.left, snapped.top);
       _lastDragEndAt = Date.now();
       e.stopPropagation();
       e.preventDefault();

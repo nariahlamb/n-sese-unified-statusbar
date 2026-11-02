@@ -161,6 +161,7 @@ import {
   spawnTabRipple, spawnInkSparks, spawnDrips,
   createMouseGlow, updateMouseGlow,
 } from './renderers/effects';
+import { isMobileLiteEnvironment } from './core/mobile-environment';
 import { checkNotifications, clearBadge, getBadgeCount, itemBadgeHTML, missionBadgeHTML, memoBadgeHTML } from './renderers/notification-badge';
 import { showConfigPanel, setConfigChangeCallback, notifyConfigChanged, resetFloatingBtnToCenter } from './panels/config-panel';
 import {
@@ -1217,6 +1218,9 @@ function renderBadges(): void {
 
 // ===== 事件绑定 =====
 function bindEvents(): void {
+  // 环境判定统一走 core/mobile-environment：手机不注册装饰点击/鼠标监听，功能点击保持原样。
+  const mobileLite = isMobileLiteEnvironment();
+  initMouseGlow();
   const $ac = $('#ac-content');
   const $mc = $('.minimal-container');
   const acEl = $ac[0] as HTMLElement | undefined;
@@ -1239,7 +1243,7 @@ function bindEvents(): void {
     // 非强制：activeChar 已纳入渲染签名（composeRenderSignature:776），换角色→签名变→重建；
     // 点击已激活的同一角色→签名不变→跳过无谓全量重建。涟漪/爆裂特效照常触发。
     render();
-    if (!isReadingTheme(currentStyle)) {
+    if (!mobileLite && !isReadingTheme(currentStyle)) {
       spawnTabRipple(this, currentStyle);
       spawnEroticBurst(e.clientX, e.clientY, currentStyle);
     }
@@ -1250,8 +1254,10 @@ function bindEvents(): void {
     (window as any)._activeChar = $(this).data('char');
     (window as any)._activeBeyond = false; // 切角色退出镜头之外视图
     render(); // 非强制：activeChar 在签名内，换角色才重建（见上 ac-tab 注释）
-    spawnTabRipple(this, currentStyle);
-    spawnEroticBurst(e.clientX, e.clientY, currentStyle);
+    if (!mobileLite) {
+      spawnTabRipple(this, currentStyle);
+      spawnEroticBurst(e.clientX, e.clientY, currentStyle);
+    }
   });
 
   // 角色丸点击 - 仙侠
@@ -1259,7 +1265,7 @@ function bindEvents(): void {
     (window as any)._activeChar = $(this).data('char');
     (window as any)._activeBeyond = false; // 切角色退出镜头之外视图
     render(); // 非强制：activeChar 在签名内，换角色才重建（见上 ac-tab 注释）
-    if (!isReadingTheme(currentStyle)) {
+    if (!mobileLite && !isReadingTheme(currentStyle)) {
       spawnTabRipple(this, currentStyle);
       spawnEroticBurst(e.clientX, e.clientY, currentStyle);
     }
@@ -1615,8 +1621,9 @@ function bindEvents(): void {
     handleItemUseToggle(this);
   });
 
-  // 点击特效 - 古风/瑟瑟
-  $ac.off('click.ac-book').on('click.ac-book', '.book', function (e) {
+  // 点击特效 - 古风/瑟瑟：手机不挂委托，不是把特效节点事后 CSS 隐藏。
+  if (mobileLite) $ac.off('click.ac-book');
+  else $ac.off('click.ac-book').on('click.ac-book', '.book', function (e) {
     if (isReadingTheme(currentStyle)) return; // 古风/仙侠阅读优先：禁用随机点击爱心/漂字/粒子
     const tab = (e.target as HTMLElement).closest('.spine-label, .tab');
     if (tab) return;
@@ -1661,8 +1668,9 @@ function bindEvents(): void {
     render(); // 非强制：activeChar 在签名内，换角色才重建，点当前角色跳过
   });
 
-  // 悬浮提示
-  $mc.off('mouseenter.tooltip', '.name-hoverable').on('mouseenter.tooltip', '.name-hoverable', function () {
+  // 悬浮提示：触摸没有 hover，手机不注册这组鼠标委托。
+  if (mobileLite) $mc.off('mouseenter.tooltip mouseleave.tooltip', '.name-hoverable');
+  else $mc.off('mouseenter.tooltip', '.name-hoverable').on('mouseenter.tooltip', '.name-hoverable', function () {
     const el = this as HTMLElement;
     const age = el.dataset.age;
     const intro = el.dataset.intro;
@@ -1821,7 +1829,8 @@ function bindEvents(): void {
 
 
   // 点击特效 - 萦绕
-  $mc.off('click.ac-effects').on('click.ac-effects', function (e) {
+  if (mobileLite) $mc.off('click.ac-effects');
+  else $mc.off('click.ac-effects').on('click.ac-effects', function (e) {
     const btn = (e.target as HTMLElement).closest('button');
     if (btn) return;
     const select = (e.target as HTMLElement).closest('select');
@@ -1853,13 +1862,17 @@ function bindEvents(): void {
 
 // ===== 鼠标光晕（仅桌面端启用，移动端无鼠标且持续监听浪费电量） =====
 function initMouseGlow(): void {
-  if (mouseGlow) return;
-  // 古风/仙侠阅读优先：禁用常驻鼠标光晕（mousemove 监听耗电 + 视觉干扰）
-  if (isReadingTheme(currentStyle)) return;
-  // 移动端/触屏设备跳过鼠标光晕，避免无意义的 mousemove 监听耗电
-  if (window.innerWidth <= 1024 || ('ontouchstart' in window && !(window as any).MSStream)) return;
+  // 热重载/旋转到手机环境时同时清理旧节点与本扩展的命名空间监听。
+  $(document).off('mousemove.ac-glow');
+  if (isMobileLiteEnvironment()) {
+    mouseGlow?.remove();
+    mouseGlow = null;
+    return;
+  }
+  if (mouseGlow || isReadingTheme(currentStyle)) return;
   mouseGlow = createMouseGlow();
-  $(document).off('mousemove.ac-glow').on('mousemove.ac-glow', function (e) {
+  if (!mouseGlow) return;
+  $(document).on('mousemove.ac-glow', function (e) {
     updateMouseGlow(mouseGlow!, e);
   });
 }
@@ -1891,9 +1904,10 @@ function _isAnyOverlayOpen(): boolean {
 
 function syncAnimState(wrapper: HTMLElement): void {
   const followBottom = getConfig().positionMode === 'follow-bottom';
+  const mobileLite = isMobileLiteEnvironment();
   setFollowBottomActive(followBottom);
-  // 跟随底部：关动画；页面不可见：冻结。两者可并存（hidden 时无可见内容，无害）。
-  wrapper.classList.toggle('ub-anim-off', followBottom);
+  // 手机与跟随底部共用既有降级类；功能反馈在 baseCSS 中有明确白名单。
+  wrapper.classList.toggle('ub-anim-off', followBottom || mobileLite);
   // 暂停条件：页面不可见 OR 任意 overlay 打开。
   // overlay 打开时状态栏在其背后不可见，动画纯浪费；且其每帧重绘会令 overlay 的
   // backdrop-filter 不断重新模糊——这是在设置面板内滑动卡顿的主因。暂停后 backdrop
@@ -1908,7 +1922,7 @@ function syncAnimState(wrapper: HTMLElement): void {
   document.getElementById('settingsOverlay')?.classList.toggle('ub-anim-paused', _freezeOverlays);
   document.getElementById('ubDecisionOverlay')?.classList.toggle('ub-anim-paused', _freezeOverlays);
   if (mouseGlow) {
-    const hideGlow = followBottom || overlayOpen || isReadingTheme(currentStyle);
+    const hideGlow = followBottom || mobileLite || overlayOpen || isReadingTheme(currentStyle);
     mouseGlow.style.display = hideGlow ? 'none' : '';
     if (hideGlow) mouseGlow.classList.remove('active');
   }
@@ -2115,6 +2129,10 @@ function syncOptionsBarFloating(): void {
 }
 
 function updateWrapperStyle(): void {
+  if (isMobileLiteEnvironment()) {
+    // 手机没有 hover；resize 到桌面时 bindEvents 会按原路径恢复，不在渲染热路径重复绑定。
+    $('.minimal-container').off('mouseenter.tooltip mouseleave.tooltip', '.name-hoverable');
+  }
   const cfg = getConfig();
   const wrapper = document.getElementById('ac-statusbar-wrapper');
   if (!wrapper) return;
@@ -2660,6 +2678,7 @@ if (IS_FIRST_BOOT) installCycleExternalApi();
 function handleResize(): void {
   // 布局变化时按钮默认定位（基于 #chat rect）需重算，重置签名绕过早退
   resetFixedToggleBtnSignature();
+  initMouseGlow(); // 旋转/窗口跨过手机边界时也同步移除或恢复本扩展监听
   updateWrapperStyle();
   updateFixedToggleBtn();
   applyMobileFixes();
