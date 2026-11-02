@@ -338,7 +338,7 @@
     "src/unified-statusbar/styles/assistant-base.ts": "0e520923c1392a089a3be8b1791e02d7918d24e0d07b9284ed9dc35675370480",
     "src/unified-statusbar/styles/base.ts": "33bb32d0d1bca3db70071fd40b94b9cb8376ef4048aef963100920de1eb041cf",
     "src/unified-statusbar/styles/beyond-lens-base.ts": "3efe6c54b0c56f4602fc8e26263c7f3ba273ce85c7c6a2b88e021e49ad07d368",
-    "src/unified-statusbar/styles/bridge.ts": "f996b6f62285896c6be9056556f7be4c34ecfa3e9f5dba63cb406c1c0c583b03",
+    "src/unified-statusbar/styles/bridge.ts": "7c3da2ec484a9e2b5bb9751e19870d367000792c10020db20d1ec0c90252989d",
     "src/unified-statusbar/styles/calendar-base.ts": "668370d9ca0a308550554b2e214e3a97d6622e06d75e04449fa0de634bb4b3af",
     "src/unified-statusbar/styles/currency-popup.ts": "e34f1dc9decf23b068726554c4c7c6f5c88c13ef756c40e7baa3c5450297b8dd",
     "src/unified-statusbar/styles/cycle-base.ts": "39bcc3e5672388b91a7cf4ca846959dd1101396a100904028a8b6d4c548ac49f",

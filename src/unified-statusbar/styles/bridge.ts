@@ -1255,4 +1255,292 @@ export const bridgeCSS = bridgeCoreCSS + /* css */ `
 }
 /* ===== ★ 主角立绘摆位：证件照小方框（描边样式由 portrait-base bridge 段提供） ===== */
 .bridge-protagonist-row .portrait-box{flex:0 0 52px;width:52px;height:52px}
+
+/* ===== 手机端「剪报 P5」主状态栏（2026-11-03）=====
+   只作用于 ≤599px 的 .bridge-container，不碰弹窗与桌面。静态样式，无动画/过渡。
+   配比：暖纸阅读底约 80%，炭墨块约 15%（报头/名牌/序号/激活态），绯红约 5%（刀锋线与主按钮）。
+   取消「每个框右下角红三角」；斜切只用 skew 小标签或不改包围盒的背景渐变，防 TT 气泡内溢出。 */
+@media(max-width:599px){
+  .bridge-container{
+    width:calc(100% - 3px);
+    gap:8px;
+    padding:6px 6px 8px;
+    background-image:none;
+    border-width:2px;
+    border-top:5px solid var(--bridge-signal);
+    box-shadow:3px 3px 0 var(--bridge-shadow-soft);
+  }
+  .bridge-container::before{display:none}
+  .bridge-container button,
+  .bridge-container .bridge-btn{transition:none}
+
+  /* 通用：模块与按钮去掉红三角 */
+  .bridge-container .bridge-module{background:var(--bridge-panel);box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
+  .bridge-container button,
+  .bridge-container .bridge-btn,
+  .bridge-container button:hover,
+  .bridge-container .bridge-btn:hover{background-image:none}
+
+  /* ---- 1. 报头：黑底日历带 + 地点坐标条 + 学生证 + 工具条 ---- */
+  .bridge-container .bridge-command-header{gap:7px;padding:0 0 0;overflow:hidden;border-width:2px;border-top-width:2px}
+  .bridge-command-header>*:not(.bridge-head-line):not(.bridge-coordinate):not(.bridge-system-controls){margin-left:8px;margin-right:8px}
+  .bridge-container .bridge-head-line{
+    padding:6px 8px 6px 6px;
+    background:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 5px,transparent 5px 11px),var(--bridge-screen);
+    border-bottom:3px solid var(--bridge-signal);
+  }
+  .bridge-container .bridge-clock,
+  .bridge-container .bridge-clock:hover{
+    width:100%;
+    margin:0;
+    padding:0;
+    gap:8px;
+    color:var(--bridge-screen-text);
+    background:transparent;
+    box-shadow:none;
+    transform:none;
+  }
+  .bridge-container .bridge-clock .bridge-star{
+    display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+    width:24px;height:22px;
+    color:var(--bridge-signal-contrast);background:var(--bridge-signal);
+    font-size:12px;transform:skewX(-10deg);
+  }
+  .bridge-container .bridge-clock strong{flex:1 1 auto;min-width:0;font-family:var(--bridge-font-data);font-size:16px;letter-spacing:.03em}
+  .bridge-container .bridge-clock svg{margin-left:auto;opacity:.9}
+  .bridge-container .bridge-coordinate,
+  .bridge-container .bridge-coordinate:hover{
+    align-self:stretch;
+    margin:-7px 0 0;
+    padding:5px 10px 5px 8px;
+    color:var(--bridge-text);
+    background:var(--bridge-panel-2);
+    border:0;
+    border-left:6px solid var(--bridge-signal);
+    border-bottom:2px solid var(--bridge-line-strong);
+    box-shadow:none;
+  }
+  .bridge-container .bridge-coordinate strong{font-size:12.5px}
+
+  .bridge-protagonist-row{gap:10px;margin-top:2px}
+  .bridge-container .bridge-protagonist-row .portrait-box{box-shadow:-3px 3px 0 var(--bridge-signal)}
+  .bridge-protagonist-main{gap:5px}
+  .bridge-chip-row{gap:5px 6px}
+  .bridge-container .bridge-protagonist-name,
+  .bridge-container .bridge-personnel-name{box-shadow:3px 3px 0 var(--bridge-signal)}
+  .bridge-container .bridge-energy{
+    gap:0;padding:0;overflow:hidden;
+    background:var(--bridge-panel);
+    border:2px solid var(--bridge-line-strong);
+    transform:none;
+  }
+  .bridge-container .bridge-energy .bridge-chip-key{padding:1px 6px;color:var(--bridge-screen-text);background:var(--bridge-screen);font-size:10.5px}
+  .bridge-container .bridge-energy strong{padding:1px 7px;font-family:var(--bridge-font-data);font-size:12px}
+  .bridge-container .ub-wallet-entry,
+  .bridge-container .ub-wallet-entry:hover{padding:1px 8px;transform:none;border-width:2px}
+  .bridge-container .bridge-command-status{padding-left:7px;border-left:2px solid var(--bridge-line-strong);font-size:12.5px;line-height:1.55}
+
+  .bridge-container .bridge-system-controls{
+    gap:0;margin-top:0;padding:0;
+    justify-content:stretch;
+    background:var(--bridge-panel-2);
+    border-top:2px solid var(--bridge-line-strong);
+  }
+  .bridge-container .bridge-system-controls>*,
+  .bridge-container .bridge-system-controls>*:hover{
+    flex:1 1 0;
+    min-width:0;
+    min-height:30px;
+    padding:4px 2px;
+    color:var(--bridge-muted);
+    background:transparent;
+    border:0;
+    border-left:1px solid var(--bridge-line-soft);
+    box-shadow:none;
+    font-size:11px;
+    letter-spacing:.04em;
+  }
+  .bridge-container .bridge-system-controls>*:first-child{border-left:0}
+  .bridge-container .bridge-system-controls>*::before{content:"◆";margin-right:3px;color:var(--bridge-signal);font-size:7px;vertical-align:2px}
+  .bridge-container .bridge-system-controls>*:active{color:var(--bridge-text);background:var(--bridge-signal-soft)}
+
+  /* ---- 2. 快捷指令：左刃色带 + 弹性满排（不留缺角） ---- */
+  .bridge-container .bridge-quick-actions{display:flex;flex-wrap:wrap;gap:6px;padding:0 3px 3px 0}
+  .bridge-container .bridge-quick-actions>*{flex:1 1 calc(25% - 6px);min-width:0}
+  .bridge-container .bridge-quick-actions .bridge-btn,
+  .bridge-container .bridge-quick-actions .bridge-btn:hover{
+    min-height:34px;
+    padding:6px 4px 6px 10px;
+    color:var(--bridge-text);
+    background:linear-gradient(105deg,var(--bridge-line-strong) 0 5px,transparent 5px),var(--bridge-panel);
+    border:2px solid var(--bridge-line-strong);
+    box-shadow:2px 2px 0 var(--bridge-shadow-soft);
+    font-size:12.5px;
+  }
+  .bridge-container .bridge-quick-actions .bridge-btn.is-primary,
+  .bridge-container .bridge-quick-actions .bridge-btn.is-primary:hover{
+    color:var(--bridge-signal-contrast);
+    background:linear-gradient(105deg,var(--bridge-screen) 0 5px,transparent 5px),var(--bridge-signal);
+    border-color:var(--bridge-line-strong);
+    box-shadow:2px 2px 0 var(--bridge-shadow-soft);
+  }
+
+  /* ---- 3. 角色索引签：贴住下方档案卡 ---- */
+  .bridge-container .bridge-character-channels{margin-bottom:-4px}
+  .bridge-container .bridge-role-selector{gap:5px;padding:0 4px 0 2px}
+  .bridge-container .bridge-role-chip,
+  .bridge-container .bridge-role-chip:hover{
+    min-height:30px;
+    padding:4px 12px;
+    color:var(--bridge-muted);
+    background:var(--bridge-panel-2);
+    border:2px solid var(--bridge-line-strong);
+    border-bottom:0;
+    box-shadow:none;
+  }
+  .bridge-container .bridge-role-chip.active,
+  .bridge-container .bridge-role-chip.active:hover{
+    color:var(--bridge-screen-text);
+    background:var(--bridge-screen);
+    border-color:var(--bridge-line-strong);
+    border-top:3px solid var(--bridge-signal);
+    box-shadow:3px 0 0 var(--bridge-signal);
+  }
+
+  /* ---- 4. 角色档案卡 ---- */
+  .bridge-container .bridge-personnel-grid{gap:9px;padding:9px 8px 8px}
+  .bridge-container .bridge-personnel-portrait>.portrait-box{box-shadow:4px 4px 0 var(--bridge-signal)}
+  .bridge-container .bridge-personnel-name{font-size:15px;padding:2px 14px 2px 9px}
+  .bridge-container .bridge-basic-info{font-size:12px;line-height:1.5}
+  .bridge-container .bridge-personnel-actions{gap:5px}
+  .bridge-container .bridge-personnel-actions .bridge-btn,
+  .bridge-container .bridge-personnel-actions .investigate-btn,
+  .bridge-container .bridge-personnel-actions .bridge-btn:hover,
+  .bridge-container .bridge-personnel-actions .investigate-btn:hover{
+    min-height:30px;
+    padding:3px 11px;
+    color:var(--bridge-screen-text);
+    background:var(--bridge-screen);
+    border:2px solid var(--bridge-line-strong);
+    box-shadow:2px 2px 0 var(--bridge-signal);
+    font-size:12px;
+  }
+
+  /* 状态/打算/内心：左签右文分镜条 */
+  .bridge-container .bridge-telemetry-grid{gap:0;border-top:2px solid var(--bridge-line-strong)}
+  .bridge-container .bridge-telemetry-item{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    gap:9px;
+    align-items:start;
+    margin:0;
+    padding:7px 2px 7px 0;
+    background:transparent;
+    border:0;
+    border-bottom:1px solid var(--bridge-line-soft);
+    box-shadow:none;
+  }
+  .bridge-container .bridge-telemetry-item:last-child{border-bottom:2px solid var(--bridge-line-strong)}
+  .bridge-container .bridge-telemetry-item .bridge-tag{
+    margin:1px 0 0 3px;
+    padding:1px 8px 1px 6px;
+    box-shadow:2px 2px 0 var(--bridge-offset);
+    vertical-align:0;
+  }
+  .bridge-container .bridge-telemetry-item .bridge-tag::before{content:none}
+  .bridge-container .bridge-telemetry-item:nth-child(2) .bridge-tag{color:var(--bridge-signal-contrast);background:var(--bridge-signal);border-left-color:var(--bridge-screen);box-shadow:2px 2px 0 var(--bridge-shadow-soft)}
+  .bridge-container .bridge-telemetry-item .bridge-readout{display:block;font-size:13px;line-height:1.65}
+
+  /* 调教量表 */
+  .bridge-container .bridge-train-row{gap:9px;margin:9px 0 2px}
+  .bridge-container .bridge-train-row .bridge-chip-key{
+    padding:1px 8px;
+    color:var(--bridge-screen-text);
+    background:var(--bridge-screen);
+    font-size:11px;
+    transform:skewX(-10deg);
+  }
+  .bridge-container .bridge-meter{height:12px;margin:0 2px;background:var(--bridge-panel-inset)}
+  .bridge-container .bridge-meter span{background:repeating-linear-gradient(135deg,var(--bridge-signal) 0 6px,var(--bridge-danger) 6px 12px)}
+  .bridge-container .bridge-train-row strong{font-family:var(--bridge-font-data);font-size:13px;color:var(--bridge-text)}
+
+  /* 服装/身体：连体页签 + 斑马纹档案表 */
+  .bridge-container .bridge-detail-console{margin-top:6px;padding-top:0;border-top:0}
+  .bridge-container .bridge-detail-tabs{gap:0;margin-bottom:0}
+  .bridge-container .bridge-detail-tabs .bridge-btn,
+  .bridge-container .bridge-detail-tabs .bridge-btn:hover{
+    flex:0 0 auto;
+    min-height:30px;
+    padding:3px 16px;
+    color:var(--bridge-muted);
+    background:var(--bridge-panel-2);
+    border:2px solid var(--bridge-line-strong);
+    border-bottom:0;
+    box-shadow:none;
+    font-size:12px;
+  }
+  .bridge-container .bridge-detail-tabs .bridge-btn+.bridge-btn{border-left:0}
+  .bridge-container .bridge-detail-tabs .active-switch,
+  .bridge-container .bridge-detail-tabs .active-switch:hover{
+    color:var(--bridge-screen-text);
+    background:var(--bridge-screen);
+    box-shadow:inset 0 3px 0 var(--bridge-signal);
+  }
+  .bridge-container .bridge-detail-list{gap:0;border:2px solid var(--bridge-line-strong)}
+  .bridge-container .bridge-detail-item{gap:8px;padding:5px 8px 5px 0;background:var(--bridge-panel);border-bottom:1px solid var(--bridge-line-soft)}
+  .bridge-container .bridge-detail-item:nth-child(even){background:var(--bridge-panel-2)}
+  .bridge-container .bridge-detail-item:last-child{border-bottom:0}
+  .bridge-container .bridge-detail-key{
+    flex:0 0 4.6em;
+    min-width:0;
+    padding:0 6px 0 7px;
+    color:var(--bridge-text);
+    border-left:0;
+    border-right:2px solid var(--bridge-line-strong);
+    font-weight:800;
+    font-size:11.5px;
+  }
+  .bridge-container .bridge-detail-item .bridge-readout{font-size:12.5px;line-height:1.6}
+  .bridge-container .bridge-detail-list>.bridge-empty{border:0}
+
+  /* ---- 5. 下一步：黑红交替序号 + 暖纸指令卡 ---- */
+  .bridge-container .options-bar{padding:0 0 8px;overflow:hidden;box-shadow:3px 3px 0 var(--bridge-shadow-soft)}
+  .bridge-container .options-bar-header{
+    margin:0 0 8px;
+    padding:6px 8px;
+    background:repeating-linear-gradient(135deg,var(--bridge-stripe) 0 5px,transparent 5px 11px),var(--bridge-screen);
+    border-bottom:3px solid var(--bridge-signal);
+  }
+  .bridge-container .options-bar-title{padding:1px 10px 1px 8px;color:var(--bridge-signal-contrast);background:var(--bridge-signal);border-left:0;box-shadow:2px 2px 0 rgba(0,0,0,.45)}
+  .bridge-container .options-bar-title::before{background:var(--bridge-screen)}
+  .bridge-container .options-bar-items{gap:7px;padding:0 10px 0 8px}
+  .bridge-container .option-item,
+  .bridge-container .option-item:hover{
+    align-items:stretch;
+    gap:0;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    color:var(--bridge-text);
+    background:var(--bridge-panel-alt);
+    border:2px solid var(--bridge-line-strong);
+    border-right-width:4px;
+    box-shadow:2px 2px 0 var(--bridge-shadow-soft);
+  }
+  .bridge-container .option-item:nth-child(even),
+  .bridge-container .option-item:nth-child(even):hover{border-left-color:var(--bridge-line-strong);border-right-color:var(--bridge-signal)}
+  .bridge-container .option-number{
+    display:flex;align-items:center;justify-content:center;flex:0 0 34px;
+    padding:0;
+    color:var(--bridge-screen-text);
+    background:var(--bridge-screen);
+    font-size:15px;line-height:1;
+    transform:none;
+    box-shadow:none;
+    clip-path:polygon(0 0,100% 0,82% 100%,0 100%);
+  }
+  .bridge-container .option-item:nth-child(even) .option-number{color:var(--bridge-signal-contrast);background:var(--bridge-signal)}
+  .bridge-container .option-text{padding:7px 9px 7px 6px;font-size:13px;line-height:1.62}
+  .bridge-container .option-item:active{background:var(--bridge-signal-soft)}
+}
 `;
