@@ -1,0 +1,836 @@
+[
+  {
+    "table": "主角信息表",
+    "column": "row_id",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "姓名",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "性别",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "生日",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "外貌特征",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "身份背景",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "近况",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "瑟瑟能量",
+    "feature": "主角资料与能量",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "row_id",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "姓名",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "性别",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "生日",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "一句话介绍",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "外貌特征",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "身份",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "语言风格和口癖",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "对主角态度",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "过往经历",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "最近亲密互动",
+    "feature": "恋爱对象档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "row_id",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "姓名",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "性别",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "生日",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "一句话介绍",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "外貌特征",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "身份",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "语言风格和口癖",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "对主角态度",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "重要角色表",
+    "column": "过往经历",
+    "feature": "重要角色档案",
+    "required": true
+  },
+  {
+    "table": "角色里程碑表",
+    "column": "row_id",
+    "feature": "角色里程碑",
+    "required": true
+  },
+  {
+    "table": "角色里程碑表",
+    "column": "姓名",
+    "feature": "角色里程碑",
+    "required": true
+  },
+  {
+    "table": "角色里程碑表",
+    "column": "里程碑事件",
+    "feature": "角色里程碑",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "row_id",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "姓名",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "身高/体重",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "三围/罩杯",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "身材与特异性征",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "性爱接受度和XP倾向",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "性经验程度",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "下体状态",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "后庭状态",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "泌乳/体液状态",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "床上淫语风格",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "调教值",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "性爱次数",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "最近性行为",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "NSFW信息表",
+    "column": "对主角的称呼",
+    "feature": "亲密档案与生理周期",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "row_id",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "姓名",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "近期情绪状态",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "对主角的交互逻辑",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "被强化的性格侧面",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "被弱化的性格侧面",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "人物性格偏移表",
+    "column": "行为模式变化",
+    "feature": "人物性格与交互",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "row_id",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "姓名",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "当前状态",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "内心想法",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "下一步打算",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "当前穿搭",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "上装",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "下装",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "内衣/内裤",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "袜子",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "鞋子",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "饰品",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "情绪",
+    "feature": "在场角色展示",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "row_id",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "姓名",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "胸部",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "下体",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "口穴",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "菊穴",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "即时生理反应表",
+    "column": "其他部位",
+    "feature": "即时生理状态",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "row_id",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "写作角色",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "关联角色",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "日记内容",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "发生时间",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "恋爱日记表",
+    "column": "事件类型",
+    "feature": "恋爱日记",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "row_id",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "当前详细地点",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "上轮场景时间",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "经过的时间",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "当前时间",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "全局数据表",
+    "column": "是否色色",
+    "feature": "地点与时间",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "row_id",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "备忘标题",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "类型",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "相关角色",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "详细内容",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "当前状态",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "记录时间",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "约定时间",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "备忘录",
+    "column": "后续结果",
+    "feature": "备忘与日历",
+    "required": true
+  },
+  {
+    "table": "物品表",
+    "column": "row_id",
+    "feature": "物品与仓库",
+    "required": true
+  },
+  {
+    "table": "物品表",
+    "column": "物品名称",
+    "feature": "物品与仓库",
+    "required": true
+  },
+  {
+    "table": "物品表",
+    "column": "类型",
+    "feature": "物品与仓库",
+    "required": true
+  },
+  {
+    "table": "物品表",
+    "column": "数量",
+    "feature": "物品与仓库",
+    "required": true
+  },
+  {
+    "table": "物品表",
+    "column": "描述",
+    "feature": "物品与仓库",
+    "required": true
+  },
+  {
+    "table": "检定建议表",
+    "column": "row_id",
+    "feature": "行动选项",
+    "required": true
+  },
+  {
+    "table": "检定建议表",
+    "column": "展示文本",
+    "feature": "行动选项",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "row_id",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "编码索引",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "时间跨度",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "概览",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "纪要",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "纪要表",
+    "column": "重要对话",
+    "feature": "纪要与剧情回顾",
+    "required": true
+  },
+  {
+    "table": "瑟瑟任务表",
+    "column": "row_id",
+    "feature": "任务",
+    "required": true
+  },
+  {
+    "table": "瑟瑟任务表",
+    "column": "任务名称",
+    "feature": "任务",
+    "required": true
+  },
+  {
+    "table": "瑟瑟任务表",
+    "column": "任务描述",
+    "feature": "任务",
+    "required": true
+  },
+  {
+    "table": "瑟瑟任务表",
+    "column": "任务目标",
+    "feature": "任务",
+    "required": true
+  },
+  {
+    "table": "瑟瑟任务表",
+    "column": "完成情况",
+    "feature": "任务",
+    "required": true
+  },
+  {
+    "table": "主角技能表",
+    "column": "row_id",
+    "feature": "主角技能",
+    "required": true
+  },
+  {
+    "table": "主角技能表",
+    "column": "技能名称",
+    "feature": "主角技能",
+    "required": true
+  },
+  {
+    "table": "主角技能表",
+    "column": "技能类别",
+    "feature": "主角技能",
+    "required": true
+  },
+  {
+    "table": "主角技能表",
+    "column": "技能经验值",
+    "feature": "主角技能",
+    "required": true
+  },
+  {
+    "table": "主角技能表",
+    "column": "技能描述",
+    "feature": "主角技能",
+    "required": true
+  },
+  {
+    "table": "杂表",
+    "column": "row_id",
+    "feature": "商店与杂项设置",
+    "required": true
+  },
+  {
+    "table": "杂表",
+    "column": "名称",
+    "feature": "商店与杂项设置",
+    "required": true
+  },
+  {
+    "table": "杂表",
+    "column": "描述",
+    "feature": "商店与杂项设置",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "row_id",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "人物A",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "人物B",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "关系类型",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "相互看法",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "起因备注",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "人物关系表",
+    "column": "关系状态",
+    "feature": "人物关系",
+    "required": true
+  },
+  {
+    "table": "主角信息表",
+    "column": "年龄",
+    "feature": "旧模板兼容读取",
+    "required": false
+  },
+  {
+    "table": "全局数据表",
+    "column": "当前位置",
+    "feature": "旧模板兼容读取",
+    "required": false
+  },
+  {
+    "table": "玩法表",
+    "column": "体位",
+    "feature": "可选玩法扩展",
+    "required": false
+  },
+  {
+    "table": "玩法表",
+    "column": "多人体位",
+    "feature": "可选玩法扩展",
+    "required": false
+  },
+  {
+    "table": "玩法表",
+    "column": "侍奉",
+    "feature": "可选玩法扩展",
+    "required": false
+  },
+  {
+    "table": "玩法表",
+    "column": "场景",
+    "feature": "可选玩法扩展",
+    "required": false
+  },
+  {
+    "table": "玩法表",
+    "column": "附加玩法",
+    "feature": "可选玩法扩展",
+    "required": false
+  },
+  {
+    "table": "在场角色表",
+    "column": "情绪",
+    "feature": "立绘表情",
+    "required": true
+  },
+  {
+    "table": "在场角色表",
+    "column": "情绪",
+    "feature": "地图角色状态",
+    "required": true
+  },
+  {
+    "table": "恋爱对象表",
+    "column": "年龄",
+    "feature": "旧模板兼容读取",
+    "required": false
+  },
+  {
+    "table": "重要角色表",
+    "column": "年龄",
+    "feature": "旧模板兼容读取",
+    "required": false
+  }
+]

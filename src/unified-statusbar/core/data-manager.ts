@@ -1,4 +1,5 @@
 // ===== 数据获取与缓存管理 =====
+import { ensureStatusbarFieldContracts, resetFieldContractChecks, checkStatusbarSheetFields, reportStatusbarMissing } from './field-contracts';
 import { isRowIdColumn } from './db-crud';
 import { perfStart, perfEnd } from './perf-timing';
 import { hasDbSchemaMapping, normalizeRowKeys, sqlColumnName, sqlTableName, DB_SCHEMA_MAP } from './db-schema-map';
@@ -95,6 +96,7 @@ export function resolveTableNameForApi(tableName: string): string {
 }
 
 export function getAutoCardAPI(): any {
+  ensureStatusbarFieldContracts();
   // 瑟瑟台账（SeseLedger）canonical API 优先；未装载时回落 AutoCardUpdaterAPI（真数据库/台账别名）。
   let api: any = null;
   const ledger = getLedgerCanonical();
@@ -117,7 +119,9 @@ function tableApiOf(ledger: any): any {
 
 export function getSheetByName(tableName: string): SheetContent | null {
   if (!_allSheetsCache) buildSheetCache();
-  return _allSheetsCache?.[tableName] || null;
+  const sheet = _allSheetsCache?.[tableName] || null;
+  checkStatusbarSheetFields(tableName, sheet);
+  return sheet;
 }
 
 /**
@@ -131,6 +135,7 @@ export function getCachedSheetsSnapshot(): SheetContent[] {
   for (const sheet of Object.values(_allSheetsCache)) {
     if (!sheet || seen.has(sheet)) continue;
     seen.add(sheet);
+    checkStatusbarSheetFields(sheet.name, sheet);
     sheets.push({
       ...sheet,
       content: Array.isArray(sheet.content) ? sheet.content.map(row => [...row]) : [],
@@ -159,7 +164,7 @@ export function getCellByHeader(tableName: string, rowIndex: number, colName: st
   if (!sheet) return null;
   const headers = sheet.content[0];
   const colIdx = headers.indexOf(colName);
-  if (colIdx === -1) return null;
+  if (colIdx === -1) { reportStatusbarMissing(tableName, colName); return null; }
   return sheet.content[rowIndex]?.[colIdx] ?? null;
 }
 
@@ -184,7 +189,7 @@ export function findRowByColumn(tableName: string, colName: string, value: strin
   if (!sheet) return -1;
   const headers = sheet.content[0];
   const colIdx = headers.indexOf(colName);
-  if (colIdx === -1) return -1;
+  if (colIdx === -1) { reportStatusbarMissing(tableName, colName); return -1; }
   for (let i = 1; i < sheet.content.length; i++) {
     if (String(sheet.content[i][colIdx]) === String(value)) return i;
   }
@@ -199,7 +204,7 @@ export function readColumnValues(tableName: string, colName: string): string[] {
   const sheet = getSheetByName(tableName);
   if (!sheet || sheet.content.length < 2) return [];
   const colIdx = sheet.content[0].indexOf(colName);
-  if (colIdx === -1) return [];
+  if (colIdx === -1) { reportStatusbarMissing(tableName, colName); return []; }
   const out: string[] = [];
   for (let i = 1; i < sheet.content.length; i++) {
     out.push(String(sheet.content[i][colIdx] ?? '').trim());
@@ -208,6 +213,8 @@ export function readColumnValues(tableName: string, colName: string): string[] {
 }
 
 export function invalidateCache(): void {
+  resetFieldContractChecks();
+  ensureStatusbarFieldContracts();
   _allSheetsCache = null;
   _playListCache = null;
   // O13/O14：失效即推进令牌（缓存代++），保证「已失效→重建」前后令牌必不同
@@ -217,6 +224,7 @@ export function invalidateCache(): void {
 
 /** 由 index.ts 在收到非空表格快照时打标：当前缓存（重建后）属于该聊天。 */
 export function markSheetCacheChatKey(chatKey: string): void {
+  ensureStatusbarFieldContracts(chatKey);
   _sheetCacheChatKey = chatKey;
 }
 
@@ -291,6 +299,10 @@ export function queryLogicalTableRows(
       throw new Error('查询列不能为空');
     }
 
+    const sheet = getSheetByName(tableName);
+    for (const column of query.columns) {
+      if (sheet && !sheet.content[0]?.includes(column)) reportStatusbarMissing(tableName, column);
+    }
     const columns = query.columns.map(column => validateSqlIdentifier(String(column)));
     for (const column of Object.keys(query.where || {})) validateSqlIdentifier(column);
 
@@ -352,6 +364,10 @@ export function queryLogicalTablePage(
     const api = getAutoCardAPI();
     if (!api || typeof api.queryTableRows !== 'function') throw new Error('queryTableRows unavailable');
     if (!tableName || !Array.isArray(query.columns) || query.columns.length === 0) throw new Error('invalid query');
+    const sheet = getSheetByName(tableName);
+    for (const column of query.columns) {
+      if (sheet && !sheet.content[0]?.includes(column)) reportStatusbarMissing(tableName, column);
+    }
     const columns = query.columns.map(column => validateSqlIdentifier(String(column)));
     for (const column of Object.keys(query.where || {})) validateSqlIdentifier(column);
     if (!Number.isInteger(query.limit) || (query.limit as number) <= 0 || (query.limit as number) > QUERY_TABLE_ROWS_PAGE_SIZE) throw new Error('invalid limit');
@@ -1202,6 +1218,7 @@ export function getPlayList(
   if (sheet && sheet.content.length >= 2) {
     const headers = sheet.content[0];
     const colIdx = headers.indexOf(type.colName);
+    if (colIdx === -1) reportStatusbarMissing('玩法表', type.colName, '可选玩法扩展');
     if (colIdx !== -1) {
       for (let i = 1; i < sheet.content.length; i++) {
         const val = sheet.content[i][colIdx];

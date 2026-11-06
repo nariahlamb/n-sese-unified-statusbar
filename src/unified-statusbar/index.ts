@@ -1,4 +1,5 @@
 // ===== 统一酒馆助手状态栏 - 入口文件 =====
+import { ensureStatusbarFieldContracts } from './core/field-contracts';
 import { ancientCSS } from './styles/ancient';
 import { ensureStyleOnce } from './renderers/style-once';
 import { UB_EVENT, emitUbEvent } from './core/events';
@@ -3010,6 +3011,7 @@ const storyReadinessCoordinator = createStoryReadinessCoordinator({
 });
 
 async function init(): Promise<void> {
+  ensureStatusbarFieldContracts();
   // O39(第十一轮)：成就目录惰性装载点火——解析在微任务内完成（503KB 目录不再占用启动的
   // 同步求值路径），与外部存档的网络往返并行；扫描入口另有就绪门，正常感知不到。
   void ensureAchievementCatalog();

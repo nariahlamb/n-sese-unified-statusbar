@@ -1,11 +1,12 @@
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { build, transform } from 'esbuild';
 import jquery from 'jquery';
 import { JSDOM, VirtualConsole } from 'jsdom';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 
 async function loadDrag() {
   const result = await build({

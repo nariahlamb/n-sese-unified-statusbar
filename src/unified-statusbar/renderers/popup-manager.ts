@@ -1,5 +1,7 @@
 // ===== 弹窗管理模块 =====
 import { ubIcon } from '../core/icons';
+import { captureDbRowEdit, saveDbRowEdit } from '../core/db-row-edit';
+import { checkStatusbarSheetFields } from '../core/field-contracts';
 import { getToastr } from '../core/env';
 import {
   getSheetByName, getCellByHeader, findRowByColumn,
@@ -2898,7 +2900,7 @@ export function showPlayImagePopup(playName: string, style: StyleType): void {
 // ===== 数据库表格查看（只读总览 + 点击行查看/编辑详情） =====
 // 直接读取 AutoCardUpdaterAPI.exportTableAsJson() 原始全集，不写常驻缓存；
 // _dbTables 仅在弹窗打开期间存在，关闭即清空，满足「无额外资源占用」约束。
-interface DbTableView { name: string; headers: string[]; rows: string[][]; sheetKey: string; lockState: TableLockState | null; }
+interface DbTableView { name: string; headers: string[]; rows: string[][]; sheetKey: string; chatKey: string; lockState: TableLockState | null; }
 let _dbTables: DbTableView[] = [];
 let _dbCurrentTab = 0;        // 当前激活的表索引
 let _dbListOverlay: HTMLElement | null = null;  // 总览 overlay 引用（供详情保存后刷新）
@@ -3087,7 +3089,7 @@ function reloadDbTable(idx: number): void {
   const headers = (sheet.content[0] || []).map((h: string, i: number) =>
     String(h == null ? '' : h).trim() || ('列' + (i + 1)));
   const rows = sheet.content.slice(1).map((r: string[]) => Array.isArray(r) ? r : []);
-  _dbTables[idx] = { name: t.name, headers, rows, sheetKey: t.sheetKey, lockState: t.lockState };
+  _dbTables[idx] = { name: t.name, headers, rows, sheetKey: t.sheetKey, chatKey: t.chatKey, lockState: t.lockState };
 }
 
 /** 刷新两张人物表、标签数量和当前面板；保留当前标签与搜索词。 */
@@ -3310,6 +3312,7 @@ function showDbRowDetail(table: DbTableView, displayIdx: number, style: StyleTyp
     : headers.map(function (_, c) {
         return String(table.rows[displayIdx] != null && table.rows[displayIdx][c] != null ? table.rows[displayIdx][c] : '');
       });
+  const editSnapshot = isNew ? null : captureDbRowEdit(table.name, headers, original, table.sheetKey, table.chatKey);
   let editing = isNew;   // 新建直接进入编辑态
 
   const ov = document.createElement('div');
@@ -3418,7 +3421,7 @@ function showDbRowDetail(table: DbTableView, displayIdx: number, style: StyleTyp
     for (let c = 0; c < headers.length; c++) {
       if (isRowIdColumn(headers[c])) continue;   // row_id 由系统自增分配，不可写入
       if (!isNew && isCellLocked(table.lockState, contentRowIndex, c)) continue;  // 被锁单元格跳过，避免写时触发原生锁
-      data[headers[c]] = cur[c];
+      if (isNew || cur[c] !== original[c]) data[headers[c]] = cur[c];
     }
     if (isNew) {
       let created = false;
@@ -3451,9 +3454,10 @@ function showDbRowDetail(table: DbTableView, displayIdx: number, style: StyleTyp
       }
       return true;
     }
-    // 编辑：沿用 updateRow
-    const ok = await updateRow(table.name, contentRowIndex, data);
+    const result = await saveDbRowEdit(editSnapshot!, data);
+    const ok = result.ok;
     if (ok) {
+      editSnapshot!.original = { ...editSnapshot!.original, ...data };
       original = cur;          // 更新基准，保存后即"无改动"
       getToastr()?.success('已保存修改', '数据库');
       // 刷新总览对应表
@@ -3462,7 +3466,7 @@ function showDbRowDetail(table: DbTableView, displayIdx: number, style: StyleTyp
         renderDbTable(_dbListOverlay, _dbCurrentTab);
       }
     } else {
-      getToastr()?.error('保存失败，请重试', '数据库');
+      getToastr()?.error(result.ok ? '保存失败，请重试' : result.message, '数据库');
     }
     return ok;
   }
@@ -3630,7 +3634,8 @@ export function showDatabasePopup(style: StyleType): void {
       String(h == null ? '' : h).trim() || ('列' + (i + 1)));
     const rows = sheet.content.slice(1).map((r: string[]) => Array.isArray(r) ? r : []);
     const sheetKey = String(sheet.key || key);   // sheet_xxx，锁定 API 需要
-    tables.push({ name: String(sheet.name || key), headers, rows, sheetKey, lockState: getTableLockState(sheetKey) });
+    checkStatusbarSheetFields(String(sheet.name || key), sheet);
+    tables.push({ name: String(sheet.name || key), headers, rows, sheetKey, chatKey: getCurrentChatKeyOrNull() || '', lockState: getTableLockState(sheetKey) });
   }
   tables.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
   _dbTables = tables;
