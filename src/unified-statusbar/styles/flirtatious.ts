@@ -228,7 +228,7 @@ export const flirtatiousCSS = /* css */ `
 /* 寮圭獥 */
 .nsfw-overlay,.panel-overlay{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .nsfw-overlay.show,.panel-overlay.show{display:flex}
-.panel-popup{background:var(--card);border:1px solid var(--divider);border-radius:12px;width:90%;max-width:360px;max-height:70vh;min-height:200px;box-shadow:0 8px 32px rgba(0,0,0,0.3);animation:popup-in .3s ease}
+.panel-popup{background:var(--card);border:1px solid var(--divider);border-radius:12px;width:90%;max-width:360px;max-height:70vh;min-height:0;height:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);animation:popup-in .3s ease}
 .panel-popup{max-width:380px;display:flex;flex-direction:column}
 @keyframes popup-in{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .panel-popup-head{position:sticky;top:0;background:linear-gradient(180deg,var(--head-from),var(--head-to));padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--divider);z-index:1}
@@ -407,7 +407,7 @@ export const flirtatiousCSS = /* css */ `
 .settings-tab.active{color:var(--lust-deep);font-weight:500}
 .settings-tab.active::before{content:'';position:absolute;bottom:-1px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--lust),var(--accent));border-radius:1px}
 .settings-tab.active::after{content:'';position:absolute;bottom:-4px;left:15%;right:15%;height:8px;background:var(--lust-glow);filter:blur(4px);border-radius:4px}
-.settings-popup-body{padding:16px 18px;overflow-y:auto;flex:1;min-height:120px}
+.settings-popup-body{padding:16px 18px;overflow-y:auto;flex:1;min-height:0}
 .settings-tab-content{display:none}
 .settings-tab-content.active{display:block;animation:fade-in .2s ease}
 .settings-section{margin:14px 0;padding:12px 14px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--divider-light)}

@@ -11,7 +11,7 @@ export const WARDROBE_BASE_CSS = `
   --wr-line:var(--divider,#ddd);
   --wr-accent:var(--accent,#8d5c42);
   --wr-accent-soft:color-mix(in srgb,var(--wr-accent) 12%,transparent);
-  width:min(1120px,96vw);height:min(820px,92vh);height:min(820px,92dvh);
+  width:min(1120px,96vw);height:auto;max-height:min(820px,92vh);max-height:min(820px,92dvh);
   display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;
   /* iPhone 安全区：≤720px 时本窗是 100dvh 全屏贴边，head/正文/角色穿搭底部在这一处统一让位；
      绝对定位子件（.wardrobe-detail 等）不吃父 padding，故各自另扣（见下）。桌面 env=0 ⇒ 逐像素无变化。 */
@@ -117,7 +117,7 @@ body.dark-mode .wardrobe-window{
 .wardrobe-btn.primary{background:var(--wr-accent);border-color:var(--wr-accent);color:#fff}
 .wardrobe-btn.danger{color:#c34b4b}
 .wardrobe-btn:disabled,.wardrobe-wear-option select:disabled{opacity:.55;cursor:not-allowed}
-.wardrobe-empty{display:grid;place-items:center;min-height:260px;text-align:center;color:var(--wr-muted)}
+.wardrobe-empty{display:grid;place-items:center;min-height:0;padding:24px 12px;text-align:center;color:var(--wr-muted)}
 .wardrobe-outfit-editor{display:grid;grid-template-columns:1.2fr 1fr .9fr;gap:12px;min-height:0;height:100%}
 .wardrobe-editor-column{min-width:0;overflow:auto;border:1px solid var(--wr-line);border-radius:12px;background:var(--wr-panel);padding:12px;box-sizing:border-box}
 .wardrobe-editor-title{font-size:13px;font-weight:750;margin-bottom:10px}
@@ -167,7 +167,7 @@ body.dark-mode .wardrobe-window{
 .wardrobe-actor-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
 .wardrobe-actor-section-head h2{margin:0 0 3px;font-size:16px;line-height:1.35}
 .wardrobe-actor-source{font-size:12px;color:var(--wr-muted)}
-.wardrobe-actor-current-items{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:120px}
+.wardrobe-actor-current-items{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:0}
 .wardrobe-actor-current-items .wardrobe-current-chip{display:flex;align-items:center;gap:7px;max-width:100%}
 .wardrobe-actor-current-items .wardrobe-current-chip span{color:var(--wr-muted);font-size:11px}
 .wardrobe-actor-current-actions,.wardrobe-pool-card-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
@@ -230,7 +230,7 @@ body.dark-mode .wardrobe-window{
   .wardrobe-pool-card{grid-template-columns:80px minmax(0,1fr)}
 }
 @media (max-width:720px){
-  .wardrobe-window{width:100%;height:100vh;height:100dvh;border-radius:0;border-left:0;border-right:0}
+  .wardrobe-window{width:100%;height:auto;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-radius:0;border-left:0;border-right:0}
   .wardrobe-head{padding:8px 10px;gap:8px;flex-wrap:wrap}.wardrobe-title{font-size:17px}
   .wardrobe-toolbar-items .wardrobe-search{width:100%}
   .wardrobe-toolbar-items .wardrobe-search input{flex:1;min-width:0;width:100%}

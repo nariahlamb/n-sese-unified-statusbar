@@ -243,7 +243,7 @@ const ancientCoreCSS = /* css */ `
 /* ===== 寮圭獥 ===== */
 .nsfw-overlay,.panel-overlay{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;background:rgba(44,24,16,0.5);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .nsfw-overlay.show,.panel-overlay.show{display:flex}
-.panel-popup{background:var(--card);border:1px solid var(--divider);width:90%;max-width:360px;max-height:70vh;min-height:200px;box-shadow:0 8px 32px rgba(44,24,16,0.3),4px 4px 0 var(--roller);animation:popup-in .3s ease;position:relative;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--paper-stain) 2px,var(--paper-stain) 3px),repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(139,110,78,0.015) 4px,rgba(139,110,78,0.015) 5px);background-color:var(--card)}
+.panel-popup{background:var(--card);border:1px solid var(--divider);width:90%;max-width:360px;max-height:70vh;min-height:0;height:auto;box-shadow:0 8px 32px rgba(44,24,16,0.3),4px 4px 0 var(--roller);animation:popup-in .3s ease;position:relative;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--paper-stain) 2px,var(--paper-stain) 3px),repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(139,110,78,0.015) 4px,rgba(139,110,78,0.015) 5px);background-color:var(--card)}
 .panel-popup{max-width:380px;display:flex;flex-direction:column}
 @keyframes popup-in{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .panel-popup-head{position:sticky;top:0;background:linear-gradient(180deg,var(--card-deep),var(--card));padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--roller);z-index:1}
@@ -403,7 +403,7 @@ const ancientCoreCSS = /* css */ `
 .settings-tab:hover{color:var(--text);background:var(--lust-bg-faint)}
 .settings-tab.active{color:var(--accent-deep);background:var(--accent-bg-faint)}
 .settings-tab.active::after{content:'';position:absolute;bottom:-2px;left:10%;right:10%;height:3px;background:linear-gradient(90deg,var(--accent-soft),var(--accent),var(--accent-soft));border-radius:2px}
-.settings-popup-body{padding:16px 18px;min-height:120px;overflow-y:auto;flex:1}
+.settings-popup-body{padding:16px 18px;min-height:0;overflow-y:auto;flex:1}
 .settings-tab-content{display:none}
 .settings-tab-content.active{display:block;animation:fade-in .2s ease}
 .settings-section{margin:14px 0;padding:12px 14px;border-radius:6px;background:rgba(180,170,150,0.08);border:1px solid var(--divider-light)}

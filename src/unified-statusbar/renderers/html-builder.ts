@@ -373,7 +373,7 @@ export function bridgeWindowClass(module: string, tier?: '' | 's' | 'm' | 'l' | 
 
 /** 关闭面板 overlay 并刷新徽章（已清零的徽章在 DOM 中移除） */
 export function closePanelOverlay(overlay: HTMLElement): void {
-  overlay.classList.remove('show');
+  overlay.classList.remove('show', 'wardrobe-overlay');
   releaseBackGuardIfIdle();
   clearPopupScrollMem();
   // F38(十一轮)：延迟清空残留内容——最后弹窗的整棵 DOM（地图弹窗内联 SVG 可达 MB 级）

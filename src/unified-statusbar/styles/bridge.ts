@@ -447,6 +447,7 @@ body.dark-mode,
   right:0;
   width:132px;
   height:132px;
+  max-height:100%;
   z-index:-1;
   pointer-events:none;
   background:
@@ -1155,11 +1156,11 @@ body.dark-mode,
      否则全屏弹窗底部（如确认/操作按钮）被推出视口；decision-queue 在自有 border-box overlay
      （padding:18px+height:100dvh）中恰好满屏无裁切，不抵扣 */
   .bridge-module-settings,
-  #ubDbRepairOverlay.bridge-module-db-repair{width:100%!important;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none!important;max-height:none!important;border-left:0!important;border-right:0!important}
-  .ub-decision-dialog.bridge-module-decision-queue{width:100%!important;height:100vh;height:100dvh;max-width:none!important;max-height:none!important;border-left:0!important;border-right:0!important}
-  .panel-popup.bridge-timeline{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none}
-  .panel-popup.bridge-module-options{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none}
-  .panel-popup.bridge-module-chronicle-merge{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none}
+  #ubDbRepairOverlay.bridge-module-db-repair{width:100%!important;height:auto;max-width:none!important;max-height:calc(100vh - var(--ub-ol-pad-total,80px))!important;max-height:calc(100dvh - var(--ub-ol-pad-total,80px))!important;border-left:0!important;border-right:0!important}
+  .ub-decision-dialog.bridge-module-decision-queue{width:100%!important;height:auto;max-width:none!important;max-height:min(86vh,calc(100vh - 36px))!important;max-height:min(86dvh,calc(100dvh - 36px))!important;border-left:0!important;border-right:0!important}
+  .panel-popup.bridge-timeline{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px))}
+  .panel-popup.bridge-module-options{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px))}
+  .panel-popup.bridge-module-chronicle-merge{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px))}
   .bridge-window button,
   .bridge-window [role="button"]{min-height:34px}
 }

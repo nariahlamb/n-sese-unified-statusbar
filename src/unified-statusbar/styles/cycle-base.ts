@@ -475,7 +475,7 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-btn.danger:hover{background:var(--bridge-danger-soft)}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-confirm{background:var(--bridge-panel-alt);border:2px solid var(--bridge-line-strong);border-radius:0}
 .cycle-manager-popup.bridge-module-cycle-manager .cycle-manager-irreversible{color:var(--bridge-danger)}
-@media(max-width:599px){.cycle-manager-popup.bridge-module-cycle-manager{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}}
+@media(max-width:599px){.cycle-manager-popup.bridge-module-cycle-manager{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0}}
 
 @media (max-width: 520px) {
   .cycle-manager-person,

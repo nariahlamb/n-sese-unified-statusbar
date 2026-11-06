@@ -404,7 +404,7 @@ body:has(.minimal-container:not([style*="display: none"]):not([style*="display:n
 .bridge-module-imaging .portrait-preset-btn,.bridge-module-imaging .portrait-gallery-item{border-width:1.5px}
 .portrait-quick-menu.bridge-portrait-quick-menu{border-radius:0;border:2px solid var(--bridge-line-strong);background:var(--bridge-panel);color:var(--bridge-text);box-shadow:3px 3px 0 var(--bridge-offset);font-family:var(--bridge-font-ui);}
 .portrait-quick-menu.bridge-portrait-quick-menu button{min-height:32px;border-radius:0;color:var(--bridge-text);background:var(--bridge-panel-alt);}
-@media(max-width:599px){.portrait-popup.bridge-module-imaging{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.bridge-portrait-gallery .portrait-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:599px){.portrait-popup.bridge-module-imaging{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0}.bridge-portrait-gallery .portrait-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* 单图标签编辑弹窗 */
 .portrait-edit-wrap{ position:relative; inset:auto; max-width:420px; width:92vw; max-height:85vh; max-height:85dvh; overflow:auto; }

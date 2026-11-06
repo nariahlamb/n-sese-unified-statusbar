@@ -44,7 +44,7 @@ const CEBL_CSS = `
 .ub-cebl-entry-hint{margin-top:6px;font-size:var(--ub-ui-font-10,10px);line-height:1.5;color:var(--cebl-muted)}
 /* ---- 弹窗（叠加子壳） ---- */
 .ub-cebl-overlay{z-index:10025}
-.panel-popup.ub-cebl-popup{display:flex;flex-direction:column;height:min(640px,88vh);height:min(640px,88dvh);max-height:min(640px,88dvh);overflow:hidden;color:var(--cebl-ink)}
+.panel-popup.ub-cebl-popup{display:flex;flex-direction:column;height:auto;max-height:min(640px,88vh);max-height:min(640px,88dvh);overflow:hidden;color:var(--cebl-ink)}
 .ub-cebl-head-tip{flex:0 0 auto}
 .ub-cebl-meta{flex:0 0 auto;padding:8px 14px;border-bottom:1px solid var(--cebl-line);background:var(--cebl-alt);font-size:var(--ub-ui-font-11,11px);line-height:1.6;color:var(--cebl-muted)}
 .ub-cebl-meta b{color:var(--cebl-ink)}
@@ -84,7 +84,7 @@ const CEBL_CSS = `
 .ub-cebl-btn.primary:disabled:hover{color:#fff;border-color:var(--cebl-accent)}
 @media(max-width:599px){
   .ub-cebl-overlay{padding:0}
-  .panel-popup.ub-cebl-popup{width:100%;height:100vh;height:100dvh;max-height:100dvh;border-radius:0;border:0}
+  .panel-popup.ub-cebl-popup{width:100%;height:auto;max-height:92vh;max-height:92dvh;border-radius:0;border:0}
   .ub-cebl-row{padding:11px 8px;min-height:44px}
   .ub-cebl-meta{padding:7px 12px}
   /* 三键（清空/取消/保存）在窄屏整行：提示占一行、按钮等分一行，触控目标随行高放大 */

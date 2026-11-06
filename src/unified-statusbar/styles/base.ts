@@ -25,7 +25,7 @@ export const baseCSS = /* css */ `
    theme differences while dedicated large-popup classes below remain overrides. */
 .panel-popup{
   width:90%;max-width:380px;max-height:72vh;max-height:72dvh;
-  min-height:200px;box-sizing:border-box;
+  min-height:0;height:auto;box-sizing:border-box;
 }
 .settings-popup{
   width:90%;max-width:320px;max-height:85vh;max-height:85dvh;

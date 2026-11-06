@@ -224,7 +224,7 @@ const ACHIEVEMENT_CSS = `
 .ach-popup.ach-theme-bridge .ach-card.hidden-ach{opacity:.48;filter:grayscale(1);}
 .ach-popup.ach-theme-bridge .ach-card.ach-bridge-new{animation:ach-bridge-edge .58s ease-out 1;}
 @keyframes ach-bridge-edge{0%{box-shadow:inset 0 0 0 2px var(--bridge-alert),3px 3px 0 var(--bridge-offset)}100%{box-shadow:2px 2px 0 var(--bridge-offset);}}
-@media(max-width:599px){.ach-popup.ach-theme-bridge.bridge-module-achievements{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.ach-popup.ach-theme-bridge .ach-list{max-height:none;flex:1}.ach-popup.ach-theme-bridge .panel-popup-body{display:flex;flex-direction:column;min-height:0}}
+@media(max-width:599px){.ach-popup.ach-theme-bridge.bridge-module-achievements{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0}.ach-popup.ach-theme-bridge .ach-list{max-height:none;flex:1}.ach-popup.ach-theme-bridge .panel-popup-body{display:flex;flex-direction:column;min-height:0}}
 @media(prefers-reduced-motion:reduce){.ach-popup.ach-theme-bridge .ach-card.ach-bridge-new{animation:none;box-shadow:inset 3px 0 0 var(--bridge-alert)}}
 /* L10 抬头问候（现实时段，随标题下方一行小字） */
 .ach-greet{display:block;font-size:10.5px;font-weight:400;color:${_textMuted};margin-top:2px;letter-spacing:.02em;}

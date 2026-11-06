@@ -638,7 +638,7 @@ const xianxiaCoreCSS = /* css */ `
 .settings-tab:hover { color: var(--text); background: rgba(90,144,120,0.04); }
 .settings-tab.active { color: var(--jade-deep); background: rgba(90,144,120,0.06); }
 .settings-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, var(--jade-light), var(--jade), var(--jade-light)); border-radius: 1px; }
-.settings-popup-body { padding: 12px 16px; overflow-y: auto; flex: 1; min-height: 80px; }
+.settings-popup-body { padding: 12px 16px; overflow-y: auto; flex: 1; min-height: 0; }
 .settings-tab-content { display: none; }
 .settings-tab-content.active { display: block; animation: fade-in 0.2s ease; }
 .settings-section { margin: 10px 0; padding: 10px 12px; border-radius: 6px; background: rgba(90,144,120,0.04); border: 1px solid var(--divider-light); }

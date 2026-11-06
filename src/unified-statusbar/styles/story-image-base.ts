@@ -28,7 +28,7 @@ export const SIG_GALLERY_CSS = `
 }
 .sig-grid{
   display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px;
-  overflow-y:auto; padding:4px 2px 8px; flex:1; min-height:120px;
+  overflow-y:auto; padding:4px 2px 8px; flex:1; min-height:0;
   align-content:start;
   /* 网格行高必须钉死为内容高：本网格是 flex:1 定高滚动容器，卡片带 overflow:hidden 时
      min-content 贡献为 0，Chrome 会把 auto 行均分成容器高度的等分（卡片被拉伸到行高再被

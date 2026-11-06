@@ -1042,7 +1042,7 @@ body.dark-mode {
   height: 3px; background: linear-gradient(90deg, var(--sweet-pink-light), var(--sweet-pink), var(--sweet-pink-light));
   border-radius: 2px;
 }
-.settings-popup-body { padding: 16px 18px; min-height: 120px; overflow-y: auto; flex: 1; }
+.settings-popup-body { padding: 16px 18px; min-height: 0; overflow-y: auto; flex: 1; }
 .settings-tab-content { display: none; }
 .settings-tab-content.active { display: block; animation: sweet-fade-in .2s ease; }
 .settings-section {

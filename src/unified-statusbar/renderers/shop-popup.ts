@@ -263,14 +263,14 @@ const THEME_SCOPED_CSS = `
 @media(max-width:599px){
   /* height 用 var(--ub-ol-pad-total)（= applyMobileFixes 写入的 overlay 上下 padding 总额，index.ts）
      抵扣：内联 padding-top:60px 使 100dvh 弹窗底部推出视口，购买按钮不可见 */
-  .shop-popup.shop-theme-bridge.bridge-module-commerce:not(.shop-auto-height){width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0;}
+  .shop-popup.shop-theme-bridge.bridge-module-commerce:not(.shop-auto-height){width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0;}
   .shop-popup.shop-theme-bridge .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .shop-popup.shop-theme-bridge .shop-bar{align-items:flex-start;flex-wrap:wrap;}
   .shop-popup.shop-theme-bridge .shop-actions{width:100%;margin-left:0;display:grid;grid-template-columns:repeat(3,1fr);}
   .shop-popup.shop-theme-bridge .shop-btn{justify-content:center;padding:6px 5px;}
-  /* 非 bridge 主题移动端同样升全屏（对齐 bridge，修复 70vh 弹窗商品区不足半屏）；
-     排除 shop-auto-height（详情/长按额外提示词弹窗）：全屏只为商品橱窗而生，短内容拉满屏会出大片空白 */
-  .shop-popup:not(.shop-theme-bridge):not(.shop-auto-height){width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0;}
+  /* 非 bridge 主题移动端同样升全屏上限（对齐 bridge，修复 70vh 弹窗商品区不足半屏）；
+     height:auto 保证空态或商品较少时按条目自适应收缩，不留大块空白 */
+  .shop-popup:not(.shop-theme-bridge):not(.shop-auto-height){width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0;}
   /* 自适应弹窗封顶 = 视口可用高（同上方 var 抵扣），超长描述仍在 .shop-detail-body 内滚动，footer 始终可见 */
   .shop-popup.shop-auto-height{max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));}
 }

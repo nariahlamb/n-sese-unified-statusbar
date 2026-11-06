@@ -856,7 +856,7 @@ export const calendarBaseCSS = /* css */ `
 .cal-theme-bridge .cal-cyc-bar{border-radius:0;background:var(--bridge-panel-inset);}
 .cal-theme-bridge .cal-cyc-bar i{border-radius:0;background:var(--bridge-signal);}
 .cal-theme-bridge .cal-edit-type-btn.active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal);}
-@media(max-width:599px){.calendar-popup.cal-theme-bridge.bridge-module-calendar{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0;border-right:0}.cal-theme-bridge .cal-detail{overflow-y:auto}}
+@media(max-width:599px){.calendar-popup.cal-theme-bridge.bridge-module-calendar{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0;border-right:0}.cal-theme-bridge .cal-detail{overflow-y:auto}}
 
 /* ═══════════════════════════════════════════════════ */
 /*  主题专属样式 — 灵动玻璃（iOS，token 已由主题根接管，此处仅装饰） */

@@ -267,7 +267,7 @@ b.num,.num{font-variant-numeric:tabular-nums}
 .bridge-module-skill-detail .sk-seg{border-radius:0;overflow:visible}
 .bridge-module-skill-detail .sk-seg button{border-radius:0}
 .bridge-module-skill-detail .sk-seg button.seg-active{background:var(--bridge-screen);color:var(--bridge-screen-text);box-shadow:3px 3px 0 var(--bridge-signal)}
-@media(max-width:599px){.panel-popup.bridge-module-skill-tree,.panel-popup.bridge-module-skill-detail{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0!important;border-right:0!important}}
+@media(max-width:599px){.panel-popup.bridge-module-skill-tree{width:100%;height:calc(100vh - var(--ub-ol-pad-total,80px));height:calc(100dvh - var(--ub-ol-pad-total,80px));max-width:none;max-height:none;border-left:0!important;border-right:0!important}.panel-popup.bridge-module-skill-detail{width:100%;height:auto;max-width:none;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-left:0!important;border-right:0!important}}
 `;
 
 let _cssCacheStyle: string | null = null;

@@ -172,7 +172,7 @@ export const minimalCSS = /* css */ `
 
 .panel-overlay{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;background:var(--ub-overlay-bg);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .panel-overlay.show{display:flex}
-.panel-popup{background:var(--bg-color);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);overflow:hidden;max-width:380px;width:90%;max-height:70vh;min-height:200px;display:flex;flex-direction:column;box-shadow:var(--ub-popup-shadow);animation:nsfw-popup-in 0.3s ease}
+.panel-popup{background:var(--bg-color);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);overflow:hidden;max-width:380px;width:90%;max-height:70vh;min-height:0;height:auto;display:flex;flex-direction:column;box-shadow:var(--ub-popup-shadow);animation:nsfw-popup-in 0.3s ease}
 .panel-popup-head{display:flex;align-items:center;padding:10px 12px;background:var(--mn-card);border-bottom:1.5px dashed var(--border-color);flex-shrink:0}
 .panel-popup-title{font-family:var(--mn-font-hand);font-size:var(--ub-popup-font-title,16px);font-weight:700;letter-spacing:1px;color:var(--text-color);flex:1}
 .panel-popup-close,.panel-popup-back{background:var(--bg-color);border:1.5px solid var(--border-color);border-radius:50%;color:var(--secondary-text);width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all 0.2s;font-family:var(--mn-font-body);flex-shrink:0}
@@ -321,7 +321,7 @@ export const minimalCSS = /* css */ `
 .scene-btn.scene-active-nsfw{border-color:var(--mn-sakura);color:var(--accent-ink);background:var(--mn-sakura)}
 .settings-overlay{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;background:var(--ub-overlay-bg);z-index:10002;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .settings-overlay.show{display:flex}
-.settings-popup{background:var(--bg-color);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);overflow:hidden;max-width:320px;width:90%;height:85vh;display:flex;flex-direction:column;box-shadow:var(--ub-popup-shadow);animation:nsfw-popup-in 0.3s ease}
+.settings-popup{background:var(--bg-color);border:var(--ub-popup-border);border-radius:var(--ub-popup-radius);overflow:hidden;max-width:320px;width:90%;max-height:85vh;max-height:85dvh;height:auto;display:flex;flex-direction:column;box-shadow:var(--ub-popup-shadow);animation:nsfw-popup-in 0.3s ease}
 .settings-popup-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--mn-card);border-bottom:1.5px dashed var(--border-color);flex-shrink:0}
 .settings-popup-title{font-family:var(--mn-font-hand);font-size:var(--ub-popup-font-title,15px);font-weight:700;letter-spacing:1px;color:var(--text-color);flex:1}
 .settings-popup-close{background:var(--bg-color);border:1.5px solid var(--border-color);color:var(--secondary-text);width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;font-family:var(--mn-font-body);border-radius:50%}
@@ -331,7 +331,7 @@ export const minimalCSS = /* css */ `
 .settings-tab{display:flex;align-items:center;justify-content:center;flex:1 1 0;min-width:0;height:32px;flex-shrink:0;padding:4px 10px;border:1.5px solid var(--border-color);border-radius:16px;background:var(--mn-card);color:var(--secondary-text);font-size:13px;line-height:1.2;white-space:nowrap;text-align:center;font-family:var(--mn-font-hand);letter-spacing:.5px;cursor:pointer;transition:background-color .2s,border-color .2s,color .2s;position:relative;font-weight:600}
 .settings-tab:hover{color:var(--text-color);border-color:var(--mn-sakura)}
 .settings-tab.active{color:var(--accent-ink);background:var(--mn-sakura);border-color:var(--mn-sakura)}
-.settings-popup-body{padding:10px 12px;min-height:120px;overflow-y:auto;flex:1}
+.settings-popup-body{padding:10px 12px;min-height:0;overflow-y:auto;flex:1}
 .settings-tab-content{display:none}
 .settings-tab-content.active{display:block;animation:fade-in .2s ease}
 .settings-section{margin:10px 0;padding:8px 12px;border-radius:var(--mn-radius);background:var(--mn-card);border:1.5px solid var(--tag-border)}
