@@ -186,3 +186,98 @@ test('列表来自旧聊天时，即使中心缓存已切换也拒绝同号记�
   assert.equal((await editor.saveDbRowEdit(snapshot, { 数量: '3' })).ok, false);
   assert.equal(rt.writes.length, 0);
 });
+
+
+test('canonical 台账同步 apply 使用稳定身份、差量且不执行 SQL', async () => {
+  const { rt, snapshot } = setup();
+  snapshot.original['描述'] = rt.rows[0]['描述'] = '第一行\n第二行';
+  const applied = [];
+  window.SeseLedgerAPI.apply = (ops) => {
+    applied.push(ops);
+    for (const op of ops) rt.rows.find(row => row.row_id === op.rowId)[op.column] = op.value;
+    return { ok: true, errors: [] };
+  };
+  assert.deepEqual(await editor.saveDbRowEdit(snapshot, { '描述': "新行\n中文'值" }), { ok: true });
+  assert.deepEqual(applied, [[{ kind: 'cell', table: 'sheet_inventory', rowId: 10, column: '描述', value: "新行\n中文'值" }]]);
+  assert.equal(rt.writes.length, 0);
+});
+
+test('不是当前兼容面的 canonical 不接收 apply，apply 拒绝不宣告保存成功', async () => {
+  let { rt, snapshot } = setup();
+  window.SeseLedgerAPI = { __legacyFace: {}, apply() { assert.fail('错误后端'); } };
+  assert.equal((await editor.saveDbRowEdit(snapshot, { '数量': '3' })).ok, true);
+  assert.equal(rt.writes.length, 1);
+  ({ rt, snapshot } = setup());
+  window.SeseLedgerAPI.apply = () => ({ ok: false, errors: ['受保护'] });
+  assert.equal((await editor.saveDbRowEdit(snapshot, { '数量': '3' })).ok, false);
+  assert.equal(rt.notified, 0);
+  assert.equal(rt.writes.length, 0);
+});
+
+test('SQLite mutation 绑定旧值、batch 编码旧值，保留多行与特殊字符的 CAS', async () => {
+  for (const batch of [false, true]) {
+    const { rt, snapshot } = setup({ realDb: true, batch });
+    const old = "中文'旧值\n? -- 第二行";
+    snapshot.original['描述'] = rt.rows[0].description = old;
+    assert.equal((await editor.saveDbRowEdit(snapshot, { '描述': '新值\n第三行' })).ok, true);
+    assert.equal(rt.rows[0].description, '新值\n第三行');
+    assert.ok(!rt.writes[0].sql.includes(old));
+    if (!batch) assert.ok(rt.writes[0].params.includes(old));
+  }
+});
+
+let ledgerSourceAvailable = false;
+try { await readFile(new URL('../../n-sese-ledger/src/sese-ledger/core/legacy-face.ts', import.meta.url)); ledgerSourceAvailable = true; } catch {}
+
+test('联跑真实台账门面与解析器：canonical 任意列、多行旧值和旧台账参数化保存', {
+  skip: !ledgerSourceAvailable && '独立仓 CI 不带兄弟台账源码；canonical 和 SQLite 契约仍由上述测试覆盖',
+}, async t => {
+  const bundle = await build({
+    absWorkingDir: root,
+    stdin: { contents: `export { createBook, applyOp, projectWorkbook } from '../n-sese-ledger/src/sese-ledger/core/book.ts';
+      export { createLegacyFace } from '../n-sese-ledger/src/sese-ledger/core/legacy-face.ts';
+      export { v2TemplateToWorkbook } from '../n-sese-ledger/src/sese-ledger/core/blueprint.ts';`, resolveDir: root, loader: 'ts' },
+    bundle: true, write: false, platform: 'node', format: 'esm', logLevel: 'silent',
+  });
+  const ledger = await import('data:text/javascript;base64,' + Buffer.from(bundle.outputFiles[0].text).toString('base64'));
+  for (const canonical of [false, true]) {
+    const headers = ['row_id', '物品名称', '描述', ...(canonical ? ['备注（补充）'] : [])];
+    const sheet = { name: '物品表', uid: 'sheet_inventory', content: [headers, ['10', '药水', '第一行\n第二行', ...(canonical ? ['旧备注'] : [])]] };
+    const book = ledger.createBook({ sheet_inventory: sheet });
+    const runtime = { book: () => book,
+      commitOps(_source, ops) { const errors = ops.map(op => ledger.applyOp(book, op)).filter(r => !r.ok).map(r => r.error); return { ok: !errors.length, errors, changedTables: ['sheet_inventory'] }; },
+      commitAppliedOps() { return { ok: true, errors: [], changedTables: ['sheet_inventory'] }; },
+    };
+    const face = ledger.createLegacyFace({ runtime, settings: {}, getChat: () => [{ is_user: false, id: 'ai-one', mes: '正文' }], standardTemplate: {} });
+    globalThis.editRuntime = { chatKey: 'chat-a', cacheChatKey: 'chat-a', api: face, sheet, invalidated: 0, notified: 0 };
+    window.SeseLedgerAPI = { __legacyFace: face, ...(canonical ? { apply: ops => runtime.commitOps('bridge', ops) } : {}) };
+    const snapshot = editor.captureDbRowEdit('物品表', headers, sheet.content[1], 'sheet_inventory', 'chat-a');
+    assert.deepEqual(await editor.saveDbRowEdit(snapshot, { '描述': '新描述\n第三行', ...(canonical ? { '备注（补充）': '新备注' } : {}) }), { ok: true });
+    assert.equal(face.queryTableRows({ tableName: '物品表', columns: ['描述'], where: { row_id: 10 } }).rows[0]['描述'], '新描述\n第三行');
+    snapshot.original = { ...snapshot.original, '描述': '新描述\n第三行' };
+    ledger.applyOp(book, { kind: 'cell', table: 'sheet_inventory', rowId: 10, column: '描述', value: '外部修改' });
+    assert.equal((await editor.saveDbRowEdit(snapshot, { '描述': '冲突修改' })).ok, false);
+  }
+  const templatePath = new URL('../../n-sese-ledger/notes/templates/瑟瑟台账-模板预设-斯德哥摩尔特调.json', import.meta.url);
+  let template;
+  try { template = JSON.parse(await readFile(templatePath, 'utf8')); } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    t.diagnostic('本机未提供主验收模板；上述真实台账门面与解析器联跑仍已执行');
+    return;
+  }
+  const book = ledger.createBook(ledger.v2TemplateToWorkbook(template));
+  const table = [...book.tables.values()].find(table => table.name === '恋爱对象表');
+  assert.ok(table.headers.includes('人格锚'));
+  const inserted = ledger.applyOp(book, { kind: 'row_insert', table: table.tableId, row: { '姓名': '测试人物', '过往经历': '第一行\n第二行', '人格锚': '旧锚' } });
+  assert.equal(inserted.ok, true);
+  const rowId = Math.max(...table.rows.keys());
+  const runtime = { book: () => book, commitOps(_source, ops) { const results = ops.map(op => ledger.applyOp(book, op)); return { ok: results.every(r => r.ok), errors: [], changedTables: [table.tableId] }; } };
+  const face = ledger.createLegacyFace({ runtime, settings: {}, getChat: () => [{ is_user: false, id: 'ai-template', mes: '正文' }], standardTemplate: {} });
+  const sheet = ledger.projectWorkbook(book)[table.tableId];
+  globalThis.editRuntime = { chatKey: 'chat-a', cacheChatKey: 'chat-a', api: face, sheet, invalidated: 0, notified: 0 };
+  window.SeseLedgerAPI = { __legacyFace: face, apply: ops => runtime.commitOps('bridge', ops) };
+  const snapshot = editor.captureDbRowEdit(table.name, table.headers, table.rows.get(rowId), table.tableId, 'chat-a');
+  assert.deepEqual(await editor.saveDbRowEdit(snapshot, { '过往经历': '更新\n保留多行', '人格锚': '新锚' }), { ok: true });
+  assert.equal(face.queryTableRows({ tableName: table.name, columns: ['人格锚'], where: { row_id: rowId } }).rows[0]['人格锚'], '新锚');
+  t.diagnostic('已联跑斯德哥摩尔特调模板：多行经历与人格锚保存成功');
+});

@@ -130,19 +130,24 @@ test('缺列上报携带功能名，覆盖直接读表的分散入口且同一�
   const { missing } = runtime();
   contracts.ensureStatusbarFieldContracts();
   const sheet = { content: [['row_id', '姓名', '当前状态']] };
-  contracts.checkStatusbarSheetFields('在场角色表', sheet);
+  contracts.checkStatusbarSheetFields('在场角色表', sheet, ['情绪']);
   const emotions = missing.filter(args => args[2] === '情绪');
   assert.deepEqual(new Set(emotions.map(args => args[3])), new Set(['在场角色展示', '立绘表情', '地图角色状态']));
   assert.ok(missing.every(args => args[0] === 'n-sese-unified-statusbar' && args.length === 4));
   const count = missing.length;
-  contracts.checkStatusbarSheetFields('在场角色表', sheet);
+  contracts.checkStatusbarSheetFields('在场角色表', sheet, ['情绪']);
   contracts.reportStatusbarMissing('在场角色表', '情绪');
   assert.equal(missing.length, count);
   contracts.resetFieldContractChecks();
-  contracts.checkStatusbarSheetFields('在场角色表', sheet);
+  contracts.checkStatusbarSheetFields('在场角色表', sheet, ['情绪']);
   assert.equal(missing.length, count * 2);
   contracts.checkStatusbarSheetFields('玩法表', null);
-  assert.ok(missing.some(args => args[1] === '玩法表' && args[2] === undefined));
+  assert.ok(!missing.some(args => args[1] === '玩法表'));
+  contracts.checkStatusbarSheetFields('主角信息表', { content: [['姓名']] }, ['年龄']);
+  assert.ok(!missing.some(args => args[2] === '年龄'));
+  const before = missing.length;
+  contracts.checkStatusbarSheetFields('重要角色表', { content: [['姓名']] });
+  assert.equal(missing.length, before);
 });
 
 test('旧台账缺接口、未知版本、同步抛错及异步拒绝均不影响取数且可重试', async () => {
@@ -188,4 +193,29 @@ test('真实 data-manager 中心读表同时校验直接拿表头的消费者，
   delete window.SeseLedgerAPI.fieldContracts;
   manager.invalidateCache();
   assert.equal(manager.getCellByHeader('在场角色表', 1, '姓名'), '阿青');
+});
+
+
+test('分页与全集逻辑查询不为诊断导出全表，热缓存诊断异常也不影响查询', () => {
+  const { api } = runtime();
+  let exports = 0;
+  const sheet = { name: '纪要表', content: [['概览'], ['片段']] };
+  window.SeseLedgerAPI.__legacyFace = {
+    exportTableAsJson() { exports++; return { sheet_chronicle: sheet }; },
+    queryTableRows() { return { rows: [{ '概览': '片段' }] }; },
+  };
+  manager.invalidateCache();
+  const query = { tableName: '纪要表', columns: ['概览'], limit: 1 };
+  assert.deepEqual(manager.queryLogicalTablePage(query), [{ '概览': '片段' }]);
+  assert.deepEqual(manager.queryLogicalTableRows(query), [{ '概览': '片段' }]);
+  assert.equal(exports, 0);
+  manager.getSheetByName('纪要表');
+  assert.equal(exports, 1);
+  api.reportMissing = () => { throw new Error('诊断失败'); };
+  Object.defineProperty(sheet, 'content', { get() { throw new Error('损坏的诊断快照'); } });
+  assert.deepEqual(manager.queryLogicalTablePage(query), [{ '概览': '片段' }]);
+  manager.invalidateCache();
+  window.SeseLedgerAPI.__legacyFace.exportTableAsJson = () => { throw new Error('不能导出全集'); };
+  assert.deepEqual(manager.queryLogicalTablePage(query), [{ '概览': '片段' }]);
+  assert.equal(exports, 1);
 });

@@ -1,5 +1,5 @@
 import { isRowIdColumn } from './db-crud';
-import { getAutoCardAPI, getSheetByName, getSheetCacheChatKey, flushDbWrites, invalidateCache, emitDbWriteCommitted, sqlEscape } from './data-manager';
+import { getAutoCardAPI, getSheetByName, getSheetCacheChatKey, flushDbWrites, invalidateCache, emitDbWriteCommitted } from './data-manager';
 import { sqlColumnName, sqlTableName, normalizeRowKeys } from './db-schema-map';
 import { getLedgerCanonical } from './ledger-takeover';
 import { getCurrentStoryChatKey } from './story-floor-store';
@@ -53,30 +53,48 @@ export async function saveDbRowEdit(snapshot: DbRowEditSnapshot, edited: Record<
   }
   if (changes.length === 0) return { ok: true };
   const api = snapshot.api;
-  if (!api || (typeof api.executeSqlMutation !== 'function' && typeof api.executeSqlBatch !== 'function')) {
-    return fail('当前数据库不支持按 row_id 安全保存，请更新数据库后重试');
-  }
-  const sheet = getSheetByName(snapshot.tableName);
-  const ddl = sheet?.sourceData?.ddl || '';
-  const physicalColumns = [...ddl.matchAll(/^\s*([一-鿿A-Za-z_][一-鿿A-Za-z0-9_]*)\s+(?:INTEGER|TEXT|REAL|NUMERIC|BLOB|INT|VARCHAR)\b/gim)].map(match => match[1]);
   const ledger = getLedgerCanonical();
-  const table = ledger ? snapshot.tableName : ddl.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([一-鿿A-Za-z_][一-鿿A-Za-z0-9_]*)/i)?.[1] || sqlTableName(snapshot.tableName);
-  const quoteIdentifier = (name: string): string => '"' + name.replace(/"/g, '""') + '"';
-  const names = columns.map(column => ledger ? column : sqlColumnName(snapshot.tableName, column)
-    || (physicalColumns.length === sheet?.content[0]?.length ? physicalColumns[sheet.content[0].indexOf(column)] : null));
-  if (!table || names.some(name => !name)) return fail('无法确认数据库字段映射，请刷新后重试');
-  const sqlNames = names.map(name => quoteIdentifier(name!));
-  const quote = (value: unknown): string => "'" + sqlEscape(String(value ?? '')) + "'";
-  const predicates = sqlNames.map((name, i) => rows[0][columns[i]] == null ? `${name} IS NULL` : `${name} = ${quote(rows[0][columns[i]])}`);
-  const where = `row_id = ${snapshot.rowId} AND ${predicates.join(' AND ')}`;
-  const targetSheetKeys = snapshot.sheetKey || sheet?.key || sheet?.uid;
+  const canApply = ledger?.__legacyFace === api && ledger.realDbPresent !== true && typeof ledger.apply === 'function';
   if (!ownsChat()) return fail('聊天或数据库已切换，请关闭详情后重新打开');
   try {
     let response: any;
-    if (typeof api.executeSqlMutation === 'function') {
-      response = await api.executeSqlMutation(`UPDATE ${quoteIdentifier(table)} SET ${sqlNames.map(name => `${name} = ?`).join(', ')} WHERE ${where}`, changes.map(([, value]) => value), targetSheetKeys ? { targetSheetKeys: [targetSheetKeys] } : undefined);
+    if (canApply) {
+      response = ledger.apply(changes.map(([column, value]) => ({
+        kind: 'cell', table: snapshot.sheetKey || snapshot.tableName, rowId: snapshot.rowId, column, value,
+      })), { source: 'bridge' });
+      if (!response || response.ok !== true || response.errors?.length) return fail('保存被拒绝：台账写入失败，请刷新后重试');
     } else {
-      response = await api.executeSqlBatch({ sql: `UPDATE ${quoteIdentifier(table)} SET ${sqlNames.map((name, i) => `${name} = ${quote(changes[i][1])}`).join(', ')} WHERE ${where}`, ...(targetSheetKeys ? { targetSheetKeys: [targetSheetKeys] } : {}) });
+      if (!api || (typeof api.executeSqlMutation !== 'function' && typeof api.executeSqlBatch !== 'function')) {
+        return fail('当前数据库不支持按 row_id 安全保存，请更新数据库后重试');
+      }
+      const sheet = getSheetByName(snapshot.tableName);
+      const ddl = sheet?.sourceData?.ddl || '';
+      const physicalColumns = [...ddl.matchAll(/^\s*([一-鿿A-Za-z_][一-鿿A-Za-z0-9_]*)\s+(?:INTEGER|TEXT|REAL|NUMERIC|BLOB|INT|VARCHAR)\b/gim)].map(match => match[1]);
+      const table = ledger ? snapshot.tableName : ddl.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([一-鿿A-Za-z_][一-鿿A-Za-z0-9_]*)/i)?.[1] || sqlTableName(snapshot.tableName);
+      const quoteIdentifier = (name: string): string => '"' + name.replace(/"/g, '""') + '"';
+      const names = columns.map(column => ledger ? column : sqlColumnName(snapshot.tableName, column)
+        || (physicalColumns.length === sheet?.content[0]?.length ? physicalColumns[sheet.content[0].indexOf(column)] : null));
+      if (!table || names.some(name => !name)) return fail('无法确认数据库字段映射，请刷新后重试');
+      const sqlNames = names.map(name => quoteIdentifier(name!));
+      const params: unknown[] = changes.map(([, value]) => value);
+      params.push(snapshot.rowId);
+      const predicates = sqlNames.map((name, i) => {
+        if (rows[0][columns[i]] == null) return `${name} IS NULL`;
+        params.push(rows[0][columns[i]]);
+        return `${name} = ?`;
+      });
+      const sql = `UPDATE ${quoteIdentifier(table)} SET ${sqlNames.map(name => `${name} = ?`).join(', ')} WHERE row_id = ? AND ${predicates.join(' AND ')}`;
+      const targetSheetKeys = snapshot.sheetKey || sheet?.key || sheet?.uid;
+      if (!ownsChat()) return fail('聊天或数据库已切换，请关闭详情后重新打开');
+      if (typeof api.executeSqlMutation === 'function') {
+        response = await api.executeSqlMutation(sql, params, targetSheetKeys ? { targetSheetKeys: [targetSheetKeys] } : undefined);
+      } else {
+        const literal = (value: unknown): string => typeof value === 'number' ? String(value)
+          : `CAST(X'${Array.from(new TextEncoder().encode(String(value ?? '')), byte => byte.toString(16).padStart(2, '0')).join('')}' AS TEXT)`;
+        const batchPredicates = sqlNames.map((name, i) => rows[0][columns[i]] == null ? `${name} IS NULL` : `${name} = ${literal(rows[0][columns[i]])}`);
+        const batchSql = `UPDATE ${quoteIdentifier(table)} SET ${sqlNames.map((name, i) => `${name} = ${literal(changes[i][1])}`).join(', ')} WHERE row_id = ${snapshot.rowId} AND ${batchPredicates.join(' AND ')}`;
+        response = await api.executeSqlBatch({ sql: batchSql, ...(targetSheetKeys ? { targetSheetKeys: [targetSheetKeys] } : {}) });
+      }
     }
     if (!ownsChat()) return fail('聊天或数据库已切换，请重新打开详情确认保存结果');
     if (!response || response.success === false || response.saved === false || response.error || response.errors?.length

@@ -299,10 +299,10 @@ export function queryLogicalTableRows(
       throw new Error('查询列不能为空');
     }
 
-    const sheet = getSheetByName(tableName);
-    for (const column of query.columns) {
-      if (sheet && !sheet.content[0]?.includes(column)) reportStatusbarMissing(tableName, column);
-    }
+    try {
+      const sheet = _allSheetsCache?.[tableName];
+      if (sheet) checkStatusbarSheetFields(tableName, sheet, query.columns);
+    } catch (_error) {}
     const columns = query.columns.map(column => validateSqlIdentifier(String(column)));
     for (const column of Object.keys(query.where || {})) validateSqlIdentifier(column);
 
@@ -364,10 +364,10 @@ export function queryLogicalTablePage(
     const api = getAutoCardAPI();
     if (!api || typeof api.queryTableRows !== 'function') throw new Error('queryTableRows unavailable');
     if (!tableName || !Array.isArray(query.columns) || query.columns.length === 0) throw new Error('invalid query');
-    const sheet = getSheetByName(tableName);
-    for (const column of query.columns) {
-      if (sheet && !sheet.content[0]?.includes(column)) reportStatusbarMissing(tableName, column);
-    }
+    try {
+      const sheet = _allSheetsCache?.[tableName];
+      if (sheet) checkStatusbarSheetFields(tableName, sheet, query.columns);
+    } catch (_error) {}
     const columns = query.columns.map(column => validateSqlIdentifier(String(column)));
     for (const column of Object.keys(query.where || {})) validateSqlIdentifier(column);
     if (!Number.isInteger(query.limit) || (query.limit as number) <= 0 || (query.limit as number) > QUERY_TABLE_ROWS_PAGE_SIZE) throw new Error('invalid limit');
