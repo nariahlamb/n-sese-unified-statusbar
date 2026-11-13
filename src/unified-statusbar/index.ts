@@ -1932,17 +1932,32 @@ function syncAnimState(wrapper: HTMLElement): void {
 // ===== 配置变更回调 =====
 // ===== 移动端全面适配（通过 inline style 确保不被父页面CSS覆盖） =====
 function applyMobileFixes(): void {
-  const isMobile = window.innerWidth <= 1024;
-  if (!isMobile) return;
+  const isMobile = window.innerWidth <= 600;
+  const wrapper = document.getElementById('ac-statusbar-wrapper');
+  const overlays = document.querySelectorAll('.settings-overlay, .nsfw-overlay, .panel-overlay');
+  const popups = document.querySelectorAll('.settings-popup, .nsfw-popup, .panel-popup');
+  if (!isMobile) {
+    if (wrapper) wrapper.style.maxWidth = '';
+    overlays.forEach(function(ov) {
+      const el = ov as HTMLElement;
+      el.style.alignItems = '';
+      el.style.paddingTop = '';
+      el.style.paddingBottom = '';
+      el.style.removeProperty('--ub-ol-pad-total');
+    });
+    popups.forEach(function(p) {
+      (p as HTMLElement).style.maxHeight = '';
+    });
+    positionSettingsBtn();
+    return;
+  }
 
   // 1. 防止横向溢出（overflow-x 已在 updateWrapperStyle 的 cssText 中内置）
-  const wrapper = document.getElementById('ac-statusbar-wrapper');
   if (wrapper) {
     wrapper.style.maxWidth = '100vw';
   }
 
   // 2. 所有 overlay 避开浏览器头部
-  const overlays = document.querySelectorAll('.settings-overlay, .nsfw-overlay, .panel-overlay');
   overlays.forEach(function(ov) {
     (ov as HTMLElement).style.alignItems = 'flex-start';
     (ov as HTMLElement).style.paddingTop = '60px';
@@ -1955,7 +1970,6 @@ function applyMobileFixes(): void {
   });
 
   // 3. Popup 限制高度
-  const popups = document.querySelectorAll('.settings-popup, .nsfw-popup, .panel-popup');
   popups.forEach(function(p) {
     (p as HTMLElement).style.maxHeight = '70vh';
   });

@@ -4,6 +4,7 @@ import { readSelectedPlays, type SelectedPlay } from './play-state-store';
 import { getPlayLibrary } from './play-library';
 import { dsCachePos, registerManagedWbEntry } from './wb-position';
 import { requestWorldbookProjection } from './worldbook-projection-events';
+import BUILTIN_PLAY_DATA from '../data/play-data.json';
 
 export const PLAY_WB_NAME = 'UBS-玩法-清单（请勿手动开启）';
 export const ITEM_USE_HEAD_WB_NAME = 'UBS-玩法-物品使用（头）';
@@ -28,10 +29,15 @@ export function getPlayData(): PlayData | null {
   try {
     const host: any = window;
     const data = host.__ub_play_data || (host.parent && host.parent.__ub_play_data);
-    return data && Array.isArray(data.plays) && data.markers ? data as PlayData : null;
+    if (data && Array.isArray(data.plays) && data.markers) return data as PlayData;
   } catch (_e) {
-    return null;
+    // ignore
   }
+  if (BUILTIN_PLAY_DATA && Array.isArray((BUILTIN_PLAY_DATA as any).plays) && (BUILTIN_PLAY_DATA as any).markers) {
+    try { (window as any).__ub_play_data = BUILTIN_PLAY_DATA; } catch (_e) {}
+    return BUILTIN_PLAY_DATA as PlayData;
+  }
+  return null;
 }
 
 const categoryOrder = new Map(playTypes.map((type, index) => [type.key, index]));

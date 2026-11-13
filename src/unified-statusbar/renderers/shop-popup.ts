@@ -91,6 +91,11 @@ const SHOP_CSS = `
 .shop-extra-textarea:focus{outline:none;border-color:var(--accent,#888);}
 .shop-extra-btns{display:flex;gap:8px;justify-content:flex-end;padding:0 16px 16px;}
 .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+@media(min-width:600px){
+  .shop-popup:not(.shop-auto-height){width:min(92vw,720px);max-width:720px;min-height:460px;max-height:min(82vh,760px);}
+  .shop-popup.shop-auto-height{width:min(92vw,540px);max-width:540px;max-height:min(82vh,720px);}
+  .shop-popup .shop-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+}
 @media(max-width:480px){.shop-skill-card{min-height:124px}.shop-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));}.shop-actions{gap:4px;}.shop-btn{white-space:nowrap;}}
 .shop-card{padding:10px 8px 8px;border-radius:8px;text-align:center;cursor:pointer;position:relative;overflow:hidden;
   display:flex;flex-direction:column;min-height:130px;transition:transform .15s,box-shadow .15s;}

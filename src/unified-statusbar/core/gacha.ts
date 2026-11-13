@@ -9,19 +9,25 @@ import { loadShopData, saveShopData, type ShopStoryItem } from './shop-store';
 import { setStoryItems } from './shop-story-ai';
 import { deleteStoryFeature, readStoryFeature, writeStoryFeature } from './story-floor-store';
 import { getToastr } from './env';
+import BUILTIN_GACHA_DATA from '../data/gacha-data.json';
 
 const GACHA_DRAWN_STORY_KEY = 'gacha.drawn';
 
-/** 获取卡池数据（优先当前窗口，回退父窗口） */
+/** 获取卡池数据（优先当前窗口，回退父窗口，最终回退内置 gacha-data.json 并自动挂载全局） */
 export function getGachaData(): any {
   try {
     const data = (window as any).__ub_gacha_data;
-    if (data) return data;
+    if (data && Array.isArray(data.pools) && Array.isArray(data.items)) return data;
   } catch(e) {}
   try {
     const data = (parent as any).__ub_gacha_data;
-    if (data) return data;
+    if (data && Array.isArray(data.pools) && Array.isArray(data.items)) return data;
   } catch(e) {}
+  if (BUILTIN_GACHA_DATA && Array.isArray((BUILTIN_GACHA_DATA as any).pools) && Array.isArray((BUILTIN_GACHA_DATA as any).items)) {
+    try { (window as any).__ub_gacha_data = BUILTIN_GACHA_DATA; } catch (_e) {}
+    try { if (window.parent && window.parent !== window) (window.parent as any).__ub_gacha_data = BUILTIN_GACHA_DATA; } catch (_e) {}
+    return BUILTIN_GACHA_DATA;
+  }
   return null;
 }
 
@@ -290,6 +296,10 @@ export async function performGachaDraw10(
 
 // 暴露抽奖工具函数到全局（供 config-panel 使用）
 export function exposeGachaGlobals(): void {
+  const builtin = getGachaData();
+  if (builtin) {
+    try { if (!(window as any).__ub_gacha_data) (window as any).__ub_gacha_data = builtin; } catch (_e) {}
+  }
   (window as any).__ub_getGachaData = getGachaData;
   (window as any).__ub_getGachaDrawnSet = getGachaDrawnSet;
   (window as any).__ub_saveGachaDrawnSet = saveGachaDrawnSet;

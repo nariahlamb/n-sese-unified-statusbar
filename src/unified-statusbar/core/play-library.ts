@@ -12,6 +12,7 @@
 import { getConfig, setConfig } from './config-store';
 import { playTypes } from './constants';
 import { readSelectedPlayNames, type SelectedPlay } from './play-state-store';
+import BUILTIN_PLAY_DATA from '../data/play-data.json';
 
 /** 自定义玩法条目（存储形态；custom 派生自「是否在 customPlays 里」，不落盘）。 */
 export interface CustomPlayRecord { name: string; category: string; content: string }
@@ -58,10 +59,15 @@ function readBuiltinPlayData(): BuiltinPlayData | null {
   try {
     const host: any = window;
     const data = host.__ub_play_data || (host.parent && host.parent.__ub_play_data);
-    return data && Array.isArray(data.plays) ? (data as BuiltinPlayData) : null;
+    if (data && Array.isArray(data.plays)) return data as BuiltinPlayData;
   } catch (_e) {
-    return null;
+    // ignore
   }
+  if (BUILTIN_PLAY_DATA && Array.isArray((BUILTIN_PLAY_DATA as any).plays)) {
+    try { (window as any).__ub_play_data = BUILTIN_PLAY_DATA; } catch (_e) {}
+    return BUILTIN_PLAY_DATA as BuiltinPlayData;
+  }
+  return null;
 }
 
 // ===== 类别工具 =====

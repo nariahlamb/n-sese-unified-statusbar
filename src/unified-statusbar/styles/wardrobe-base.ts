@@ -229,6 +229,11 @@ body.dark-mode .wardrobe-window{
   .wardrobe-actor-pool-list{grid-template-columns:minmax(0,1fr)}
   .wardrobe-pool-card{grid-template-columns:80px minmax(0,1fr)}
 }
+@media (min-width:721px){
+  .wardrobe-window{height:min(820px,92vh);height:min(820px,92dvh)}
+  .wardrobe-empty{min-height:260px}
+  .wardrobe-actor-current-items{min-height:120px}
+}
 @media (max-width:720px){
   .wardrobe-window{width:100%;height:auto;max-height:calc(100vh - var(--ub-ol-pad-total,80px));max-height:calc(100dvh - var(--ub-ol-pad-total,80px));border-radius:0;border-left:0;border-right:0}
   .wardrobe-head{padding:8px 10px;gap:8px;flex-wrap:wrap}.wardrobe-title{font-size:17px}

@@ -11,23 +11,28 @@ async function loadModule(path) {
 const { isMobileLiteEnvironment, cssColorChannels } = await loadModule('../src/unified-statusbar/core/mobile-environment.ts');
 const { snapFloatingToEdge, floatingEdgeAt } = await loadModule('../src/unified-statusbar/core/floating-dock.ts');
 
-function fakeWindow({ width = 360, touch = 0, tt = false, hostname = 'localhost', coarse = false } = {}) {
+function fakeWindow({ width = 360, touch = 0, tt = false, hostname = 'localhost', coarse = false, fine = false, ua = '' } = {}) {
   return {
     innerWidth: width,
-    navigator: { maxTouchPoints: touch },
+    navigator: { maxTouchPoints: touch, userAgent: ua },
     location: { hostname },
-    matchMedia: query => ({ matches: query === '(pointer: coarse)' && coarse }),
+    matchMedia: query => ({
+      matches: (query === '(pointer: coarse)' && coarse) || (query === '(any-pointer: fine)' && fine),
+    }),
     ...(tt ? { __TAURITAVERN__: {} } : {}),
   };
 }
 
-test('手机轻量判定：触屏、窄屏、TT 任一命中，桌面不误判', () => {
+test('手机轻量判定：窄屏、移动 UA 或纯粗指针命中，桌面端 TT / 分屏有鼠标不误判', () => {
   assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280 })), false);
-  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, touch: 5 })), true);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, touch: 5 })), false);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, tt: true, hostname: 'tauri.localhost' })), false);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, coarse: true, fine: true })), false);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 700, fine: true })), false);
   assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 600 })), true);
-  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, tt: true })), true);
-  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, hostname: 'tauri.localhost' })), true);
-  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, coarse: true })), true);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 768 })), true);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, ua: 'Mozilla/5.0 (Linux; Android 14)' })), true);
+  assert.equal(isMobileLiteEnvironment(fakeWindow({ width: 1280, coarse: true, fine: false })), true);
 });
 
 test('主题色只解析 RGB 通道，半透明由调用方指定', () => {
@@ -44,4 +49,14 @@ test('吸附计算：48px 内贴左右边，顶部钳制，旧坐标可识别', 
   assert.equal(floatingEdgeAt(0, 48, 360), 'left');
   assert.equal(floatingEdgeAt(312, 48, 360), 'right');
   assert.equal(floatingEdgeAt(300, 48, 360), null);
+});
+
+test('内置商店卡池与玩法数据完整且单抽/十连抽数据源就绪', async () => {
+  const gachaJson = JSON.parse(await readFile(new URL('../src/unified-statusbar/data/gacha-data.json', import.meta.url), 'utf8'));
+  const playJson = JSON.parse(await readFile(new URL('../src/unified-statusbar/data/play-data.json', import.meta.url), 'utf8'));
+  const playImagesJson = JSON.parse(await readFile(new URL('../src/unified-statusbar/data/play-images.json', import.meta.url), 'utf8'));
+  assert(Array.isArray(gachaJson.pools) && gachaJson.pools.length >= 5, '应包含 5 个内置抽奖卡池');
+  assert(Array.isArray(gachaJson.items) && gachaJson.items.length >= 600, '应包含 600+ 件内置商品');
+  assert(Array.isArray(playJson.plays) && playJson.plays.length >= 450, '应包含 458 条内置瑟瑟玩法');
+  assert(Object.keys(playImagesJson).length >= 290, '应包含内置玩法示意图映射');
 });

@@ -3,6 +3,8 @@
 // 嵌入分发包，并暴露为 window.__ub_play_images（iframe 下取 parent）。
 // 结构：{ 玩法名(已 trim): [{ sourceNumber, imageUrl }, ...] }
 
+import BUILTIN_PLAY_IMAGES from '../data/play-images.json';
+
 export interface PlayImageEntry {
   sourceNumber: number;
   imageUrl: string;
@@ -12,12 +14,16 @@ export interface PlayImageEntry {
 export function getPlayImages(): Record<string, PlayImageEntry[]> {
   try {
     const d = (window as any).__ub_play_images;
-    if (d) return d as Record<string, PlayImageEntry[]>;
+    if (d && typeof d === 'object') return d as Record<string, PlayImageEntry[]>;
   } catch (e) { /* ignore */ }
   try {
     const d = (parent as any).__ub_play_images;
-    if (d) return d as Record<string, PlayImageEntry[]>;
+    if (d && typeof d === 'object') return d as Record<string, PlayImageEntry[]>;
   } catch (e) { /* cross-origin */ }
+  if (BUILTIN_PLAY_IMAGES && typeof BUILTIN_PLAY_IMAGES === 'object') {
+    try { (window as any).__ub_play_images = BUILTIN_PLAY_IMAGES; } catch (_e) {}
+    return BUILTIN_PLAY_IMAGES as Record<string, PlayImageEntry[]>;
+  }
   return {};
 }
 

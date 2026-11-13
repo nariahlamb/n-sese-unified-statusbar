@@ -45,6 +45,7 @@ const CEBL_CSS = `
 /* ---- 弹窗（叠加子壳） ---- */
 .ub-cebl-overlay{z-index:10025}
 .panel-popup.ub-cebl-popup{display:flex;flex-direction:column;height:auto;max-height:min(640px,88vh);max-height:min(640px,88dvh);overflow:hidden;color:var(--cebl-ink)}
+@media(min-width:600px){.panel-popup.ub-cebl-popup{min-height:380px;max-height:min(680px,88dvh)}}
 .ub-cebl-head-tip{flex:0 0 auto}
 .ub-cebl-meta{flex:0 0 auto;padding:8px 14px;border-bottom:1px solid var(--cebl-line);background:var(--cebl-alt);font-size:var(--ub-ui-font-11,11px);line-height:1.6;color:var(--cebl-muted)}
 .ub-cebl-meta b{color:var(--cebl-ink)}

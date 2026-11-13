@@ -35,6 +35,11 @@ export const baseCSS = /* css */ `
   width:90%;max-width:420px;max-height:80vh;max-height:80dvh;
   box-sizing:border-box;
 }
+@media(min-width:600px){
+  .panel-popup{width:min(92vw,520px);max-width:520px;max-height:82vh;max-height:82dvh;}
+  .settings-popup{width:min(92vw,680px);max-width:680px;max-height:86vh;max-height:86dvh;}
+  .char-info-popup{width:min(92vw,540px);max-width:540px;max-height:84vh;max-height:84dvh;}
+}
 /* 角色信息弹窗「查看完整档案」跳转按钮：中性卡片底 + 强调色文字/描边。
    变量链与角色中枢按钮同构，各主题 --accent/--card/--panel-bg 均已定义（含深色覆盖）；
    bridge 由 .bridge-window button 全局样式接管，此处仅需补 signal 色覆盖见 bridge.ts */
@@ -52,6 +57,12 @@ export const baseCSS = /* css */ `
 .ub-popup--m{ width:min(92%,540px) !important; max-width:540px !important; }
 .ub-popup--l{ width:min(94%,720px) !important; max-width:720px !important; }
 .ub-popup--xl{ width:min(96%,940px) !important; max-width:940px !important; }
+@media(min-width:600px){
+  .ub-popup--s{ width:min(92vw,480px) !important; max-width:480px !important; }
+  .ub-popup--m{ width:min(92vw,580px) !important; max-width:580px !important; }
+  .ub-popup--l{ width:min(94vw,760px) !important; max-width:760px !important; }
+  .ub-popup--xl{ width:min(96vw,980px) !important; max-width:980px !important; }
+}
 .ub-popup--s,.ub-popup--m{ --ub-popup-font-title:15px; --ub-popup-font-body:var(--ub-ui-font-12,12px); }
 .ub-popup--l,.ub-popup--xl{ --ub-popup-font-title:17px; --ub-popup-font-body:var(--ub-ui-font-13,13px); }
 .ub-popup--s,.ub-popup--m,.ub-popup--l,.ub-popup--xl{ --ub-popup-font-sub:10px; }
@@ -324,7 +335,7 @@ export const baseCSS = /* css */ `
 #ac-persistent-settings.ub-mobile-lite .ub-float-face,#ac-fixed-toggle.ub-mobile-lite .ub-float-face:not(.ub-float-pill){width:32px;height:32px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 #ac-fixed-toggle.ub-mobile-lite .ub-float-pill{width:auto;min-width:32px;height:32px;padding:0 12px;border-radius:16px}
 #ac-persistent-settings.ub-mobile-lite .ub-float-face svg,#ac-fixed-toggle.ub-mobile-lite .ub-float-face svg{width:17px;height:17px}
-@media(max-width:600px),(pointer:coarse){
+@media(max-width:600px){
   #ac-persistent-settings .ub-float-face,#ac-fixed-toggle .ub-float-face:not(.ub-float-pill){width:32px;height:32px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
   #ac-fixed-toggle .ub-float-face.ub-float-pill{width:auto;min-width:32px;height:32px;padding:0 12px;border-radius:16px}
   #ac-persistent-settings .ub-float-face svg,#ac-fixed-toggle .ub-float-face svg{width:17px;height:17px}

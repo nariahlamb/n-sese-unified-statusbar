@@ -10,7 +10,7 @@ const output = await build({
   absWorkingDir: root, entryPoints: ['src/unified-statusbar/core/db-row-edit.ts'],
   bundle: true, write: false, platform: 'node', format: 'esm', logLevel: 'silent',
   plugins: [{ name: 'edit-runtime', setup(builder) {
-    builder.onLoad({ filter: /\/data-manager\.ts$/ }, () => ({ contents: `
+    builder.onLoad({ filter: /[\\/]data-manager\.ts$/ }, () => ({ contents: `
       export const getAutoCardAPI = () => globalThis.editRuntime.api;
       export const getSheetByName = () => globalThis.editRuntime.sheet;
       export const getSheetCacheChatKey = () => globalThis.editRuntime.cacheChatKey;
@@ -19,7 +19,7 @@ const output = await build({
       export const emitDbWriteCommitted = () => { globalThis.editRuntime.notified++; };
       export const sqlEscape = value => String(value ?? '').replace(/'/g, "''");
     `, loader: 'ts' }));
-    builder.onLoad({ filter: /\/story-floor-store\.ts$/ }, () => ({ contents: 'export const getCurrentStoryChatKey = () => globalThis.editRuntime.chatKey;', loader: 'ts' }));
+    builder.onLoad({ filter: /[\\/]story-floor-store\.ts$/ }, () => ({ contents: 'export const getCurrentStoryChatKey = () => globalThis.editRuntime.chatKey;', loader: 'ts' }));
   } }],
 });
 const editor = await import('data:text/javascript;base64,' + Buffer.from(output.outputFiles[0].text).toString('base64'));
@@ -46,9 +46,10 @@ function setup({ realDb = false, batch = false, special = false } = {}) {
     } },
   };
   const execute = (sql, params = []) => {
-    const process = spawnSync('python3', ['-c', sqlite], { input: JSON.stringify({ table, columns: physical, rows: rt.rows, sql, params }), encoding: 'utf8' });
-    assert.equal(process.status, 0, process.stderr);
-    const result = JSON.parse(process.stdout);
+    const pyBin = process.platform === 'win32' ? 'python' : 'python3';
+    const proc = spawnSync(pyBin, ['-X', 'utf8', '-c', sqlite], { input: JSON.stringify({ table, columns: physical, rows: rt.rows, sql, params }), encoding: 'utf8' });
+    assert.equal(proc.status, 0, proc.stderr);
+    const result = JSON.parse(proc.stdout);
     rt.rows = result.rows;
     return result;
   };
