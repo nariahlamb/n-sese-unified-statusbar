@@ -96,7 +96,6 @@ export function bindFloatingDrag(
   handle.addEventListener('pointerup', (e: PointerEvent) => {
     if (!dragging) return;
     dragging = false;
-    opts?.onDragEnd?.(moved);
     if (moved) {
       const rect = target.getBoundingClientRect();
       const snapped = snapFloatingToEdge(
@@ -110,6 +109,7 @@ export function bindFloatingDrag(
       e.stopPropagation();
       e.preventDefault();
     }
+    opts?.onDragEnd?.(moved);
   });
   // 浏览器接管手势（滚动/文本选择/系统 callout）时中断的拖拽不是点击，同样吞掉残留 click
   handle.addEventListener('pointercancel', () => {

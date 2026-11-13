@@ -8,7 +8,7 @@ import { ensureStyleOnce } from '../renderers/style-once';
 import { ubIcon } from '../core/icons';
 import { escapeHtml, escapeAttr } from '../core/html-escape';
 import { getCellByHeader } from '../core/data-manager';
-import { bindFloatingDrag, dragJustEnded, readSavedPos, applyClampedPosition } from './floating-drag';
+import { bindFloatingDrag, dragJustEnded, readSavedPos, writeSavedPos, applyClampedPosition } from './floating-drag';
 import { floatingEdgeAt, type FloatingEdge } from '../core/floating-dock';
 import { cssColorChannels, isMobileLiteEnvironment } from '../core/mobile-environment';
 import { listCurrentChatAiActivities } from '../core/ai-activity';
@@ -42,6 +42,69 @@ export function initFloatingChrome(theDeps: FloatingChromeDeps): void {
 // 按钮外框维持 ≥44px 热区；背景/图标由 .ub-float-face 在手机上缩至 32px。
 const GEAR_SIZE = 48;
 const GEAR_POS_KEY = 'statusbar-gear-pos';
+const GEAR_EDGE_KEY = 'statusbar-gear-dock-edge';
+const FT_POS_KEY = 'statusbar-fixed-btn-pos';
+const FT_EDGE_KEY = 'statusbar-fixed-dock-edge';
+
+interface DockState {
+  edge: FloatingEdge;
+  revealed: boolean;
+  initialized: boolean;
+}
+
+const _dockStates = new Map<string, DockState>();
+
+function getDockState(id: string): DockState {
+  let state = _dockStates.get(id);
+  if (!state) {
+    state = { edge: null, revealed: false, initialized: false };
+    _dockStates.set(id, state);
+  }
+  return state;
+}
+
+function readStoredDockEdge(edgeKey: string): FloatingEdge {
+  try {
+    const raw = localStorage.getItem(edgeKey);
+    return raw === 'left' || raw === 'right' ? raw : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function writeStoredDockEdge(edgeKey: string, edge: FloatingEdge): void {
+  try {
+    if (edge === 'left' || edge === 'right') localStorage.setItem(edgeKey, edge);
+    else localStorage.removeItem(edgeKey);
+  } catch (_e) { /* ignore */ }
+}
+
+function inferDockEdgeFromSaved(
+  state: DockState,
+  edgeKey: string,
+  saved: { x: number; y: number } | null,
+  width: number,
+): FloatingEdge {
+  if (!state.initialized) {
+    state.initialized = true;
+    state.edge = readStoredDockEdge(edgeKey);
+    if (!state.edge && saved) {
+      const inferred = floatingEdgeAt(saved.x, width, window.innerWidth)
+        || (saved.x >= Math.max(0, window.innerWidth - width) ? 'right' : null);
+      if (inferred) state.edge = inferred;
+    }
+  }
+  return state.edge;
+}
+
+function getButtonMeasure(btn: HTMLElement): { width: number; height: number } {
+  if (btn.id === 'ac-persistent-settings') return { width: GEAR_SIZE, height: GEAR_SIZE };
+  const isPill = btn.querySelector('.ub-float-pill') !== null;
+  const w = btn.offsetWidth;
+  const h = btn.offsetHeight;
+  if (w > 0 && h > 0) return { width: w, height: h };
+  return { width: 48, height: isPill ? (window.innerWidth <= 600 ? 48 : 40) : 48 };
+}
 
 /** 主题变化时才读计算样式；拖拽路径不触发样式重算，也不依赖 color-mix()。 */
 function syncFloatingTheme(): void {
@@ -59,18 +122,104 @@ function syncFloatingTheme(): void {
 function syncFloatingDock(btn: HTMLElement, edge: FloatingEdge): void {
   btn.classList.toggle('ub-dock-left', edge === 'left');
   btn.classList.toggle('ub-dock-right', edge === 'right');
-  btn.classList.toggle('ub-dragging', false);
+  btn.classList.remove('ub-dragging');
 }
 
-const _revealedFloating = new WeakSet<HTMLElement>();
 function revealFloatingDock(btn: HTMLElement): void {
-  _revealedFloating.add(btn);
+  getDockState(btn.id).revealed = true;
   btn.classList.remove('ub-dock-left', 'ub-dock-right');
 }
 
-function restoreFloatingDock(btn: HTMLElement, x: number, width: number): void {
-  if (_revealedFloating.has(btn)) return;
-  syncFloatingDock(btn, floatingEdgeAt(x, width, window.innerWidth));
+function reclampFloatingButton(
+  btn: HTMLElement,
+  posKey: string,
+  edgeKey: string,
+  fallbackPos: () => { x: number; y: number },
+): void {
+  const state = getDockState(btn.id);
+  const saved = readSavedPos(posKey);
+  const { width, height } = getButtonMeasure(btn);
+  const dockEdge = inferDockEdgeFromSaved(state, edgeKey, saved, width);
+
+  if (!saved && !dockEdge) {
+    const fb = fallbackPos();
+    applyClampedPosition(btn, fb.x, fb.y, width, height);
+    syncFloatingDock(btn, null);
+    return;
+  }
+
+  const rawLeft = saved ? saved.x : (Number.parseFloat(btn.style.left) || 8);
+  const rawTop = saved ? saved.y : (Number.parseFloat(btn.style.top) || 8);
+  const targetLeft = dockEdge === 'left'
+    ? 0
+    : dockEdge === 'right'
+      ? Math.max(0, window.innerWidth - width)
+      : rawLeft;
+
+  applyClampedPosition(btn, targetLeft, rawTop, width, height);
+  const finalLeft = Number.parseFloat(btn.style.left) || 0;
+  const finalTop = Number.parseFloat(btn.style.top) || 0;
+  if (dockEdge === 'left' || dockEdge === 'right') {
+    writeSavedPos(posKey, finalLeft, finalTop);
+  }
+  const effectiveEdge = dockEdge ?? floatingEdgeAt(finalLeft, width, window.innerWidth);
+  if (state.revealed) {
+    btn.classList.remove('ub-dock-left', 'ub-dock-right', 'ub-dragging');
+  } else {
+    syncFloatingDock(btn, effectiveEdge);
+  }
+}
+
+function defaultGearFallbackPos(): { x: number; y: number } {
+  return { x: 8, y: window.innerWidth <= 600 ? 60 : 8 };
+}
+
+function defaultFixedToggleFallbackPos(): { x: number; y: number } {
+  const chat = document.getElementById('chat');
+  if (chat) {
+    const cr = chat.getBoundingClientRect();
+    if (cr.width > 0 || cr.height > 0 || cr.left > 0 || cr.top > 0) {
+      return { x: Math.max(cr.left - 44, 4), y: Math.max(cr.top - 44, 4) };
+    }
+  }
+  return { x: 8, y: 12 };
+}
+
+/** 窗口 resize/orientationchange 实时同步重算两个悬浮按钮贴边与钳制（对齐小手机，无 120ms 防抖拖影、不重建 DOM）。 */
+export function reclampFloatingButtons(): void {
+  const gearBtn = document.getElementById('ac-persistent-settings');
+  if (gearBtn) {
+    reclampFloatingButton(gearBtn, GEAR_POS_KEY, GEAR_EDGE_KEY, defaultGearFallbackPos);
+  }
+  const ftBtn = document.getElementById('ac-fixed-toggle');
+  if (ftBtn && !_ftDrag) {
+    reclampFloatingButton(ftBtn, FT_POS_KEY, FT_EDGE_KEY, defaultFixedToggleFallbackPos);
+  }
+}
+
+/** 重置到屏幕中间时调用：清空左右吸附边缘记录并恢复完整露出态。 */
+export function clearFloatingDockState(): void {
+  writeStoredDockEdge(GEAR_EDGE_KEY, null);
+  writeStoredDockEdge(FT_EDGE_KEY, null);
+  for (const id of ['ac-persistent-settings', 'ac-fixed-toggle']) {
+    const state = getDockState(id);
+    state.edge = null;
+    state.revealed = false;
+    state.initialized = true;
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.remove('ub-dock-left', 'ub-dock-right', 'ub-dragging');
+  }
+}
+
+let _floatingResizeBoundWin: Window | null = null;
+function ensureFloatingResizeWatch(): void {
+  if (typeof window === 'undefined' || _floatingResizeBoundWin === window) return;
+  _floatingResizeBoundWin = window;
+  const onResize = (): void => {
+    reclampFloatingButtons();
+  };
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
 }
 
 export function createPersistentSettingsBtn(): void {
@@ -94,19 +243,25 @@ export function createPersistentSettingsBtn(): void {
     deps.showPopupOrToggle('settings', () => showConfigPanel(getConfig().style));
   };
   document.body.appendChild(btn);
-  // 恢复拖拽存档（经视口钳制——旧 loader 恢复路径无钳制，窗口缩小/缩放变化后齿轮会停在视口外且无恢复出口）
-  const savedGearPos = readSavedPos(GEAR_POS_KEY);
-  if (savedGearPos) {
-    applyClampedPosition(btn, savedGearPos.x, savedGearPos.y, GEAR_SIZE, GEAR_SIZE);
-    restoreFloatingDock(btn, savedGearPos.x, GEAR_SIZE);
-  }
+  ensureFloatingResizeWatch();
+  reclampFloatingButton(btn, GEAR_POS_KEY, GEAR_EDGE_KEY, defaultGearFallbackPos);
   syncFloatingTheme();
   // 沿用原拖拽；吸附只增加终点计算，不改变事件单轨或 dragJustEnded。
   bindFloatingDrag(btn, btn, GEAR_POS_KEY, () => GEAR_SIZE, () => GEAR_SIZE, {
-    onDragStart() { _revealedFloating.delete(btn); btn.style.cursor = 'grabbing'; },
-    onDragging() { btn.classList.add('ub-dragging'); },
+    onDragStart() { btn.style.cursor = 'grabbing'; },
+    onDragging() {
+      getDockState(btn.id).revealed = false;
+      btn.classList.add('ub-dragging');
+    },
     onDragEnd() { btn.style.cursor = 'grab'; },
-    onSnap(edge) { syncFloatingDock(btn, edge); },
+    onSnap(edge) {
+      const state = getDockState(btn.id);
+      state.edge = edge;
+      state.revealed = false;
+      state.initialized = true;
+      writeStoredDockEdge(GEAR_EDGE_KEY, edge);
+      syncFloatingDock(btn, edge);
+    },
   });
   updateFloatingBtnVisibility();
 }
@@ -114,17 +269,7 @@ export function createPersistentSettingsBtn(): void {
 export function positionSettingsBtn(): void {
   const btn = document.getElementById('ac-persistent-settings');
   if (!btn) return;
-  // 移动端布局修正（applyMobileFixes）触发的重定位：尊重拖拽存档并钳制保证可见。
-  // 旧实现无条件重置 8/60，与拖拽落盘互相覆盖=「手机上拖完位置记不住」的根因；
-  // 无存档时回退安全默认位（手机上方留 60px 避开浏览器地址栏；其他 8px）。
-  const savedGearPos = readSavedPos(GEAR_POS_KEY);
-  if (savedGearPos) {
-    applyClampedPosition(btn, savedGearPos.x, savedGearPos.y, GEAR_SIZE, GEAR_SIZE);
-    restoreFloatingDock(btn, savedGearPos.x, GEAR_SIZE);
-  } else {
-    const isPhone = window.innerWidth <= 600;
-    applyClampedPosition(btn, 8, isPhone ? 60 : 8, GEAR_SIZE, GEAR_SIZE);
-  }
+  reclampFloatingButton(btn, GEAR_POS_KEY, GEAR_EDGE_KEY, defaultGearFallbackPos);
   btn.style.position = 'fixed';
   syncFloatingTheme();
 }
@@ -156,21 +301,30 @@ export function createFixedToggleBtn(): void {
   btn.title = '展开状态栏';
   btn.setAttribute('aria-label', '展开状态栏');
   btn.type = 'button';
-  const isPhone = window.innerWidth <= 600;
   btn.style.cssText = 'position:fixed;z-index:100000;'
     + 'width:48px;height:48px;'
     + 'border:0;border-radius:50%;background:transparent;color:#fff;font-size:14px;cursor:grab;display:none;align-items:center;justify-content:center;line-height:1;padding:0;user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent;';
 
   // ===== 拖拽（chrome/floating-drag：与小手机 bindDrag 同一实现——pointer 单轨 +
   //       移动/落盘/恢复三点视口钳制 + 时间戳吞拖后 click；宽高惰性取值适配模式换形） =====
-  bindFloatingDrag(btn, btn, 'statusbar-fixed-btn-pos',
-    () => btn.offsetWidth || 36,
-    () => btn.offsetHeight || 36,
+  bindFloatingDrag(btn, btn, FT_POS_KEY,
+    () => getButtonMeasure(btn).width,
+    () => getButtonMeasure(btn).height,
     {
-      onDragStart() { _revealedFloating.delete(btn); _ftDrag = true; btn.style.cursor = 'grabbing'; },
-      onDragging() { btn.classList.add('ub-dragging'); },
+      onDragStart() { _ftDrag = true; btn.style.cursor = 'grabbing'; },
+      onDragging() {
+        getDockState(btn.id).revealed = false;
+        btn.classList.add('ub-dragging');
+      },
       onDragEnd() { _ftDrag = false; btn.style.cursor = 'grab'; },
-      onSnap(edge) { syncFloatingDock(btn, edge); },
+      onSnap(edge) {
+        const state = getDockState(btn.id);
+        state.edge = edge;
+        state.revealed = false;
+        state.initialized = true;
+        writeStoredDockEdge(FT_EDGE_KEY, edge);
+        syncFloatingDock(btn, edge);
+      },
     });
 
   // 点击事件：根据当前样式分发行为（拖完 600ms 内的残留 click 不算点击）
@@ -187,6 +341,7 @@ export function createFixedToggleBtn(): void {
   });
 
   document.body.appendChild(btn);
+  ensureFloatingResizeWatch();
 
   // 创建菜单下拉面板（始终创建，按需显示）
   createCollapseMenu();
@@ -388,16 +543,9 @@ export function closeCollapseMenu(): void {
   if (menu) menu.style.display = 'none';
 }
 
-/** 重置折叠按钮签名早退缓存（重注入/resize 等布局变化后强制刷新按钮）。 */
+/** 重置折叠按钮签名早退缓存（重注入等外观内容变化后刷新按钮，不动贴边状态）。 */
 export function resetFixedToggleBtnSignature(): void {
   _ftLastSig = '';
-  // 「重置到屏幕中间」复用本重置入口：清掉旧贴边态，随后恢复自由坐标。
-  for (const id of ['ac-persistent-settings', 'ac-fixed-toggle']) {
-    const btn = document.getElementById(id);
-    if (!btn) continue;
-    _revealedFloating.delete(btn);
-    btn.classList.remove('ub-dock-left', 'ub-dock-right');
-  }
 }
 
 /**
@@ -414,6 +562,16 @@ export function syncFixedToggleAi(): void {
   btn.classList.toggle('ub-ft-ai-sweep', active && !circular);
 }
 
+function ensureFloatFace(btn: HTMLElement): HTMLElement {
+  let face = btn.querySelector('.ub-float-face') as HTMLElement | null;
+  if (!face) {
+    face = document.createElement('span');
+    face.className = 'ub-float-face';
+    btn.replaceChildren(face);
+  }
+  return face;
+}
+
 export function updateFixedToggleBtn(): void {
   const btn = document.getElementById('ac-fixed-toggle');
   if (!btn) return;
@@ -427,15 +585,16 @@ export function updateFixedToggleBtn(): void {
   const isTimeWindow = btnStyle === 'time-window' || btnStyle === 'time-window-menu';
   const currentTime = isTimeWindow ? (readStoryClockRaw()) : '';
   const currentLocation = isTimeWindow ? (getCellByHeader('全局数据表', 1, '当前详细地点') || '') : '';
-  const savedPosSig = _ftDrag ? '' : (_lsGet('statusbar-fixed-btn-pos') || '');
-  // 签名早退：状态未变时跳过 innerHTML 重建与 getBoundingClientRect 强制布局
-  // （doRender 与 300ms tick 各调一次=同 tick 两次，稳定时纯无谓开销）
+  // 签名早退：只覆外观与文本内容，绝不因坐标写回/resize 销毁重建 .ub-float-face
   const themeOwner = document.getElementById('ac-statusbar-wrapper') || document.documentElement;
   const currentThemeRgb = cssColorChannels(getComputedStyle(themeOwner).getPropertyValue('--ub-accent')) || '144,80,192';
   btn.style.setProperty('--ub-float-rgb', currentThemeRgb);
   btn.classList.toggle('ub-mobile-lite', isMobileLiteEnvironment());
-  const sig = btnStyle + '|' + fixedExpanded + '|' + isPhone + '|' + savedPosSig + '|' + currentTime + '|' + currentLocation + '|' + _ftDrag + '|' + currentThemeRgb;
-  if (!_ftDrag && sig === _ftLastSig) return;
+  const sig = btnStyle + '|' + fixedExpanded + '|' + isPhone + '|' + currentTime + '|' + currentLocation + '|' + currentThemeRgb;
+  if (_ftDrag || sig === _ftLastSig) {
+    if (!_ftDrag) reclampFloatingButton(btn, FT_POS_KEY, FT_EDGE_KEY, defaultFixedToggleFallbackPos);
+    return;
+  }
   _ftLastSig = sig;
 
   const isIconMode =
@@ -447,36 +606,12 @@ export function updateFixedToggleBtn(): void {
   // 仅菜单按钮的四点图标需要实心圆点；用专属类名收窄，避免误填时钟等描边图标的圆
   btn.classList.toggle('ub-ft-menu', btnStyle === 'menu');
 
-  const wrapper = document.getElementById('ac-statusbar-wrapper');
-
-  // 未拖拽时：有保存位置则恢复，无保存位置则用默认左侧定位
-  if (!_ftDrag) {
-    // 视口钳制：窗口缩小后存量坐标可能越界（移动/落盘/恢复三点同一 helper 钳制=根治按钮飞出屏外）
-    const savedPos = readSavedPos('statusbar-fixed-btn-pos');
-    if (savedPos) {
-      applyClampedPosition(btn, savedPos.x, savedPos.y, btn.offsetWidth || 48, btn.offsetHeight || 48);
-      restoreFloatingDock(btn, savedPos.x, btn.offsetWidth || 48);
-    } else {
-    const chat = document.getElementById('chat');
-    if (chat) {
-      const cr = chat.getBoundingClientRect();
-      btn.style.left = Math.max(cr.left - 44, 4) + 'px';
-      btn.style.right = 'auto';
-      btn.style.top = Math.max(cr.top - 44, 4) + 'px';
-      btn.style.bottom = 'auto';
-    } else {
-      btn.style.left = '8px';
-      btn.style.right = 'auto';
-      btn.style.top = '12px';
-      btn.style.bottom = 'auto';
-    }
-    }
-  }
-
   btn.style.setProperty('z-index', '100001', 'important');
   btn.style.display = 'flex';
 
-  // 根据折叠按钮样式应用不同的外观
+  const face = ensureFloatFace(btn);
+
+  // 根据折叠按钮样式应用不同的外观（保留同一个 .ub-float-face 节点，杜绝重建闪烁）
   if (isTimeWindow) {
     // 时间窗模式：显示时间和地点（currentTime/currentLocation 已在签名阶段读取）
     const timeDisplay = currentTime || '—';
@@ -489,9 +624,10 @@ export function updateFixedToggleBtn(): void {
     btn.style.fontSize = isPhone ? '11px' : '12px';
     btn.style.whiteSpace = 'nowrap';
     btn.style.gap = '0';
-    btn.innerHTML = '<span class="ub-float-face ub-float-pill"><span style="color:#a0d8f0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('clock') + escapeHtml(timeDisplay) + '</span>'
+    face.className = 'ub-float-face ub-float-pill';
+    face.innerHTML = '<span style="color:#a0d8f0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('clock') + escapeHtml(timeDisplay) + '</span>'
       + '<span style="color:rgba(200,200,200,0.5);margin:0 2px;">|</span>'
-      + '<span style="color:#c0d0a0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('pin') + escapeHtml(locationDisplay) + '</span></span>';
+      + '<span style="color:#c0d0a0;display:inline-flex;align-items:center;gap:3px;">' + ubIcon('pin') + escapeHtml(locationDisplay) + '</span>';
     // 纯时间窗：点击折叠/展开状态栏；时间窗+菜单：点击打开功能菜单
     btn.title = btnStyle === 'time-window-menu' ? '点击打开功能菜单' : (fixedExpanded ? '点击收回状态栏' : '点击展开状态栏');
     btn.setAttribute('aria-label', btn.title);
@@ -503,7 +639,8 @@ export function updateFixedToggleBtn(): void {
     btn.style.padding = '0';
     btn.style.fontSize = '16px';
     btn.style.gap = '0';
-    btn.innerHTML = '<span class="ub-float-face">' + FT_MENU_ICON + '</span>';
+    face.className = 'ub-float-face';
+    face.innerHTML = FT_MENU_ICON;
     btn.title = '菜单';
     btn.setAttribute('aria-label', '打开功能菜单');
     // 当展开/折叠状态变化时，不改变菜单按钮内容
@@ -515,11 +652,16 @@ export function updateFixedToggleBtn(): void {
     btn.style.padding = '0';
     btn.style.fontSize = '14px';
     btn.style.gap = '0';
-    btn.innerHTML = '<span class="ub-float-face">' + (fixedExpanded ? FT_MINUS_ICON : FT_PLUS_ICON) + '</span>';
+    face.className = 'ub-float-face';
+    face.innerHTML = fixedExpanded ? FT_MINUS_ICON : FT_PLUS_ICON;
     btn.title = fixedExpanded ? '收回状态栏' : '展开状态栏';
     btn.setAttribute('aria-label', btn.title);
   }
 
+  // 外观尺寸与 display:flex 就绪后，再用真实宽高进行贴边/视口钳制
+  reclampFloatingButton(btn, FT_POS_KEY, FT_EDGE_KEY, defaultFixedToggleFallbackPos);
+
+  const wrapper = document.getElementById('ac-statusbar-wrapper');
   if (wrapper) {
     if (fixedExpanded) {
       wrapper.classList.remove('ub-collapsed');

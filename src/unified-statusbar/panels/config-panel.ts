@@ -1,6 +1,7 @@
 
 // ===== 配置面板 =====
 import { ubIcon } from '../core/icons';
+import { clearFloatingDockState } from '../chrome/floating-chrome';
 import { UB_EVENT, emitUbEvent } from '../core/events';
 import { sv, escAttr as _escAttr } from './config-panel-shared';
 import { bindApiTab } from './config-panel-tabs/api-tab';
@@ -107,6 +108,7 @@ export function notifyConfigChanged(): void {
  *  旧实现只重置折叠按钮、齿轮零恢复出口（拖拽/恢复无钳制年代=用户反馈「拖出屏外找不回」的直接成因）。 */
 export function resetFloatingBtnToCenter(): void {
   try {
+    clearFloatingDockState();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     let resetCount = 0;

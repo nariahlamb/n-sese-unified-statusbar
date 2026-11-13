@@ -321,14 +321,15 @@ export const baseCSS = /* css */ `
  * 不用 color-mix/backdrop-filter，也不给 left/top 加 transition，避免 WebView 重绘与拖拽追赶。 */
 #ac-persistent-settings,#ac-fixed-toggle{background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
 #ac-persistent-settings .ub-float-face,#ac-fixed-toggle .ub-float-face{
-  width:44px;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;
+  width:46px;height:46px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;
   border:1px solid rgba(var(--ub-float-rgb,144,80,192),.42);border-radius:50%;
   background:rgba(var(--ub-float-rgb,144,80,192),.68);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.16);
   transition:transform .14s ease,filter .14s ease;pointer-events:none;position:relative;
 }
-#ac-fixed-toggle .ub-float-pill{width:auto;min-width:44px;height:36px;padding:0 14px;border-radius:18px;white-space:nowrap}
-#ac-persistent-settings .ub-float-face svg,#ac-fixed-toggle .ub-float-face svg{display:block;width:19px;height:19px;color:inherit;pointer-events:none}
+#ac-fixed-toggle .ub-float-pill{width:auto;min-width:46px;height:36px;padding:0 14px;border-radius:18px;white-space:nowrap}
+#ac-persistent-settings .ub-float-face svg,#ac-fixed-toggle .ub-float-face svg{display:block;width:20px;height:20px;color:inherit;pointer-events:none}
 #ac-fixed-toggle.ub-ft-menu .ub-float-face svg circle{fill:currentColor}
+#ac-persistent-settings:active .ub-float-face,#ac-fixed-toggle:active .ub-float-face{transform:scale(.92)}
 #ac-persistent-settings.ub-dock-left .ub-float-face,#ac-fixed-toggle.ub-dock-left .ub-float-face{transform:translateX(-55%)}
 #ac-persistent-settings.ub-dock-right .ub-float-face,#ac-fixed-toggle.ub-dock-right .ub-float-face{transform:translateX(55%)}
 #ac-persistent-settings.ub-dragging .ub-float-face,#ac-fixed-toggle.ub-dragging .ub-float-face{transition:none;transform:none}

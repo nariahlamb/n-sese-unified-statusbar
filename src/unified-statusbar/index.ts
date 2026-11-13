@@ -27,7 +27,7 @@ import { SKILL_TABLE_NAME, SKILL_COL } from './core/skill-types';
 import { readSkillTree } from './core/skill-store';
 import { getToastr } from './core/env';
 import { isTtManagedChatSurface, createManagedChatTail } from './core/tt-chat-surface';
-import { createPersistentSettingsBtn, positionSettingsBtn, updateFloatingBtnVisibility, createFixedToggleBtn, updateFixedToggleBtn, refreshCollapseMenuItems, showFixedToggleOnboarding, initFloatingChrome, resetFixedToggleBtnSignature, syncFixedToggleAi } from './chrome/floating-chrome';
+import { createPersistentSettingsBtn, positionSettingsBtn, updateFloatingBtnVisibility, createFixedToggleBtn, updateFixedToggleBtn, refreshCollapseMenuItems, showFixedToggleOnboarding, initFloatingChrome, resetFixedToggleBtnSignature, reclampFloatingButtons, syncFixedToggleAi } from './chrome/floating-chrome';
 import { initAiActivityBar, syncAiActivityBar } from './renderers/ai-activity-bar';
 import { initAiActivityNotify, refreshAiActivityNotify } from './core/ai-activity-notify';
 import { setAiActivityChatKeyReader, subscribeAiActivities } from './core/ai-activity';
@@ -2711,11 +2711,9 @@ if (IS_FIRST_BOOT) installCycleExternalApi();
 
 // loader resize/orientationchange 防抖后调用
 function handleResize(): void {
-  // 布局变化时按钮默认定位（基于 #chat rect）需重算，重置签名绕过早退
-  resetFixedToggleBtnSignature();
   initMouseGlow(); // 旋转/窗口跨过手机边界时也同步移除或恢复本扩展监听
   updateWrapperStyle();
-  updateFixedToggleBtn();
+  reclampFloatingButtons();
   applyMobileFixes();
   syncAssistantUI();
 }
