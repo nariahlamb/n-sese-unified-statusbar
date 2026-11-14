@@ -1,7 +1,7 @@
 // core/world-engine/world-sources.ts
-// 世界演化的真实数据源 + 双轨触发注册（v1.1：独立文件，避免 Task 7 测试加载整个 map-system）。
+// 世界演化的真实数据源 + 双轨触发注册 + P2 落楼承接确认与删楼/Swipe 回退监听。
 import { getConfig } from '../config-store';
-import { getCellByHeader, getSheetByName } from '../data-manager';
+import { getCellByHeader, getSheetByName, isNsfwPlayActive } from '../data-manager';
 import { parseProtagonistAttitude, parseCharacterRelationRows, formatRelationInjectionLines } from '../character-relation-model';
 import { getCleanChatHistory, getRecentStoryContext } from '../map-system';
 import { stripWithContextConfig } from '../context-strip';
@@ -15,11 +15,16 @@ import {
   type EvolutionSources,
 } from './world-evolution';
 import { formatChronicleBlocks, readChronicleRowsForNames } from '../chronicle-blocks';
-import { decideEvolve, gapDaysBetween, selectFocusSubset, type RosterCandidate } from './world-state';
+import { buildFrontDigest, decideEvolve, gapDaysBetween, normalizeRegion, selectFocusSubset, type RosterCandidate } from './world-state';
+import { confirmIntrusionAdoptionFromFloor, markIntrusionCandidatesOffered, reconcileIntrusionsWithChat, selectIntrusionCandidates } from './world-intrusion';
+import { loadWorldState, saveWorldState } from './world-store';
+import { projectCharacterDynamics, projectWorldDigest, setWorldProjectionRuntimeProvider, type WorldProjectionRuntimeContext } from './world-worldbook';
 import type { CharProfile, WorldState } from './world-types';
 import { DEFAULT_CHRONICLE_TOTAL } from './world-types';
 import { isRefillMode } from '../refill-mode';
 import { resolveWorldEvolveStyleForCurrentCard } from './world-style-library';
+import { selectedMessageAnchor } from '../external-story-store';
+import { getCurrentStoryChatKey, isStoryStorageReady } from '../story-floor-store';
 
 function readRosterCandidates(): RosterCandidate[] {
   const seen = new Set<string>();
@@ -57,6 +62,79 @@ function readOnStageNames(): string[] {
   return names;
 }
 
+function readOnStageStatuses(): string[] {
+  const statuses: string[] = [];
+  try {
+    const sheet = getSheetByName('在场角色表');
+    if (sheet && Array.isArray(sheet.content)) {
+      for (let i = 1; i < sheet.content.length; i++) {
+        const st = (getCellByHeader('在场角色表', i, '当前状态') || '').trim();
+        const emo = (getCellByHeader('在场角色表', i, '情绪') || '').trim();
+        if (st || emo) statuses.push(`${st} ${emo}`.trim());
+      }
+    }
+  } catch (_e) { /* ignore */ }
+  return statuses;
+}
+
+function readAppointmentNames(): string[] {
+  const names = new Set<string>();
+  try {
+    const sheet = getSheetByName('备忘录');
+    if (sheet && Array.isArray(sheet.content)) {
+      for (let i = 1; i < sheet.content.length; i++) {
+        const st = String(getCellByHeader('备忘录', i, '当前状态') || '').trim();
+        if (/(?:已完成|已取消|作废|过期)/.test(st)) continue;
+        const related = String(getCellByHeader('备忘录', i, '相关角色') || '').trim();
+        if (!related) continue;
+        for (const n of related.split(/[,，、;\s]+/)) {
+          if (n.trim()) names.add(n.trim());
+        }
+      }
+    }
+  } catch (_e) { /* ignore */ }
+  return [...names];
+}
+
+function readLocationText(): string {
+  try { return String(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { return ''; }
+}
+
+function readHostChat(): any[] {
+  try {
+    const rawSt: any = (typeof window !== 'undefined' ? (window as any).SillyTavern : undefined)
+      || (typeof window !== 'undefined' ? (window as any).TavernHelper?.SillyTavern : undefined)
+      || (typeof parent !== 'undefined' ? (parent as any).SillyTavern : undefined);
+    const ctx = typeof rawSt?.getContext === 'function' ? rawSt.getContext() : rawSt;
+    return Array.isArray(ctx?.chat) ? ctx.chat : [];
+  } catch (_e) {
+    return [];
+  }
+}
+
+function readCurrentActionText(): string {
+  const chat = readHostChat();
+  return chat.slice(-2).map(message => {
+    const text = String(message?.mes || '');
+    const original = text.match(/<本轮用户输入>([\s\S]*?)<\/本轮用户输入>/);
+    return original ? original[1].trim() : text;
+  }).filter(Boolean).join('\n');
+}
+
+function readRuntimeContext(): WorldProjectionRuntimeContext {
+  const location = readLocationText();
+  return {
+    dateKey: getTodayDateKey() || '',
+    playerRegion: normalizeRegion(location),
+    onStageNames: readOnStageNames(),
+    nsfwActive: isNsfwPlayActive(),
+    location,
+    onStageStatuses: readOnStageStatuses(),
+    recentText: readLatestAiReply(),
+    actionText: readCurrentActionText(),
+  };
+}
+
 function readRecentNames(): string[] {
   const context = getRecentStoryContext(8);
   if (!context) return [];
@@ -77,14 +155,11 @@ function readLatestAiReply(): string {
     } catch (_e) { /* ignore */ }
   }
   try {
-    const rawSt: any = (window as any).SillyTavern || (window as any).TavernHelper?.SillyTavern
-      || (typeof parent !== 'undefined' ? (parent as any).SillyTavern : undefined);
-    if (Array.isArray(rawSt?.chat)) return lastAiReplyText(rawSt.chat);
+    const chat = readHostChat();
+    if (chat.length) return lastAiReplyText(chat);
   } catch (_e) { /* ignore */ }
   return '';
 }
-
-/** 两次日期键之间的游戏内天数：已上移 world-state.ts（gapDaysBetween，线程时间差分档共用），此处 import 复用。 */
 
 function describeTimeGap(a: string, b: string): string {
   const days = gapDaysBetween(a, b);
@@ -98,15 +173,12 @@ function describeTimeGap(a: string, b: string): string {
 export async function readEvolutionSources(focus: CharProfile[], _state: WorldState): Promise<EvolutionSources> {
   const cfg = getConfig();
   const chronicleTotal = cfg.worldChronicleTotal ?? DEFAULT_CHRONICLE_TOTAL;
-  // 纪要统一走资料块（用户定案 V3.710）：概览 70% + 完整 30%（用户确认的拆分比例）；
-  // 展示统一从旧到新（时间正序，chronicle-blocks 共享层翻转）→ 前段（较旧）概览、末段（较新）完整。
   const overviewCount = Math.round(chronicleTotal * 0.7);
   const chronicleBlocks = formatChronicleBlocks(
     readChronicleRowsForNames(focus.map(p => p.name), chronicleTotal),
     { overview: overviewCount, full: chronicleTotal - overviewCount },
   );
   const recentChat = stripWithContextConfig(getCleanChatHistory(cfg.worldContextCount || 2));
-  // 焦点人物之间的关系行（人物关系表；至少一侧是焦点，另一侧不限）
   const relationLines = formatRelationInjectionLines(
     parseCharacterRelationRows(getSheetByName('人物关系表')),
     { involve: focus.map(p => p.name), limit: 20 },
@@ -114,25 +186,93 @@ export async function readEvolutionSources(focus: CharProfile[], _state: WorldSt
   return { chronicleBlocks, recentChat, relations: relationLines };
 }
 
+/** P2 落楼后同步入镜消费状态：先按现存楼层/Swipe 回退失效的 acted，再依据当前 AI 楼层证据确认实际承接。 */
+async function syncIntrusionsOnTurn(confirmAdoption: boolean): Promise<void> {
+  if (isRefillMode() || !isStoryStorageReady() || getConfig().worldEnabled === false) return;
+  const chat = readHostChat();
+  const chatKey = getCurrentStoryChatKey();
+  if (!chatKey) return;
+
+  const initial = loadWorldState();
+  const rec = reconcileIntrusionsWithChat(initial, chat, chatKey);
+  let next = rec.state;
+  let changed = rec.rolledBackIds.length > 0;
+
+  if (confirmAdoption && Array.isArray(chat) && chat.length > 0) {
+    let aiFloor = -1;
+    for (let i = chat.length - 1; i >= 0; i--) {
+      const m = chat[i];
+      if (m && !m.is_user && !m.is_system && typeof m.mes === 'string' && m.mes.trim()) {
+        aiFloor = i;
+        break;
+      }
+    }
+    if (aiFloor >= 0) {
+      const aiMsg = chat[aiFloor];
+      const anchor = selectedMessageAnchor(aiMsg, aiFloor);
+      const swipeId = Number(aiMsg?.swipe_id) || 0;
+      let userText = '';
+      for (let j = aiFloor - 1; j >= 0; j--) {
+        if (chat[j]?.is_user && typeof chat[j].mes === 'string') {
+          userText = chat[j].mes;
+          break;
+        }
+      }
+      // 落楼前展示给本轮输入的候选，用同一 AI 锚点绑定；正文承接不依赖用户手点。
+      const view = selectIntrusionCandidates(next, {
+        dateKey: getTodayDateKey() || next.lastEvolveDateKey || '',
+        playerRegion: normalizeRegion(readLocationText()),
+        onStageNames: readOnStageNames(),
+        sceneGuard: readRuntimeContext() as any,
+      });
+      const offered = markIntrusionCandidatesOffered(next, view, { chatKey, floor: aiFloor, anchor, swipeId });
+      if (offered !== next) {
+        next = offered;
+        changed = true;
+      }
+      const res = confirmIntrusionAdoptionFromFloor(next, {
+        chatKey,
+        floor: aiFloor,
+        anchor,
+        swipeId,
+        aiText: String(aiMsg.mes || ''),
+        userText,
+        onStageNames: readOnStageNames(),
+      });
+      if (res.confirmedIds.length > 0) {
+        next = res.state;
+        changed = true;
+      }
+    }
+  }
+
+  if (!changed) return;
+  const dateKey = getTodayDateKey() || next.lastEvolveDateKey || '';
+  const playerRegion = normalizeRegion(readLocationText());
+  next.frontDigest = buildFrontDigest(next, dateKey, { playerRegion });
+  const saved = await saveWorldState(next);
+  if (saved) {
+    await projectWorldDigest(next.frontDigest);
+    await projectCharacterDynamics();
+  }
+}
+
 let _evolveTimer: ReturnType<typeof setTimeout> | null = null;
 
 /** 演化触发（防抖）：消息事件共用一个 500ms 重臂防抖。 */
 function scheduleEvolve(): void {
-  // 重填模式：不臂防抖（零开销），杜绝重填期间的世界演化 AI 请求与落盘。
-  // 只在自动触发路径拦；世界窗口「手动演化」不经过本函数，照常可用。
   if (isRefillMode()) return;
-  // 自动更新关：不臂防抖（零开销）。只拦自动触发，世界窗口「手动演化」不受影响。
   if (getConfig().worldAutoUpdate === false) return;
   if (_evolveTimer) clearTimeout(_evolveTimer);
   _evolveTimer = setTimeout(() => {
     _evolveTimer = null;
-    // 二次判定：防抖窗口内（500ms）用户可能刚开启重填模式，此处再查一次避免漏网。
     if (isRefillMode()) return;
     void maybeEvolve();
   }, 500);
 }
 
 export function initWorldEvolution(): void {
+  setWorldProjectionRuntimeProvider(readRuntimeContext);
   configureWorldEvolutionSources({
     round: () => {
       try {
@@ -144,7 +284,6 @@ export function initWorldEvolution(): void {
     enabled: () => getConfig().worldEnabled !== false,
     config: () => {
       const c = getConfig();
-      // 演化风格方向：按角色卡保存（设备本地）→ 全局默认 → 通用；解析回既有的 { style, custom } 二元组
       const evolveStyle = resolveWorldEvolveStyleForCurrentCard(c);
       return {
         evolveEveryTurns: c.worldEvolveEveryTurns,
@@ -154,7 +293,6 @@ export function initWorldEvolution(): void {
         worldEvolveStyle: evolveStyle.style,
         worldEvolveStyleCustom: evolveStyle.custom,
         evolveMinReply: c.worldEvolveMinReply,
-        // 小手机联动 = 用户开关 且 宿主桥在线（瑟瑟小手机正在运行）——手机不在时不注入提示词，零开销
         worldPhoneLink: c.worldPhoneLink === true && isWorldPhoneBridgeAvailable(),
       };
     },
@@ -165,27 +303,26 @@ export function initWorldEvolution(): void {
     roster: readRosterCandidates,
     gap: describeTimeGap,
     latestReply: readLatestAiReply,
-    location: () => {
-      try { return String(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { return ''; }
-    },
+    location: readLocationText,
+    appointments: readAppointmentNames,
     sources: readEvolutionSources,
   });
 
-  // F4：window 令牌——模块重求值后旧闭包仍挂在宿主 eventSource 上，模块布尔挡不住第二份
-  // 注册（重求值后每条 AI 回复会驱动两份演化调度 = 双倍 AI 请求风险）
+  // F4：window 令牌——模块重求值后旧闭包仍挂在宿主 eventSource 上，模块布尔挡不住第二份注册
   const w = window as any;
   if (w.__ub_world_evolution_bound) return;
   w.__ub_world_evolution_bound = true;
-  // first_message = 酒馆在打开/新建只有开场白的聊天时（getChatResult/createNewGroupChat）对开场白
-  // 发出的 MESSAGE_RECEIVED——删当前聊天（delChat→replaceCurrentChat）与开新聊天都会落到这条路，
-  // 不是真实剧情回复，跳过；首轮真实回复到达后自然会触发演化。
   const skipQuiet = (type?: string) => type === 'quiet' || type === 'impersonate' || type === 'command' || type === 'extension' || type === 'first_message';
-  // 只在 AI 回复（MESSAGE_RECEIVED）时触发演化——「用户消息→AI 回复」一轮完成的信号。
-  // 不监听 MESSAGE_SENT：它无 type 参数无法被 skipQuiet 过滤，且在任何消息发送瞬间都触发
-  // （含数据库剧情推进/自动循环点击发送按钮生成的用户输入），此时 AI 回复尚未产生，
-  // 世界会在不完整的一轮上提前演化。轮数水位（decideEvolve 的 round-lastRound）本就按
-  // chat.length 数，等 AI 回复到达再演化计数等价，只是不再抢在回复前跑。
-  const onTurn = (_id?: unknown, type?: string) => { if (!skipQuiet(type)) { scheduleEvolve(); } };
+  const onTurn = (_id?: unknown, type?: string) => {
+    if (!skipQuiet(type)) {
+      void syncIntrusionsOnTurn(true).finally(() => {
+        scheduleEvolve();
+      });
+    }
+  };
+  const onReconcileOnly = () => {
+    void syncIntrusionsOnTurn(false);
+  };
   try {
     const rawSt: any = (window as any).SillyTavern || (window as any).TavernHelper?.SillyTavern;
     const st: any = typeof rawSt?.getContext === 'function' ? rawSt.getContext() : rawSt;
@@ -193,6 +330,8 @@ export function initWorldEvolution(): void {
     const types = st?.eventTypes || {};
     if (source && typeof source.on === 'function') {
       source.on(types.MESSAGE_RECEIVED || 'message_received', onTurn);
+      source.on(types.MESSAGE_SWIPED || 'message_swiped', onReconcileOnly);
+      source.on(types.MESSAGE_DELETED || 'message_deleted', onReconcileOnly);
     }
   } catch (_e) { /* ignore */ }
 }

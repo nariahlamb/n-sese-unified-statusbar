@@ -30,14 +30,71 @@ export interface FocusCfg {
   rotationBatch: number;
 }
 
-/** 焦点子集 = 线程角色(收尾锁死+非收尾随机) + 离场随机 2 人 + 轮转批次补满，排除在场，封顶 focusMax。
- *  rng=随机源注入（缺省 Math.random），测试传种子序列可复现。v2：删 recentNames——「近期提及」
- *  层已废（提及名单只供 buildKnownSet），离场随机抽样保证人人有入口。 */
+export interface FocusContext {
+  playerRegion?: string;
+  recentNames?: string[];
+  today?: string;
+  appointmentNames?: string[];
+}
+
+function hasNearDeadline(dayKey: string | undefined, today: string): boolean {
+  if (!dayKey || !today) return false;
+  try {
+    if (compareDateKey(dayKey, today) < 0) return false;
+    return gapDaysBetween(today, dayKey) <= 3;
+  } catch (_e) { return false; }
+}
+
+/** 计算离场角色本轮进入焦点的相关性权重（当前地区 / 临到期 / 约定 / 伏线 / 近期互动）。 */
+function scoreFocusCandidate(
+  p: CharProfile,
+  state: WorldState,
+  ctx: {
+    curRegion: string;
+    today: string;
+    recentSet: Set<string>;
+    appointmentSet: Set<string>;
+    pendingByRef: Map<string, { region?: string; expiresAtDay?: string }>;
+    seedsByActor: Map<string, WorldSeed[]>;
+  },
+): number {
+  let score = 0;
+  const pending = ctx.pendingByRef.get(p.name);
+  const actorSeeds = ctx.seedsByActor.get(p.name) || [];
+
+  // 1) 当前地区：挂钩伏线/入镜地区或动向打算提及当前地区
+  const inRegionBySeed = Boolean(ctx.curRegion) && actorSeeds.some(s => normalizeRegion(s.region || '') === ctx.curRegion);
+  const inRegionByIntrusion = Boolean(ctx.curRegion) && Boolean(pending?.region) && normalizeRegion(pending!.region!) === ctx.curRegion;
+  const inRegionByText = Boolean(ctx.curRegion) && `${p.activity || ''} ${p.plans || ''}`.includes(ctx.curRegion);
+  if (inRegionBySeed || inRegionByIntrusion || inRegionByText) score += 40;
+
+  // 2) 临到期：入镜期限或关联伏线期限在 3 天内
+  const nearIntrusion = Boolean(pending?.expiresAtDay) && hasNearDeadline(pending?.expiresAtDay, ctx.today);
+  const nearSeed = actorSeeds.some(s => hasNearDeadline(s.expiresAtDay, ctx.today));
+  if (nearIntrusion || nearSeed) score += 35;
+
+  // 3) 约定 / 备忘 / 入镜待定
+  if (ctx.appointmentSet.has(p.name) || /[约邀赴会期]/.test(p.plans || '')) score += 25;
+  if (pending || (p.arrivalCondition || '').trim()) score += 25;
+
+  // 4) 未终结伏线关联
+  if (actorSeeds.length) score += 20;
+
+  // 5) 近期互动
+  if (ctx.recentSet.has(p.name)) score += 15;
+  else if (ctx.today && p.updatedAt && gapDaysBetween(p.updatedAt, ctx.today) <= 2) score += 10;
+
+  return score;
+}
+
+/** 焦点子集 = 线程角色(收尾锁死+高相关性优先/随机) + 优先层(当前地区/近期互动/约定/伏线/临到期) + 少量远处轮转，排除在场，封顶 focusMax。
+ *  rng=随机源注入（缺省 Math.random），测试传种子序列可复现。 */
 export function selectFocusSubset(
   state: WorldState,
   onStageNames: string[],
   cfg: FocusCfg,
   rng: () => number = Math.random,
+  ctx: FocusContext = {},
 ): FocusSelection {
   const onStage = new Set(onStageNames);
   const off: CharProfile[] = Object.values(state.profiles).filter(p => !p.onStage && !onStage.has(p.name));
@@ -58,27 +115,76 @@ export function selectFocusSubset(
     }
   };
 
-  // ★层1 线程（≤THREAD_FOCUS_MAX）：收尾（≥70）确定性锁死（收尾内最接近完成优先，多出的收尾下轮必进）；
-  // 剩余席位从非收尾线程候选【完全随机】抽——不再按 lastEvolveRound 轮换（AI 只写 <thread> 不写
-  // <profiles> 时该字段不更新，确定性排序会让同一批人反复占席）
+  const curRegion = normalizeRegion(ctx.playerRegion || '');
+  const today = ctx.today || state.lastEvolveDateKey || '';
+  const recentSet = new Set(ctx.recentNames || []);
+  const appointmentSet = new Set(ctx.appointmentNames || []);
+  const pendingByRef = new Map<string, { region?: string; expiresAtDay?: string }>();
+  for (const it of state.pendingIntrusions || []) {
+    if (it.status === 'pending' && it.refId && !pendingByRef.has(it.refId)) {
+      pendingByRef.set(it.refId, { region: it.region, expiresAtDay: it.expiresAtDay });
+    }
+  }
+  const seedsByActor = new Map<string, WorldSeed[]>();
+  for (const s of state.seeds || []) {
+    if (isSeedTerminal(s.status)) continue;
+    for (const actor of s.actorIds || []) {
+      const list = seedsByActor.get(actor);
+      if (list) list.push(s);
+      else seedsByActor.set(actor, [s]);
+    }
+  }
+  const scoreMap = new Map<string, number>();
+  for (const p of off) {
+    scoreMap.set(p.name, scoreFocusCandidate(p, state, { curRegion, today, recentSet, appointmentSet, pendingByRef, seedsByActor }));
+  }
+
+  // ★层1 线程（≤THREAD_FOCUS_MAX）：收尾（≥70）确定性锁死（收尾内最接近完成优先，同分按相关性）；
+  // 剩余线程席位优先相关性高者，否则随机抽。
   const threadCands = off.filter(p => p.hiddenGoal && (Number(p.goalProgress) || 0) < 100);
   const tail = threadCands
     .filter(p => (Number(p.goalProgress) || 0) >= 70)
-    .sort((a, b) => (Number(b.goalProgress) || 0) - (Number(a.goalProgress) || 0));
+    .sort((a, b) => ((Number(b.goalProgress) || 0) - (Number(a.goalProgress) || 0))
+      || ((scoreMap.get(b.name) || 0) - (scoreMap.get(a.name) || 0)));
   let threadPushed = 0;
   for (const p of tail) {
     if (threadPushed >= THREAD_FOCUS_MAX || picked.length >= cfg.focusMax) break;
     push(p);
     threadPushed += 1;
   }
-  pickRandom(threadCands, THREAD_FOCUS_MAX - threadPushed);
+  const remThreadSlots = THREAD_FOCUS_MAX - threadPushed;
+  if (remThreadSlots > 0) {
+    const nonTail = threadCands.filter(c => !seen.has(c.name));
+    const scoredThread = nonTail.filter(c => (scoreMap.get(c.name) || 0) > 0)
+      .sort((a, b) => ((scoreMap.get(b.name) || 0) - (scoreMap.get(a.name) || 0)) || (a.lastEvolveRound - b.lastEvolveRound));
+    for (const p of scoredThread) {
+      if (threadPushed >= THREAD_FOCUS_MAX || picked.length >= cfg.focusMax) break;
+      push(p);
+      threadPushed += 1;
+    }
+    pickRandom(nonTail, THREAD_FOCUS_MAX - threadPushed);
+  }
 
-  // 层2 离场随机 2 人：与是否被提及无关（保证每轮至少 2 人轮换）
-  pickRandom(off, 2);
+  // ★层2 优先层（当前地区/近期互动/约定/伏线/临到期）：
+  // 若存在低相关/远处候选，为「少量远处轮转」保留 1 个名额（仅当 focusMax >= 3）。
+  const distantPool = off.filter(p => !seen.has(p.name) && (scoreMap.get(p.name) || 0) === 0);
+  const reserveDistant = cfg.focusMax >= 3 && distantPool.length > 0 && cfg.rotationBatch > 0 ? 1 : 0;
+  const priorityCap = Math.max(0, cfg.focusMax - reserveDistant);
+  const priorityCands = off
+    .filter(p => !seen.has(p.name) && (scoreMap.get(p.name) || 0) > 0)
+    .sort((a, b) => ((scoreMap.get(b.name) || 0) - (scoreMap.get(a.name) || 0)) || (a.lastEvolveRound - b.lastEvolveRound));
+  for (const p of priorityCands) {
+    if (picked.length >= priorityCap) break;
+    push(p);
+  }
 
-  // 层3 轮转批次补满（距上次演化最久优先）
-  const rest = off.filter(p => !seen.has(p.name)).sort((a, b) => a.lastEvolveRound - b.lastEvolveRound);
-  for (const p of rest.slice(0, cfg.rotationBatch)) push(p);
+  // ★层3 少量远处轮转（距上次演化最久优先 + 随机补足）
+  if (picked.length < cfg.focusMax) {
+    const rest = off.filter(p => !seen.has(p.name)).sort((a, b) => a.lastEvolveRound - b.lastEvolveRound);
+    const rotLimit = Math.min(cfg.rotationBatch, cfg.focusMax - picked.length);
+    for (const p of rest.slice(0, rotLimit)) push(p);
+    if (picked.length < cfg.focusMax) pickRandom(off, cfg.focusMax - picked.length);
+  }
 
   return { profiles: picked, remainderCount: off.length - picked.length };
 }
@@ -163,24 +269,68 @@ export const DIGEST_SECTION_HERE = '〔此地此刻〕';
 export const DIGEST_SECTION_RUMOR = '〔风闻轶事〕';
 export const DIGEST_SECTION_UNDER = '〔世界暗流〕';
 
+/** 传闻台前可见门控：
+ *  1) vague（幕后流言）不进台前；
+ *  2) earliestRevealDay 未到（dateKey < earliestRevealDay）不进台前；
+ *  3) region 非空且已知当前主角地区时，异地传闻不进台前。 */
+export function isRumorVisibleInFront(r: Rumor, dateKey: string, playerRegion?: string): boolean {
+  if (!r || r.level === 'vague') return false;
+  if (r.earliestRevealDay && dateKey && compareDateKey(dateKey, r.earliestRevealDay) < 0) return false;
+  const curRegion = normalizeRegion(playerRegion || '');
+  const rumorRegion = normalizeRegion(r.region || '');
+  if (rumorRegion && curRegion && rumorRegion !== curRegion) return false;
+  return true;
+}
+
 /** 认知边界总闸：frontDigest 只含主角可知或可碰到的内容，分三段：
- *  此地此刻 = encounter 信号；风闻轶事 = known/heard 传闻 + rumor 信号；世界暗流 = ambient 信号 + 众所周知的未收场伏线。
+ *  此地此刻 = encounter 信号；风闻轶事 = 过地区/时间闸的 known/heard 传闻 + rumor 信号；世界暗流 = ambient 信号 + 众所周知的未收场伏线。
  *  AI 通道入镜行放在段外末尾（窗口/助手用），注入层 buildWorldDigestContent 会剔掉，不预泄露。
  *  在场角色的动向不进台前：主角在场直接可见，主线剧情承载。 */
-export function buildFrontDigest(state: WorldState, dateKey: string): string {
+export function buildFrontDigest(
+  state: WorldState,
+  dateKey: string,
+  opts?: { playerRegion?: string } | string,
+): string {
+  const playerRegion = normalizeRegion(typeof opts === 'string' ? opts : (opts?.playerRegion || ''));
   const signals = state.guidance?.signals || [];
   const here = signals.filter(g => g.voice === 'encounter').map(g => `- ${g.text}`);
-  const rumor: string[] = [];
-  for (const r of state.rumors) {
-    if (r.level === 'vague') continue;
-    rumor.push(`【传闻·${r.topic}】${r.content}`);
+
+  const visibleRumors = (state.rumors || [])
+    .filter(r => isRumorVisibleInFront(r, dateKey, playerRegion))
+    .slice()
+    .sort((a, b) => {
+      // 同地区/高确定性（known）排前；泛风声排后，超长裁剪时先裁泛风声
+      const aLocal = playerRegion && normalizeRegion(a.region || '') === playerRegion ? 2 : 0;
+      const bLocal = playerRegion && normalizeRegion(b.region || '') === playerRegion ? 2 : 0;
+      const aLv = a.level === 'known' ? 1 : 0;
+      const bLv = b.level === 'known' ? 1 : 0;
+      return (bLocal + bLv) - (aLocal + aLv);
+    });
+  const rumor: string[] = visibleRumors.map(r => `【传闻·${r.topic}】${r.content}`);
+  const rumorById = new Map((state.rumors || []).map(r => [r.id, r]));
+  for (const g of signals) {
+    if (g.voice !== 'rumor') continue;
+    const source = rumorById.get(g.sourceId);
+    if (source && !isRumorVisibleInFront(source, dateKey, playerRegion)) continue;
+    rumor.push(`- ${g.text}`);
   }
-  for (const g of signals) if (g.voice === 'rumor') rumor.push(`- ${g.text}`);
+
+  const publicSeeds = (state.seeds || [])
+    .filter(s => s.visibility === 'public' && !isSeedTerminal(s.status))
+    .slice()
+    .sort((a, b) => {
+      // 同地区 / 临到期伏线排前，远处非紧急伏线排后
+      const aLocal = playerRegion && normalizeRegion(a.region || '') === playerRegion ? 2 : 0;
+      const bLocal = playerRegion && normalizeRegion(b.region || '') === playerRegion ? 2 : 0;
+      const aNear = hasNearDeadline(a.expiresAtDay, dateKey) ? 1 : 0;
+      const bNear = hasNearDeadline(b.expiresAtDay, dateKey) ? 1 : 0;
+      return (bLocal + bNear) - (aLocal + aNear);
+    });
   const under = signals.filter(g => g.voice === 'ambient').map(g => `- ${g.text}`);
-  for (const s of state.seeds || []) {
-    if (s.visibility !== 'public' || isSeedTerminal(s.status)) continue;
+  for (const s of publicSeeds) {
     under.push(`- ${s.title}（${SEED_STATUS_LABEL[s.status]}）`);
   }
+
   const lines: string[] = [];
   if (here.length) lines.push(DIGEST_SECTION_HERE, ...here);
   if (rumor.length) lines.push(DIGEST_SECTION_RUMOR, ...rumor);
@@ -503,7 +653,7 @@ const STOP_WORDS = new Set([
 
 /** 切出非虚词 token：字母数字段按整词保留；CJK 连续段按相邻二元组（bigram）切分，
  *  避免整句单 token 导致重叠检测失效（标点/空白当分隔符）。 */
-function tokensOf(s: string): string[] {
+export function tokensOf(s: string): string[] {
   const out: string[] = [];
   const segs = (s || '').match(/[0-9A-Za-z]+|[一-鿿]+/g) || [];
   for (const seg of segs) {

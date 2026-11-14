@@ -16,7 +16,7 @@ import {
   reconcileItemUseWorldbookEntries,
   reconcilePlayWorldbookEntries,
 } from './play-worldbook';
-import { getSkillWorldbookContent, reconcileSkillWorldbookEntries } from './skill-worldbook';
+import { buildSkillWorldbookBundle, reconcileSkillWorldbookEntries } from './skill-worldbook';
 import { buildCurrencyGuideContent, reconcileCurrencyWorldbookEntries } from './currency-worldbook';
 import { buildMapNodeWorldbookTargets, reconcileMapNodeWorldbookEntries } from './map-worldbook-inject';
 import { getWardrobeSnapshot } from './wardrobe-store';
@@ -98,7 +98,7 @@ export function initializeWorldbookProjectionRuntime(): void {
         isEnabled: () => getConfig().skillEnabled === true,
         reconcile: entries => reconcileSkillWorldbookEntries(
           entries,
-          getConfig().skillEnabled ? getSkillWorldbookContent(getConfig().skillProseMode) : '',
+          getConfig().skillEnabled ? buildSkillWorldbookBundle(getConfig().skillProseMode) : '',
         ),
       },
       {
@@ -158,7 +158,9 @@ export function initializeWorldbookProjectionRuntime(): void {
   if (!isRefillMode()) {
     for (const id of externalIds) void registry.requestProjection(id, 'data-change');
   }
-  setWorldbookProjectionDispatcher((id: string, reason: WorldbookProjectionReason) => { void registry?.requestProjection(id, reason); });
+  setWorldbookProjectionDispatcher(async (id: string, reason: WorldbookProjectionReason) => {
+    await registry?.requestProjection(id, reason);
+  });
 }
 
 export function advanceWorldbookProjectionScope(): void {

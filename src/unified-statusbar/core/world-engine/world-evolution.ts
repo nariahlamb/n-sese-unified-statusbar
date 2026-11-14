@@ -17,11 +17,11 @@ import {
 } from './world-types';
 import { loadWorldState, saveWorldState } from './world-store';
 import {
-  advanceCharThread, advanceSeed, buildFrontDigest, buildKnownSet, charThreadStage, clampDimensionDelta, decideEvolve, findSameSourceRumor, gapDaysBetween, isRumorRestatingKnown, isSeedCollided, isSeedTerminal, normalizeRegion, repairCollisionSignals, rollTwistTag, selectFocusSubset, sweepExpiredSeeds, syncWorldRoster, tickRumor,
+  advanceCharThread, advanceSeed, buildFrontDigest, buildKnownSet, charThreadStage, clampDimensionDelta, decideEvolve, findSameSourceRumor, gapDaysBetween, isRumorRestatingKnown, isRumorVisibleInFront, isSeedCollided, isSeedTerminal, normalizeRegion, repairCollisionSignals, rollTwistTag, selectFocusSubset, sweepExpiredSeeds, syncWorldRoster, tickRumor,
   RUMOR_LEVEL_LABEL,
-  type KnownSet, type RosterCandidate, type TwistTag,
+  type FocusContext, type KnownSet, type RosterCandidate, type TwistTag,
 } from './world-state';
-import { enqueueIntrusion, fillIntrusionHook, triggerIntrusion } from './world-intrusion';
+import { enqueueIntrusion, fillIntrusionHook, prepareIntrusionDraft, sweepExpiredIntrusions } from './world-intrusion';
 import { projectCharacterDynamics, projectWorldDigest } from './world-worldbook';
 import { compareDateKey, parseDateKeyFromText } from '../calendar-core';
 import { getTavernHelper, getToastr } from '../env';
@@ -75,9 +75,14 @@ export interface ParsedWorldDelta {
   profiles?: Record<string, Partial<CharProfile>>;
   /** 流言增量：id 有则更新（主题固定/内容渐进重写）；新 id 同源则合并；无 id 新创建。
    *  progressDelta=本阶段发展度增量、dissipationDelta=消散度减量（台前必填，幕后可选，均 0-100 整数）。 */
-  rumors?: Array<{ id?: string; topic: string; content: string; progressDelta?: number; dissipationDelta?: number }>;
+  rumors?: Array<{ id?: string; topic: string; content: string; progressDelta?: number; dissipationDelta?: number; region?: string; earliestRevealDay?: string }>;
   threads?: Array<{ name: string; goal?: string; stageDesc?: string; abandon?: boolean }>;
-  intrusions?: Array<{ kind: Intrusion['kind']; refId: string; title: string; hook?: string; desc?: string; aiTriggered?: boolean }>;
+  intrusions?: Array<{
+    kind: Intrusion['kind']; refId: string; title: string; hook?: string; desc?: string; aiTriggered?: boolean;
+    region?: string; expiresAtDay?: string; publicInfo?: string; reason?: string; condition?: string;
+  }>;
+  /** P2 异步入镜结果结算（仅明确错过转背景结算）。 */
+  intrusionOutcomes?: Array<{ idOrRef: string; outcome: 'missed'; reason?: string }>;
   /** WS8：世界掠影（60-100 字，仅展示不进注入世界书；写进纪事摘要主文）。 */
   vignette?: string;
   /** 小手机联动：焦点角色主动联系事件（<phone> 块；落盘后经宿主桥推入瑟瑟小手机）。 */
@@ -200,7 +205,8 @@ export function buildEvolutionInstructionParts(
         return [
           `- ${p.name}：动向「${p.activity || '如常'}」；打算「${p.plans || '无'}」` +
             threadPart +
-            (p.relation ? `；与主角关系「${p.relation}」` : ''),
+            (p.relation ? `；与主角关系「${p.relation}」` : '') +
+            (p.knownFacts?.length ? `；认知视角「${p.knownFacts.join('；')}」` : ''),
         ].join('');
       }).join('\n')
     : '（本轮无焦点角色，全部生活如常）';
@@ -217,7 +223,7 @@ export function buildEvolutionInstructionParts(
   const rulesParts: string[] = [rulesBlock];
   rulesParts.push('本轮只演化离场/幕后角色；已在「在场角色表」的角色不演化，其动向由主线剧情推进，不要为它们产出动向/打算/暗中打算。');
   rulesParts.push('角色动向更新（<profiles> 与 <thread>）只针对本轮「焦点角色」清单内的角色：不要为焦点之外的其他角色产出动向/打算/暗中打算。');
-  rulesParts.push('入镜事件不由本轮类型强制决定：请根据「当前世界状态」里的角色动向，自行判断是否有不在场角色应当在近期入镜（有理由接近主角，非凭空出现）；若有则生成入镜事件。');
+  rulesParts.push('入镜事件不由本轮类型强制决定：请根据「当前世界状态」里的角色动向，自行判断是否有不在场角色应当在近期入镜（有理由接近主角，非凭空出现）；若有则生成入镜事件。正文若已偏离原入口，优先重写该角色的 pending 入口顺应新方向，不硬拽回剧本；已发生事实不重写。');
   // 流言「传播线」规则：主题固定 + 内容渐进重写 + 发展度/消散度增量 + 同源不新建
   rulesParts.push('传闻 = 主角尚未直接目睹/亲历的外围信息，或大众对已知事件的「新反应/歪曲/余波」，必须有新的信息增量；禁止原样复述主角已知事实（对照「当前世界状态」的「主角已知集合」）。');
   rulesParts.push('世界级事件与秘密的蛛丝马迹（战争酝酿、势力变动、诅咒、阴谋等）同样以传闻形式承载——传闻不限于市井八卦，也包括尚未公开的暗流在台前的蛛丝马迹与大众议论；涉及具体角色的秘密行动则作为该角色的暗中打算线程承载。');
@@ -281,6 +287,12 @@ export function buildEvolutionInstructionParts(
     : '（暂无）';
   const clockLine = `主角所在地区：${playerRegion || '（未知）'}；距上次演化 ${daysSince} 天${daysSince === 0 ? '（同一天内，只结算正文确实发生的事，不推进伏线）' : ''}`;
 
+  const pendingList = (state.pendingIntrusions || []).filter(i => i.status === 'pending');
+  const pendingBlock = pendingList.length
+    ? `\n\n【待定入镜候选】（未承接可按 <intrusions> 重写入口；若确认错过可在 <intrusion_outcomes> 输出「id或角色名|missed|理由」）\n`
+      + pendingList.slice(0, 8).map(i => `- ${i.id} ${i.refId}：${i.title}${i.region ? `（${i.region}）` : ''}${i.expiresAtDay ? `·期限 ${i.expiresAtDay}` : ''}｜入口：${i.hook || i.title}`).join('\n')
+    : '';
+
   const dossier = [
     `## 最新纪要\n${src.chronicleBlocks}`,
     '## 当前世界状态\n'
@@ -290,6 +302,7 @@ export function buildEvolutionInstructionParts(
       + `\n\n【传闻】\n${rumorsBlock}`
       + `\n\n【伏线】（世界某处正在发生、还没收场的事）\n${seedsBlock}`
       + `\n\n【局势刻度】\n${dimsBlock}`
+      + pendingBlock
       + `\n\n【台前摘要（主角已知）】\n${state.frontDigest || '（暂无）'}`
       + `\n\n【主角已知集合】（创建新传闻时对照，禁止复述其中事实）\n${knownBlock}`,
     `## 近期剧情上下文\n${src.recentChat || '（暂无）'}`,
@@ -309,7 +322,7 @@ export function buildEvolutionInstructionParts(
     ...(cfg.worldPhoneLink
       ? [PHONE_LINK_FORMAT[findHostPhoneStyle()] || PHONE_LINK_FORMAT['']]
       : []),
-      '字段格式（每行一条，字段内不要使用竖线 |）：<profiles> 每行「角色名|动向|打算（可留空）|入镜条件（可留空）|认知（可留空）|预计时长（可留空）」；<rumors> 每行「id|主题|内容|发展度增量0-100|消散度减量0-100」（创建新流言用新 id+主题；更新已有流言沿用其 id 与主题、内容渐进重写，消散度台前必填、幕后可选）；<thread> 每行「角色名|暗中打算|阶段描述|放弃(true/false)」（<thread> 与 <profiles> 的暗中打算二选一即可，<thread> 优先）；<intrusions> 每行「character_arrival|角色名|标题|钩子|事件描述|aiTriggered(可选)」（事件描述=完整前因后果40-120字，禁明确时间期限；钩子=玩家放入聊天框的动作一句话）。',
+      '字段格式（每行一条，字段内不要使用竖线 |）：<profiles> 每行「角色名|动向|打算（可留空）|入镜条件（可留空）|认知（可留空）|预计时长（可留空）」；<rumors> 每行「id|主题|内容|发展度增量0-100|消散度减量0-100」（创建新流言用新 id+主题；更新已有流言沿用其 id 与主题、内容渐进重写，消散度台前必填、幕后可选）；<thread> 每行「角色名|暗中打算|阶段描述|放弃(true/false)」（<thread> 与 <profiles> 的暗中打算二选一即可，<thread> 优先）；<intrusions> 每行「character_arrival|角色名|标题|钩子|事件描述|aiTriggered(可选)|地区(可选)|期限(可选)|公开信息(可选)|承接原因(可选)|时空条件(可选)」（事件描述=完整前因后果40-120字；钩子=正文可自然承接的一句话，不要求玩家手点）。<rumors> 可在消散度后追加「地区|最早揭示日期」，均留空表示未限定。',
       '<profiles> 的「打算」= 该角色近期的个人盘算（公开/半公开性质，与暗中打算区分）；「入镜条件」= 该角色会主动来找主角的**前置状态**（如「伤势痊愈」「攒够钱」「风波平息」），与角色现状自洽、禁具体时间期限。留空 = 不更新该字段，写「无」= 清除该字段。',
       '<thread> 的阶段描述 = 进展文字说明：体现目标推进的具体情况（数量/相对进度，如「已经攒了 60 两银子，还差 40 两」；禁止具体时间期限），与动向（公开活动）区分。',
       SEED_FORMAT_RULES,
@@ -501,10 +514,20 @@ export function parseWorldBlock(raw: string): ParsedWorldDelta | null {
   if (rumorsMatch) {
     delta.rumors = parsePipeLines(rumorsMatch[1], parts => {
       if (parts.length < 2) return null;
-      const [id, topic, content, progressRaw, dissipationRaw] = parts;
+      const [id, topic, content, progressRaw, dissipationRaw, regionRaw, revealDayRaw] = parts;
       if (!topic || !content) return null;
       const parseDelta = (s?: string) => s ? Math.max(0, Math.min(100, parseInt(s, 10) || 0)) : undefined;
-      return { id: id || undefined, topic, content, progressDelta: parseDelta(progressRaw), dissipationDelta: parseDelta(dissipationRaw) };
+      const region = regionRaw ? normalizeRegion(regionRaw) : '';
+      const revealDay = revealDayRaw ? parseDateKeyFromText(revealDayRaw) : null;
+      return {
+        id: id || undefined,
+        topic,
+        content,
+        progressDelta: parseDelta(progressRaw),
+        dissipationDelta: parseDelta(dissipationRaw),
+        ...(region ? { region } : {}),
+        ...(revealDay ? { earliestRevealDay: revealDay } : {}),
+      };
     });
   }
 
@@ -512,9 +535,33 @@ export function parseWorldBlock(raw: string): ParsedWorldDelta | null {
   if (intrusionsMatch) {
     delta.intrusions = parsePipeLines(intrusionsMatch[1], parts => {
       if (parts.length < 3) return null;
-      const [kindRaw, refId, title, hook, desc, aiRaw] = parts;
+      const [kindRaw, refId, title, hook, desc, aiRaw, regionRaw, expiresRaw, publicInfoRaw, reasonRaw, conditionRaw] = parts;
       if (kindRaw !== 'character_arrival' || !refId || !title) return null;
-      return { kind: kindRaw, refId, title, hook: hook || undefined, desc: desc || undefined, aiTriggered: aiRaw === 'false' ? false : true };
+      const region = regionRaw ? normalizeRegion(regionRaw) : '';
+      const expiresAtDay = expiresRaw ? (parseDateKeyFromText(expiresRaw) || '') : '';
+      return {
+        kind: kindRaw,
+        refId,
+        title,
+        hook: hook || undefined,
+        desc: desc || undefined,
+        aiTriggered: aiRaw === 'false' ? false : true,
+        ...(region ? { region } : {}),
+        ...(expiresAtDay ? { expiresAtDay } : {}),
+        ...(publicInfoRaw ? { publicInfo: publicInfoRaw.slice(0, 120) } : {}),
+        ...(reasonRaw ? { reason: reasonRaw.slice(0, 80) } : {}),
+        ...(conditionRaw ? { condition: conditionRaw.slice(0, 80) } : {}),
+      };
+    });
+  }
+
+  const outcomesMatch = body.match(/<intrusion_outcomes>([\s\S]*?)<\/intrusion_outcomes>/i);
+  if (outcomesMatch) {
+    delta.intrusionOutcomes = parsePipeLines(outcomesMatch[1], parts => {
+      if (parts.length < 2) return null;
+      const [idOrRef, outcomeRaw, reason] = parts;
+      if (!idOrRef || outcomeRaw !== 'missed') return null;
+      return { idOrRef, outcome: 'missed' as const, ...(reason ? { reason: reason.slice(0, 80) } : {}) };
     });
   }
 
@@ -599,8 +646,9 @@ export function parseWorldBlock(raw: string): ParsedWorldDelta | null {
     });
   }
 
-  if (!delta.profiles && !delta.rumors && !delta.threads && !delta.intrusions && !delta.vignette && !delta.phoneEvents
-    && !delta.seeds && !delta.dimensions && !delta.signals && delta.clockDays === undefined) return null;
+  if (!delta.profiles && !delta.rumors && !delta.threads && !delta.intrusions && !delta.intrusionOutcomes
+    && !delta.vignette && !delta.phoneEvents && !delta.seeds && !delta.dimensions && !delta.signals
+    && delta.clockDays === undefined) return null;
   return delta;
 }
 
@@ -734,6 +782,8 @@ export function applyWorldDelta(
         if (t.deleted) { if (ti >= 0) next.rumors.splice(ti, 1); continue; }
         const updated = t.rumor!;
         updated.content = r.content; // 渐进重写；topic 保持原值（tickRumor spread 保留 target.topic）
+        if (r.region) updated.region = r.region;
+        if (r.earliestRevealDay) updated.earliestRevealDay = r.earliestRevealDay;
         if (ti >= 0) next.rumors[ti] = updated;
         continue;
       }
@@ -747,6 +797,8 @@ export function applyWorldDelta(
         level: 'vague',
         progress: 1,
         createdAt: ctx.dateKey,
+        ...(r.region ? { region: r.region } : {}),
+        ...(r.earliestRevealDay ? { earliestRevealDay: r.earliestRevealDay } : {}),
       };
       const ct = tickRumor(created, { progressDelta: r.progressDelta }); // 创建只应用发展度增量（消散值不适用于新生流言）
       if (ct.deleted) continue;
@@ -799,8 +851,9 @@ export function applyWorldDelta(
       if (d.length < INTRUSION_DESC_MIN) continue;
       validArrivals.add(refId);
       intrusionSeq += 1;
+      const id = idFor('in_character_arrival', ctx.dateKey, intrusionSeq);
       const intrusion: Intrusion = {
-        id: idFor('in_character_arrival', ctx.dateKey, intrusionSeq),
+        id,
         kind: 'character_arrival',
         refId,
         title,
@@ -809,6 +862,13 @@ export function applyWorldDelta(
         dateKey: ctx.dateKey,
         status: 'pending',
         aiTriggered: it.aiTriggered !== false,
+        revision: 1,
+        delivery: { eventId: id, revision: 1 },
+        ...(it.region ? { region: it.region } : {}),
+        ...(it.expiresAtDay ? { expiresAtDay: it.expiresAtDay } : {}),
+        ...(it.publicInfo ? { publicInfo: it.publicInfo } : {}),
+        ...(it.reason ? { reason: it.reason } : {}),
+        ...(it.condition ? { condition: it.condition } : {}),
         ...(threadComplete ? {} : { freeArrival: true }),
       };
       next.pendingIntrusions = enqueueIntrusion(next, intrusion).pendingIntrusions;
@@ -854,7 +914,27 @@ export function applyWorldDelta(
     }
   }
 
-  // acted 入镜 TTL 递减：事件已由钩子带进主线，保留两轮演化后自然消散（归 0 删除）。
+  // P2 异步结算：AI 明确判定错过的 pending 入镜转背景结算，并清理超期未承接的 pending 入镜
+  if (delta.intrusionOutcomes?.length) {
+    const missedKeys = new Set(delta.intrusionOutcomes.map(o => o.idOrRef));
+    const reasonByKey = new Map(delta.intrusionOutcomes.map(o => [o.idOrRef, o.reason || '时机错过，在幕后自行了结']));
+    const remaining: Intrusion[] = [];
+    for (const item of next.pendingIntrusions) {
+      if (item.status === 'pending' && (missedKeys.has(item.id) || missedKeys.has(item.refId))) {
+        const prof = next.profiles[item.refId];
+        if (prof) {
+          const reason = reasonByKey.get(item.id) || reasonByKey.get(item.refId) || '时机错过，在幕后自行了结';
+          prof.experiences = [{ text: `原本拟议「${item.title}」`, endedAtDay: ctx.dateKey, outcome: reason }, ...(prof.experiences || [])].slice(0, EXP_MAX);
+        }
+        continue;
+      }
+      remaining.push(item);
+    }
+    next.pendingIntrusions = remaining;
+  }
+  next.pendingIntrusions = sweepExpiredIntrusions(next, ctx.dateKey).state.pendingIntrusions;
+
+  // acted 入镜 TTL 递减：事件已由正文实际承接，保留两轮演化后自然消散（归 0 删除）。
   // 放在 buildFrontDigest 之前——到期项当轮即从台前摘要消失。
   next.pendingIntrusions = next.pendingIntrusions
     .map(i => i.status === 'acted' ? { ...i, ttl: (Number(i.ttl) || INTRUSION_ACT_TTL) - 1 } : i)
@@ -862,7 +942,7 @@ export function applyWorldDelta(
 
   applySeedsAndGuidance(next, delta, ctx);
 
-  next.frontDigest = buildFrontDigest(next, ctx.dateKey);
+  next.frontDigest = buildFrontDigest(next, ctx.dateKey, { playerRegion: ctx.playerRegion });
   next.lastEvolveRound = ctx.round;
   next.lastEvolveDateKey = ctx.dateKey;
   if (ctx.dateKey) next.lastClockDay = ctx.dateKey;
@@ -972,8 +1052,7 @@ function applySeedsAndGuidance(
   // 来源必须是账本已有条目；rumor 语态只能引用已传开、且已到可得知日的传闻。
   const liveSeedIds = new Set(next.seeds.filter(s => !isSeedTerminal(s.status)).map(s => s.id));
   const dimIds = new Set(dims.map(x => x.id));
-  const rumorOk = (id: string) => next.rumors.some(r => r.id === id && r.level !== 'vague'
-    && (!r.earliestRevealDay || !today || compareDateKey(today, r.earliestRevealDay) >= 0));
+  const rumorOk = (id: string) => next.rumors.some(r => r.id === id && isRumorVisibleInFront(r, today, playerRegion));
   const sourceOk = (g: GuidanceSignal) => {
     if (g.voice === 'rumor') return rumorOk(g.sourceId);
     return g.sourceId === 'clock' || liveSeedIds.has(g.sourceId) || dimIds.has(g.sourceId)
@@ -1217,19 +1296,16 @@ export function enqueueWorldEvolutionPopup(intrusions: Intrusion[], rumors: Rumo
     },
     resolve: async choice => {
       if (choice.action === 'fill') {
-        // 存储切换/未就绪期间拒绝执行（否则 loadWorldState 读到空态、triggerIntrusion 落空、
-        // saveWorldState 失败——钩子已进输入框而 acted 态永远没落盘，弹窗却当成功关闭）。
-        // 返回 ok:false 弹窗保持打开并显示错误行，用户稍后重试。
         if (!isStoryStorageReady()) return { ok: false, error: '存档同步中，请稍候再试' };
-        // 读活 payload 而非首入队闭包数组：merge 追加的新入镜项只存在于 cur.payload（=== view），
-        // 闭包数组搜不到会让「放入聊天框」静默失效、acted+TTL 永不落盘。
         const target = view.intrusions.find(i => i.id === choice.id);
-        if (target) {
-          fillIntrusionHook(target);
-          // 放入聊天框=已触发：标 acted+TTL 并落盘（修旧版只填不标不存的缺陷；两轮演化后自然消散）
-          const st = triggerIntrusion(loadWorldState(), target.id);
-          await saveWorldState(st);
+        if (!target) return { ok: false, error: '入镜事件已不存在' };
+        // P2 修复：绝不忽略填充失败；且填草稿仅预留、不提前消费为 acted（等正文实际落楼承接后消费）。
+        if (!fillIntrusionHook(target)) {
+          return { ok: false, error: '未能填入聊天输入框（输入框不可用或钩子为空），事件仍保持待处理' };
         }
+        const st = prepareIntrusionDraft(loadWorldState(), target.id, { chatKey: getCurrentStoryChatKey() });
+        const saved = await saveWorldState(st);
+        if (!saved) return { ok: false, error: '草稿预留状态保存失败，请稍后再试' };
         return { ok: true };
       }
       // defer（暂缓）= no-op：不撤台前、不改状态，事件保留待以后再考虑
@@ -1404,10 +1480,15 @@ export async function doEvolve(kind: EvolveKind): Promise<boolean> {
     const onStage = readOnStageNames();
     // v1.1：先同步 roster（重要角色表+恋爱对象表→侧写；在场角色表→onStage）
     const base = syncWorldRoster(prev, readRosterCandidates(), onStage, round);
-    const recent = readRecentNames(); // 仅供 buildKnownSet（焦点选择不再用提及名单）
-    const { profiles: focus } = selectFocusSubsetLocal(base, onStage, cfg);
-    const timeGap = kind === 'small' ? describeTimeGap(base.lastEvolveDateKey, dateKey) : '';
+    const recent = readRecentNames(); // 供 buildKnownSet 与焦点近期互动加权
     const playerRegion = normalizeRegion(_locationSource());
+    const { profiles: focus } = selectFocusSubsetLocal(base, onStage, cfg, Math.random, {
+      playerRegion,
+      recentNames: recent,
+      today: dateKey,
+      appointmentNames: _appointmentSource(),
+    });
+    const timeGap = kind === 'small' ? describeTimeGap(base.lastEvolveDateKey, dateKey) : '';
     const src = await readEvolutionSources(focus, base);
 
     // Task 3（WS2）：主角已知集合（去重闸第二层提示词对照，每次演化算一次）
@@ -1567,6 +1648,7 @@ let _rosterSource: () => RosterCandidate[] = () => [];
 let _gapSource: (a: string, b: string) => string = () => '';
 let _latestReplySource: () => string = () => '';
 let _locationSource: () => string = () => '';
+let _appointmentSource: () => string[] = () => [];
 let _sourcesReader: (focus: CharProfile[], state: WorldState) => Promise<EvolutionSources> = async () => ({ blue: [], green: [], chronicleBlocks: '', recentChat: '' });
 
 function getCurrentRound(): number { return _roundSource(); }
@@ -1576,8 +1658,8 @@ function getLatestReply(): string { return _latestReplySource(); }
 function decideEvolveLocal(state: WorldState, round: number, dateKey: string, cfg: EvolveConfig): EvolveKind | null {
   return _decide(state.lastEvolveRound, state.lastEvolveDateKey, round, dateKey, cfg);
 }
-function selectFocusSubsetLocal(state: WorldState, onStage: string[], cfg: EvolveConfig) {
-  return _select(state, onStage, cfg);
+function selectFocusSubsetLocal(state: WorldState, onStage: string[], cfg: EvolveConfig, rng?: () => number, ctx?: FocusContext) {
+  return _select(state, onStage, cfg, rng, ctx);
 }
 function readOnStageNames(): string[] { return _onStageSource(); }
 function readRecentNames(): string[] { return _recentSource(); }
@@ -1602,6 +1684,8 @@ export function configureWorldEvolutionSources(deps: {
   latestReply?: () => string;
   /** 主角当前详细地点（伏线碰撞判定用；缺省空串=不判碰撞）。 */
   location?: () => string;
+  /** 近期约定关联角色名（焦点选择加权用）。 */
+  appointments?: () => string[];
   sources: (focus: CharProfile[], state: WorldState) => Promise<EvolutionSources>;
 }): void {
   _roundSource = deps.round;
@@ -1616,5 +1700,6 @@ export function configureWorldEvolutionSources(deps: {
   _gapSource = deps.gap;
   if (deps.latestReply) _latestReplySource = deps.latestReply;
   if (deps.location) _locationSource = deps.location;
+  if (deps.appointments) _appointmentSource = deps.appointments;
   _sourcesReader = deps.sources;
 }

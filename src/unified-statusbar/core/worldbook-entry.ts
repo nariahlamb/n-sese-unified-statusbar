@@ -114,6 +114,7 @@ export function wbEntryMatchedKeywords(entry: any, terms: string[]): string[] {
 // 下方三个扫描原语返回的 content 供 AI 提示词消费，统一过 EJS 求值（无插件/无模板零开销）；
 // 需要原始文本（如写回）的调用方应自行 getWorldbook，勿用这三个原语。
 export const SKILL_MANAGED_PREFIX = 'UBS-技能-主角当前技能';
+export const SKILL_DETAIL_PREFIX = 'UBS-技能-详情-';
 // O18-A：旧前缀 `__skill_current` 兼容已退役（由 core/legacy-worldbook-entries.ts 统一回收）
 /** 小手机正文联动格式条目前缀（UBS_phone/core/story-link 注入；只服务酒馆正常生成，自有 AI 管线一律剔除） */
 export const STORY_LINK_ENTRY_PREFIX = '[UBS手机]';
@@ -134,10 +135,10 @@ export function keepPhoneRecordEntries(name: string): boolean {
   return keepSpyRecordEntries(name) || name.startsWith(MESSAGE_RECORDS_KEEP_PREFIX);
 }
 
-/** 是否技能受管条目（生成时排除） */
+/** 是否技能受管条目（生成时排除）：含常亮清单与按需 selective 详情族 */
 export function isManagedSkillEntry(entry: any): boolean {
   const name = wbEntryName(entry);
-  return !!(name && name.startsWith(SKILL_MANAGED_PREFIX));
+  return !!(name && (name.startsWith(SKILL_MANAGED_PREFIX) || name.startsWith(SKILL_DETAIL_PREFIX)));
 }
 
 // ===== 用户条目 vs 受管条目（选择面过滤：角色卡条目黑名单）=====

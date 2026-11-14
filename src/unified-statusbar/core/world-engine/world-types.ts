@@ -11,6 +11,9 @@ export const DEFAULT_ROTATION_BATCH = 4;
 export const CHRONICLE_MAX = 10; // 演化纪事窗口展示上限（用户指定：60 → 10）
 export const INTRUSION_QUEUE_MAX = 30;
 export const INTRUSION_ACT_TTL = 2; // 已触发入镜事件保留的演化轮数（触发时置 2，每轮演化 -1，归 0 删除）
+export const INTRUSION_CANDIDATE_PRIMARY_MAX = 1; // 每轮自然入镜主入口上限
+export const INTRUSION_CANDIDATE_REF_MAX = 2;     // 每轮自然入镜极简参考上限
+export const WORLD_SNAPSHOT_VERSION = 1;          // P4 只读认知/当前事件快照版本号
 // ===== F28：主动入镜（自由通道）限流四闸的常量 =====
 export const INTRUSION_FREE_PER_ROUND = 1;      // 每轮自由通道（非线程完成）最多入镜人数
 export const INTRUSION_COOLDOWN_ROUNDS = 6;     // 同一角色两次自由入镜之间的最小间隔轮数
@@ -263,13 +266,35 @@ export interface ChronicleEntry {
   deltas?: ChronicleDelta;
 }
 
+export interface IntrusionDeliveryMeta {
+  /** 投递事件 ID（默认与 Intrusion.id 对齐，便于跨端追踪）。 */
+  eventId?: string;
+  /** 投递视图修订号（随状态变更递增）。 */
+  revision?: number;
+  /** 投递所属聊天身份（getCurrentStoryChatKey）。 */
+  chatKey?: string;
+  /** 作为候选提供给正文 AI 时的楼层、状态锚点与 swipe_id。 */
+  offeredAtFloor?: number;
+  offeredAnchor?: string;
+  offeredSwipeId?: number;
+  /** 用户点「填入」或草稿预留记录（仅表示草稿，不等于已发生）。 */
+  draftPreparedAt?: string;
+  draftFloor?: number;
+  draftAnchor?: string;
+  /** 正文实际承接后才写入的落楼证据（用于删楼/Swipe 回退与防重）。 */
+  actedFloor?: number;
+  actedAnchor?: string;
+  actedSwipeId?: number;
+  actedAt?: string;
+}
+
 export interface Intrusion {
   id: string;
   kind: 'character_arrival';
   refId: string;
   title: string;
   hook?: string;
-  /** 事件描述（完整前因后果）：character_arrival 必填，供角色动态绿灯条目注入。 */
+  /** 事件描述（完整前因后果）：character_arrival 必填；pending 态禁止直出正文世界书。 */
   desc?: string;
   dateKey: string;
   /** 两态：pending=待处理；acted=已触发（TTL 内存活，前端每轮演化递减，归 0 删除）。 */
@@ -280,6 +305,22 @@ export interface Intrusion {
   /** F28：本条是否走「自由通道」（有 arrivalCondition 的主动入镜）。缺省/undefined=线程完成通道
    *  （强制入镜）。仅用于配额闸统计 pending 自由入镜条数；旧存档条目无该字段 ⇒ 不计入自由额度。 */
   freeArrival?: boolean;
+  /** P2 可选字段（保持旧存档兼容）：单调修订号。 */
+  revision?: number;
+  /** P2：当前承接原因（为何此时可自然交汇）。 */
+  reason?: string;
+  /** P2：时空/人物前置条件摘要。 */
+  condition?: string;
+  /** P2：主角可感知的公开表面信息（严禁包含完整 desc/秘密）。 */
+  publicInfo?: string;
+  /** P2：角色认知边界提示。 */
+  epistemicBoundary?: string;
+  /** P2：发生地区首段（normalizeRegion 口径）。 */
+  region?: string;
+  /** P2：入镜期限日期键（超期可转背景结算）。 */
+  expiresAtDay?: string;
+  /** P2：最小投递与消费证据元信息（eventId/revision/chat/floor/swipe）。 */
+  delivery?: IntrusionDeliveryMeta;
 }
 
 export interface EvolveConfig {

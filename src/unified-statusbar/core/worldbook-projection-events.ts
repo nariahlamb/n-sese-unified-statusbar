@@ -35,11 +35,11 @@ export function hasWorldbookProjectionDispatcher(): boolean {
  * 注意：registry.setFeatureEnabled 走协调器直连（不经过本函数），用户开关功能时的条目
  * 清理不受本闸门影响。
  */
-export function requestWorldbookProjection(id: string, reason: WorldbookProjectionReason): void {
-  if (isRefillMode()) return;
+export function requestWorldbookProjection(id: string, reason: WorldbookProjectionReason): Promise<void> {
+  if (isRefillMode()) return Promise.resolve();
   if (!dispatcher) {
     pendingRequests.add(id);
-    return;
+    return Promise.resolve();
   }
-  void dispatcher(id, reason);
+  return Promise.resolve(dispatcher(id, reason));
 }

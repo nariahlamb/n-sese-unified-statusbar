@@ -220,6 +220,7 @@ import {
 } from './core/calendar-core';
 import { performCalendarGeneration } from './core/calendar-ai';
 import { initWorldEvolution } from './core/world-engine/world-sources';
+import { bindWorldCognitionBridge } from './core/world-engine/world-snapshot';
 import { applyScene, validateSceneProfile, isSceneApplying } from './core/scene-switcher';
 import type { SceneMode } from './core/constants';
 import { applyStatusbarContentFontScale } from './core/statusbar-font-scale';
@@ -2707,7 +2708,10 @@ if (IS_FIRST_BOOT) {
 
 // 周期/孕育引擎对外 API（拓展项目用）：宿主窗口与本 iframe 各挂同一对象引用；
 // 纯静态对象 + 惰性方法，未调用时零开销（详见 core/cycle-external-api.ts 与 docs/周期孕育引擎-对外API实现说明.md）。
-if (IS_FIRST_BOOT) installCycleExternalApi();
+if (IS_FIRST_BOOT) {
+  installCycleExternalApi();
+  bindWorldCognitionBridge();
+}
 
 // loader resize/orientationchange 防抖后调用
 function handleResize(): void {

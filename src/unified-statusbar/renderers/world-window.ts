@@ -6,11 +6,13 @@ import { ensureStyleOnce } from './style-once';
 import { ubIcon } from '../core/icons';
 import { type Rumor, type Intrusion, type WorldState } from '../core/world-engine/world-types';
 import { loadWorldState, saveWorldState } from '../core/world-engine/world-store';
-import { pendingIntrusions, fillIntrusionHook, triggerIntrusion, removeIntrusion } from '../core/world-engine/world-intrusion';
+import { pendingIntrusions, fillIntrusionHook, prepareIntrusionDraft, removeIntrusion } from '../core/world-engine/world-intrusion';
 import { manualEvolve, undoLastEvolve, isWorldEvolveUndoAvailable } from '../core/world-engine/world-evolution';
 import { projectWorldDigest, projectCharacterDynamics } from '../core/world-engine/world-worldbook';
 import { getToastr } from '../core/env';
-import { charThreadStage, RUMOR_LEVEL_LABEL, buildFrontDigest, timeBadgeHtml, deriveRumorStatusText } from '../core/world-engine/world-state';
+import { charThreadStage, RUMOR_LEVEL_LABEL, buildFrontDigest, isRumorVisibleInFront, normalizeRegion, timeBadgeHtml, deriveRumorStatusText } from '../core/world-engine/world-state';
+import { getCellByHeader } from '../core/data-manager';
+import { getCurrentStoryChatKey } from '../core/story-floor-store';
 import { getConfig } from '../core/config-store';
 import { escapeHtml } from '../core/html-escape';
 import { markPopupShown, guardGhostClick, closePanelOverlay, syncDarkClass as sharedSyncDarkClass, syncDarkClassMinimal as sharedSyncDarkClassMinimal } from './html-builder';
@@ -69,10 +71,10 @@ function chronicleDateHtml(dateKey: unknown, cls = ''): string {
 }
 
 /** 台前渲染集：与 buildFrontDigest 同源同滤（主角可知集合）。
- *  传闻=heard/known；入镜=aiTriggered character_arrival 且 title||hook 非空。 */
-export function frontSectionsFromState(state: WorldState): { rumors: Rumor[]; arrivals: Intrusion[] } {
+ *  传闻=过 region/earliestRevealDay 门控的 heard/known；入镜=aiTriggered character_arrival 且 title||hook 非空。 */
+export function frontSectionsFromState(state: WorldState, dateKey = '', playerRegion = ''): { rumors: Rumor[]; arrivals: Intrusion[] } {
   return {
-    rumors: (state.rumors || []).filter(r => r.level === 'heard' || r.level === 'known'),
+    rumors: (state.rumors || []).filter(r => isRumorVisibleInFront(r, dateKey, playerRegion)),
     arrivals: (state.pendingIntrusions || []).filter(i => i.kind === 'character_arrival' && i.aiTriggered && (i.title || i.hook)),
   };
 }
@@ -524,8 +526,8 @@ export function arcShellMount(root: HTMLElement): void {
 }
 
 /** 台前页签（B 结构，2026-08-21 拍板）：报头 + 入镜区（置顶）+ 传闻区 + 演化纪事；空模块整体隐藏。 */
-function buildFrontTabHtml(state: any, style: StyleType): string {
-  const { rumors, arrivals } = frontSectionsFromState(state);
+function buildFrontTabHtml(state: any, style: StyleType, today = '', playerRegion = ''): string {
+  const { rumors, arrivals } = frontSectionsFromState(state, today, playerRegion);
   const arrivalsBlock = arrivals.length
     ? `<div class="ww-front-sec ww-front-arrivals"><div class="ww-front-sec-title">入镜<em>正在发生</em></div>
       ${arrivals.map(i => `<div class="ww-arrival-card"><div class="ww-arrival-who"><span class="ww-arrival-badge">入镜</span>${escapeHtml(i.refId)}${i.title ? ` · ${escapeHtml(i.title)}` : ''}</div>${i.hook ? `<div class="ww-arrival-hook">${escapeHtml(i.hook)}</div>` : ''}</div>`).join('')}
@@ -612,7 +614,7 @@ function buildIntrusionQueueHtml(state: any): string {
 
 /** 纯函数：生成窗口 HTML（可测）。today=当前日期（YYYY-MM-DD），用于相对时间徽标；缺省不显示。
  *  undoable=false 时撤回按钮置灰（无可撤回的快照）。 */
-export function buildWorldWindowHtml(style: StyleType, state: any, today = '', undoable = true): string {
+export function buildWorldWindowHtml(style: StyleType, state: any, today = '', undoable = true, playerRegion = ''): string {
   // 台前展廊 ↔ 幕后暗室：ww-theme 分主题，bridge 走手记模块壳
   const bridgeClass = style === 'bridge' ? ' bridge-window bridge-module-world' : '';
   return `<div class="${WORLD_WINDOW_CLASS} ww-theme-${style}${bridgeClass}">
@@ -624,7 +626,7 @@ export function buildWorldWindowHtml(style: StyleType, state: any, today = '', u
       <button type="button" class="ww-tab-btn" data-tab="intrusion">入镜<em class="ww-count">${pendingIntrusions(state).length}</em></button>
     </div>
     <div class="ww-pane">
-      ${buildFrontTabHtml(state, style)}
+      ${buildFrontTabHtml(state, style, today, playerRegion)}
       ${buildArcTabHtml(state)}
       ${buildBackTabHtml(state, today)}
       ${buildIntrusionQueueHtml(state)}
@@ -671,9 +673,11 @@ export function showWorldWindow(style: StyleType, onClose?: () => void, initialT
   if (!overlay) return;
   ensureWorldWindowCss(); // v1.1
   const todayNow = getTodayDateKey() || ''; // 归一化 string（buildWorldWindowHtml today 参数类型）
+  let currentRegion = '';
+  try { currentRegion = normalizeRegion(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { /* ignore */ }
   const state = loadWorldState(); // 流言生命周期/消散在演化时维护，打开窗口不额外剔除
   let liveState = state; // v1.1：触发/删除后维护最新状态（触发=acted+TTL 等演化消散；删除=直接移除并重建台前）
-  overlay.innerHTML = buildWorldWindowHtml(style, state, todayNow, isWorldEvolveUndoAvailable());
+  overlay.innerHTML = buildWorldWindowHtml(style, state, todayNow, isWorldEvolveUndoAvailable(), currentRegion);
   activateTab(overlay, initialTab); // v1.2：镜头之外点卡联动可指定打开页签
   syncDarkClass(overlay);
   markPopupShown();
@@ -710,7 +714,7 @@ export function showWorldWindow(style: StyleType, onClose?: () => void, initialT
     if (!pane) return;
     const active = overlay.querySelector('.ww-tab-btn.is-active');
     const tab = active ? (active as HTMLElement).dataset.tab : 'front';
-    pane.innerHTML = buildFrontTabHtml(st, style) + buildArcTabHtml(st) + buildBackTabHtml(st, todayNow) + buildIntrusionQueueHtml(st);
+    pane.innerHTML = buildFrontTabHtml(st, style, todayNow, currentRegion) + buildArcTabHtml(st) + buildBackTabHtml(st, todayNow) + buildIntrusionQueueHtml(st);
     // 回廊计数随演化轮次变化，页签徽标须同步
     const arcCount = overlay.querySelector('.ww-tab-btn[data-tab="arc"] .ww-count');
     if (arcCount) arcCount.textContent = String((st.chronicle || []).length);
@@ -860,15 +864,19 @@ export function showWorldWindow(style: StyleType, onClose?: () => void, initialT
       return;
     }
     if (target.closest('.ww-intrusion-fill')) {
-      // 触发：放入输入框 + 标 acted+TTL + 落盘 → 通知两轮消散 → 重渲染保持当前 tab
+      // P2 修复：放入输入框仅记录草稿预留（保持 pending），绝不提前消费为 acted；失败时显式提示且不改状态。
       const row = target.closest('.ww-intrusion') as HTMLElement;
       const id = row.dataset.intrusionId || '';
       const it = liveState.pendingIntrusions.find((i: any) => i.id === id);
-      if (it && it.status === 'pending' && fillIntrusionHook(it)) {
-        const next = triggerIntrusion(liveState, id);
+      if (it && it.status === 'pending') {
+        if (!fillIntrusionHook(it)) {
+          getToastr()?.warning('未能填入聊天输入框，事件保持待处理', '世界动态');
+          return;
+        }
+        const next = prepareIntrusionDraft(liveState, id, { chatKey: getCurrentStoryChatKey() });
         liveState = next;
         void saveWorldState(next).then(() => {
-          getToastr()?.success(`已触发：${it.title}，两轮演化后消散`, '世界动态');
+          getToastr()?.info(`已填入输入框草稿：${it.title}（正文实际承接后才会正式消费）`, '世界动态');
           rebuildPanes(next);
         });
       }
@@ -880,7 +888,9 @@ export function showWorldWindow(style: StyleType, onClose?: () => void, initialT
       const fresh = loadWorldState();
       if (fresh.pendingIntrusions.some((i: any) => i.id === id)) {
         const next = removeIntrusion(fresh, id);
-        next.frontDigest = buildFrontDigest(next, todayNow);
+        let playerRegion = '';
+        try { playerRegion = normalizeRegion(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { /* ignore */ }
+        next.frontDigest = buildFrontDigest(next, todayNow, { playerRegion });
         liveState = next;
         void saveWorldState(next).then(async () => {
           await projectWorldDigest(next.frontDigest);
@@ -899,7 +909,9 @@ export function showWorldWindow(style: StyleType, onClose?: () => void, initialT
         const kept = fresh.rumors.filter((r: any) => r.id !== id);
         if (kept.length !== fresh.rumors.length) {
           const next = { ...fresh, rumors: kept };
-          next.frontDigest = buildFrontDigest(next, todayNow);
+          let playerRegion = '';
+          try { playerRegion = normalizeRegion(getCellByHeader('全局数据表', 1, '当前详细地点') || ''); } catch (_e) { /* ignore */ }
+          next.frontDigest = buildFrontDigest(next, todayNow, { playerRegion });
           liveState = next;
           void saveWorldState(next).then(() => {
             rebuildPanes(next);
