@@ -315,9 +315,12 @@ export function initWorldEvolution(): void {
   const skipQuiet = (type?: string) => type === 'quiet' || type === 'impersonate' || type === 'command' || type === 'extension' || type === 'first_message';
   const onTurn = (_id?: unknown, type?: string) => {
     if (!skipQuiet(type)) {
-      void syncIntrusionsOnTurn(true).finally(() => {
-        scheduleEvolve();
-      });
+      // 让出当前事件栈，避免状态栏正则/世界书读写抢在台账等监听之前占满同步阶段。
+      setTimeout(() => {
+        void syncIntrusionsOnTurn(true).finally(() => {
+          scheduleEvolve();
+        });
+      }, 0);
     }
   };
   const onReconcileOnly = () => {
