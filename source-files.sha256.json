@@ -69,7 +69,7 @@
     "src/unified-statusbar/core/comfyui-client.ts": "8e4a64208de2a1cf335172fde8bcff5807bcbc7cee098554ca3baec69cc53224",
     "src/unified-statusbar/core/config-store.ts": "627825124d92d10ca67b6ea0611f3e81f19521106fff6581e2e5c7746401557e",
     "src/unified-statusbar/core/constants.ts": "b2974f332807af21c3bda272415004901c1d163cdc154d9eda01ac0f19e126f8",
-    "src/unified-statusbar/core/context-strip.ts": "093dcb9b50d78d9c4d4546c7a7a4b42ed4918d8cc37e873a068cdaedc99b3ba4",
+    "src/unified-statusbar/core/context-strip.ts": "44aeb9f8d72d07e68abace11e27cf957d7e005e0ac2b3bf98ec6b6a0a633739f",
     "src/unified-statusbar/core/cross-window.ts": "3d7c56f4c425bafaf49ac0ffc8fb46e25745236a8e32ce7d4a48eff3ba17ec7f",
     "src/unified-statusbar/core/currency-ai.ts": "01be5aebb2a3c2ff98953577cda05828b97ccdc0911de1105be7a75f766ffa9c",
     "src/unified-statusbar/core/currency-host-bridge.ts": "8793a0511e402a909ab4a9169e9734c9cb67801ac7e1e043bd87897538eb23fc",
