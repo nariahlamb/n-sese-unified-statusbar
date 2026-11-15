@@ -153,12 +153,23 @@ export function buildStyleDirectionRule(style?: string, custom?: string): string
   return ''; // general 及其他：不加额外要求
 }
 
-/** 小手机联动规则文案（按小手机当前聊天风格换装；协议行结构不变，四平台全风格产出——docs/15 §5）。 */
-const PHONE_LINK_RULES: Record<string, string> = {
-  '': '小手机联动（主角手机）：本轮至少产出 1 份、至多 3 份「小手机内容」，从下列两类中按剧情合理性自然选择（可混搭），禁止全部缺席：① 相熟角色主动联系主角——发微信消息或打电话（每轮最多 1 位角色、最多 1 次联系；消息像真人发的微信，短句、符合角色语言风格，可拆 2-3 条连发；电话给 2-4 句接通后的口语开场白）；已在 <intrusions> 安排入镜的角色本轮不要再主动联系。② 角色或路人在社交媒体发帖——朋友圈（熟人半公开的日常闲话）、贴吧（在某个兴趣吧发帖盖楼讨论）、微博（公开发言、吃瓜、蹭话题热议）、小红书（标题党式的种草/记录笔记）；帖子内容取材于焦点角色的动向/暗中打算/传闻/世界变化（如传闻在贴吧发酵、动向以朋友圈流露、路人微博议论世界事件）；发帖人=焦点角色或贴合世界观的普通路人（路人帖适合承载传闻与市井氛围），每份帖子必须自带 2-6 条评论（评论者=焦点角色或路人，可楼中楼回复），朋友圈可另给 0-4 个点赞人名；帖子正文≥30字、评论≥10字；可选给一个图片画面描述（无图也可）。严禁以主角本人的身份发帖、评论或点赞；消息与来电只允许焦点角色发起。社媒允许贴合世界观的普通路人出镜，但发帖人/评论者/点赞者中凡是有名有姓的角色，一律只能是本轮焦点角色。',
-  xianxia: '小手机联动（主角传讯玉简）：本轮至少产出 1 份、至多 3 份「传讯玉简内容」，从下列两类中按剧情合理性自然选择（可混搭），禁止全部缺席：① 相熟角色主动联系主角——传符讯或神识传音（每轮最多 1 位角色、最多 1 次联系；符讯像真人刻下的短句、符合角色语言风格，可拆 2-3 条连发；传音给 2-4 句接通后的口语开场白）；已在 <intrusions> 安排入镜的角色本轮不要再主动联系。② 角色或路人在社媒发帖——百晓阁（天下风闻汇聚的公开阁榜，公开发言、吃瓜、蹭风闻榜热议）、论道坛（在某个坛里灌水盖楼论道）、云笈录（标题党式的好物/攻略分享，录成一笈）、浮生帖（道友间半公开的近况闲话）；帖子内容取材于焦点角色的动向/暗中打算/传闻/世界变化（如传闻在风闻榜发酵、动向以浮生帖流露、论道坛议论世界事件）；发帖人=焦点角色或贴合世界观的普通路人（路人帖适合承载传闻与市井氛围），每份帖子必须自带 2-6 条回应（回应者=焦点角色或路人，可楼中楼回复），浮生帖可另给 0-4 个道好人名；帖子正文≥30字、回应≥10字；可选给一个留影画面描述（无图也可）。严禁以主角本人的身份发帖、回应或道好；符讯与传音只允许焦点角色发起。百晓阁/论道坛/云笈录允许贴合世界观的普通路人出镜，但发帖人/回应者中凡是有名有姓的角色，一律只能是本轮焦点角色。',
-  wuxia: '小手机联动（主角天机匣）：本轮至少产出 1 份、至多 3 份「天机匣内容」，从下列两类中按剧情合理性自然选择（可混搭），禁止全部缺席：① 相熟角色主动联系主角——递飞鸽书信或千里传声（每轮最多 1 位角色、最多 1 次联系；书信像真人手写的短笺、符合角色语言风格，可拆 2-3 条连发；传声给 2-4 句接通后的口语开场白）；已在 <intrusions> 安排入镜的角色本轮不要再主动联系。② 角色或路人在社媒发帖——悦来茶馆（江湖风声汇聚的百年茶楼，公开发言、吃瓜、蹭今日书目热议）、英雄楼（在某个堂里灌水盖楼议江湖）、风物志（标题党式的风物/行旅分享，录成一篇图志）、故人笺（故人间半公开的近况闲话）；帖子内容取材于焦点角色的动向/暗中打算/传闻/世界变化（如传闻上了今日书目、动向以故人笺流露、英雄楼议论世界事件）；发帖人=焦点角色或贴合世界观的普通路人（路人帖适合承载传闻与市井氛围），每份帖子必须自带 2-6 条回应（回应者=焦点角色或路人，可楼中楼回复），故人笺可另给 0-4 个称善人名；帖子正文≥30字、回应≥10字；可选给一个写真画面描述（无图也可）。严禁以主角本人的身份发帖、回应或称善；书信与传声只允许焦点角色发起。悦来茶馆/英雄楼/风物志允许贴合世界观的普通路人出镜，但发帖人/回应者中凡是有名有姓的角色，一律只能是本轮焦点角色。',
-  fantasy: '小手机联动（主角传讯水晶）：本轮至少产出 1 份、至多 3 份「传讯水晶内容」，从下列两类中按剧情合理性自然选择（可混搭），禁止全部缺席：① 相熟角色主动联系主角——发晶讯或施展远语（每轮最多 1 位角色、最多 1 次联系；晶讯像真人落笔的短句、符合角色语言风格，可拆 2-3 条连发；远语给 2-4 句接通后的口语开场白）；已在 <intrusions> 安排入镜的角色本轮不要再主动联系。② 角色或路人在社媒发帖——吟游诗社（歌谣与见闻汇聚的行吟者集社，公开发言、吃瓜、蹭传唱榜热议）、行会大厅（在某个行会里灌水盖楼议事）、藏宝图鉴（标题党式的好物/冒险攻略分享，录成一篇图鉴）、篝火手记（同伴间半公开的近况闲话）；帖子内容取材于焦点角色的动向/暗中打算/传闻/世界变化（如传闻上了传唱榜、动向以篝火手记流露、行会大厅议论世界事件）；发帖人=焦点角色或贴合世界观的普通路人（路人帖适合承载传闻与市井氛围），每份帖子必须自带 2-6 条回应（回应者=焦点角色或路人，可楼中楼回复），篝火手记可另给 0-4 个喝彩人名；帖子正文≥30字、回应≥10字；可选给一个记影画面描述（无图也可）。严禁以主角本人的身份发帖、回应或喝彩；晶讯与远语只允许焦点角色发起。吟游诗社/行会大厅/藏宝图鉴允许贴合世界观的普通路人出镜，但发帖人/回应者中凡是有名有姓的角色，一律只能是本轮焦点角色。',
+/** 小手机主动联系硬冷却（轮次）：同角色至少间隔 4 轮、全剧至少间隔 2 轮才允许再发起一次独立微信/来电。 */
+export const PHONE_CONTACT_PEER_COOLDOWN_ROUNDS = 4;
+export const PHONE_CONTACT_GLOBAL_COOLDOWN_ROUNDS = 2;
+const PHONE_CONTACT_MESSAGES_PER_TURN = 2;
+
+function isRoundInCooldown(lastRound: unknown, currentRound: number, cooldown: number): boolean {
+  if (typeof lastRound !== 'number' || !Number.isFinite(lastRound) || lastRound < 0) return false;
+  if (currentRound < lastRound) return false; // 删楼回退后旧轮次记录自动失效
+  return (currentRound - lastRound) < cooldown;
+}
+
+/** 小手机联动规则文案（按小手机当前聊天风格换装；协议行结构不变，默认留空不凑数）。 */
+export const PHONE_LINK_RULES: Record<string, string> = {
+  '': '小手机联动（主角手机，按需产出、默认留空）：大多数轮次不需要输出 <phone> 块；有明确事由才发、没事就留空，严禁为了交差凑数或强行寒暄（0-2 份即可）。① 相熟角色主动联系主角——发微信消息或打电话：仅当某位当前不在主角身边的焦点角色，因近期动向、突发变故、约定提醒或剧情明确需要远程联络时才产出（每轮最多 1 位角色、1-2 条符合真人口吻的短句；或 2-4 句来电开场白）；当前已经在场面对面、刚联系过不久、或只是问“在干嘛/吃了吗”之类无实质内容的，一律不发；已在 <intrusions> 安排本轮入镜的角色不再发手机消息。② 角色或路人在社交媒体发帖——朋友圈（熟人半公开日常闲话）、贴吧（兴趣吧讨论）、微博（公开热点）、小红书（种草/记录笔记）：仅当角色动向/暗中打算/传闻/世界变化确实适合公开或半公开发酵时才写（每帖 2-6 条评论，朋友圈 0-4 赞，正文≥30字、评论≥10字，可选图片描述）；平淡轮次可不发。严禁以主角本人的身份发帖、评论或点赞；消息与来电只允许焦点角色发起，社媒中凡有名有姓角色只用焦点角色。本轮若无明确私聊事由也无值得发帖的内容，请直接省略 <phone> 块。',
+  xianxia: '小手机联动（主角传讯玉简，按需产出、默认留空）：大多数轮次不需要输出 <phone> 块；有明确事由才发、没事就留空，严禁为了交差凑数或强行寒暄（0-2 份即可）。① 相熟角色主动联系主角——传符讯或神识传音：仅当某位当前不在主角身边的焦点角色，因近期动向、突发变故、约定提醒或剧情明确需要远程传讯时才产出（每轮最多 1 位角色、1-2 条贴合真人口吻的短句；或 2-4 句传音开场白）；当前已在场面对面、刚联系过不久、或无实质要事的，一律不发；已在 <intrusions> 安排本轮入镜的角色不再主动传讯。② 角色或路人在社媒发帖——百晓阁、论道坛、云笈录、浮生帖：仅当角色动向/暗中打算/传闻/世界变化确实适合公开发酵时才写（每帖 2-6 条回应，浮生帖 0-4 道好，正文≥30字、回应≥10字，可选留影描述）；平淡轮次可不发。严禁以主角身份发帖、回应或道好；符讯与传音只允许焦点角色发起，社媒中凡有名有姓角色只用焦点角色。本轮若无明确事由也无值得发帖的内容，请直接省略 <phone> 块。',
+  wuxia: '小手机联动（主角天机匣，按需产出、默认留空）：大多数轮次不需要输出 <phone> 块；有明确事由才发、没事就留空，严禁为了交差凑数或强行寒暄（0-2 份即可）。① 相熟角色主动联系主角——递飞鸽书信或千里传声：仅当某位当前不在主角身边的焦点角色，因近期动向、突发变故、约定提醒或剧情明确需要远程联络时才产出（每轮最多 1 位角色、1-2 条短笺；或 2-4 句传声开场白）；当前已在场面对面、刚联系过不久、或无实质要事的，一律不发；已在 <intrusions> 安排本轮入镜的角色不再主动传书。② 角色或路人在社媒发帖——悦来茶馆、英雄楼、风物志、故人笺：仅当角色动向/暗中打算/传闻/世界变化确实适合传扬议论时才写（每帖 2-6 条回应，故人笺 0-4 称善，正文≥30字、回应≥10字，可选写真描述）；平淡轮次可不发。严禁以主角身份发帖、回应或称善；书信与传声只允许焦点角色发起，社媒中凡有名有姓角色只用焦点角色。本轮若无明确事由也无值得发帖的内容，请直接省略 <phone> 块。',
+  fantasy: '小手机联动（主角传讯水晶，按需产出、默认留空）：大多数轮次不需要输出 <phone> 块；有明确事由才发、没事就留空，严禁为了交差凑数或强行寒暄（0-2 份即可）。① 相熟角色主动联系主角——发晶讯或施展远语：仅当某位当前不在主角身边的焦点角色，因近期动向、突发变故、约定提醒或剧情明确需要远程联络时才产出（每轮最多 1 位角色、1-2 条短句；或 2-4 句远语开场白）；当前已在场面对面、刚联系过不久、或无实质要事的，一律不发；已在 <intrusions> 安排本轮入镜的角色不再主动传讯。② 角色或路人在社媒发帖——吟游诗社、行会大厅、藏宝图鉴、篝火手记：仅当角色动向/暗中打算/传闻/世界变化确实适合公开发酵时才写（每帖 2-6 条回应，篝火手记 0-4 喝彩，正文≥30字、回应≥10字，可选记影描述）；平淡轮次可不发。严禁以主角身份发帖、回应或喝彩；晶讯与远语只允许焦点角色发起，社媒中凡有名有姓角色只用焦点角色。本轮若无明确事由也无值得发帖的内容，请直接省略 <phone> 块。',
 };
 
 /** <phone> 块输出格式说明（按风格换装；行协议与字段枚举跨风格不变）。 */
@@ -258,6 +269,16 @@ export function buildEvolutionInstructionParts(
   if (cfg.worldPhoneLink) {
     const phoneStyle = findHostPhoneStyle();
     rulesParts.push(PHONE_LINK_RULES[phoneStyle] || PHONE_LINK_RULES['']);
+    if (isRoundInCooldown(state.lastPhoneContactRound, round, PHONE_CONTACT_GLOBAL_COOLDOWN_ROUNDS)) {
+      rulesParts.push('小手机主动联系节制：近期刚有角色主动私聊/来电过，本轮禁止再产出主动私聊或来电（无需凑数，若无值得发帖的内容直接省略 <phone>）。');
+    } else {
+      const blocked = focus
+        .filter(p => p.onStage || isRoundInCooldown(p.lastPhoneContactRound, round, PHONE_CONTACT_PEER_COOLDOWN_ROUNDS))
+        .map(p => p.name);
+      if (blocked.length) {
+        rulesParts.push(`小手机主动联系限制：以下角色当前已在场面对面或刚联系过不久，本轮不要再主动发微信或来电：${blocked.join('、')}。`);
+      }
+    }
   }
   // WS8 11.2：文案质量引导段（Stitches 提炼）
   rulesParts.push('文案质量（角色动向/打算/暗中打算/传闻均适用）：\n'
@@ -1372,6 +1393,60 @@ export function __setWorldPhoneStyleForTests(fn: (() => string) | null): void {
   _phoneStyleOverride = fn;
 }
 
+/** 过滤并记录世界演化主动发往小手机的私聊/来电事件（保留 social；屏蔽在场角色、全局/单人冷却中角色、且同轮只放行 1 位联系者至多 2 条 message）。 */
+export function applyPhoneContactPolicy(
+  state: WorldState,
+  events: readonly WorldPhoneEvent[] | undefined,
+  ctx: { round: number; focusNames: readonly string[]; onStageNames?: readonly string[] },
+): { state: WorldState; events: WorldPhoneEvent[] } {
+  if (!events || !events.length) return { state, events: [] };
+  const allow = new Set(ctx.focusNames);
+  const onStageSet = new Set(ctx.onStageNames || []);
+  const globalCooling = isRoundInCooldown(state.lastPhoneContactRound, ctx.round, PHONE_CONTACT_GLOBAL_COOLDOWN_ROUNDS);
+
+  const out: WorldPhoneEvent[] = [];
+  let chosenPeer: string | null = null;
+  let chosenMsgCount = 0;
+  let chosenCalled = false;
+
+  for (const ev of events) {
+    if (!ev?.name) continue;
+    if (ev.kind === 'social') {
+      out.push(ev);
+      continue;
+    }
+    if (ev.kind !== 'message' && ev.kind !== 'call') continue;
+    if (!allow.has(ev.name)) continue;
+    const prof = state.profiles[ev.name];
+    if (onStageSet.has(ev.name) || prof?.onStage === true) continue;
+    if (globalCooling) continue;
+    if (isRoundInCooldown(prof?.lastPhoneContactRound, ctx.round, PHONE_CONTACT_PEER_COOLDOWN_ROUNDS)) continue;
+
+    if (chosenPeer !== null && chosenPeer !== ev.name) continue;
+    if (ev.kind === 'message') {
+      if (chosenCalled || chosenMsgCount >= PHONE_CONTACT_MESSAGES_PER_TURN) continue;
+      chosenPeer = ev.name;
+      chosenMsgCount++;
+      out.push(ev);
+    } else {
+      if (chosenCalled || chosenMsgCount > 0) continue;
+      chosenPeer = ev.name;
+      chosenCalled = true;
+      out.push(ev);
+    }
+  }
+
+  if (!chosenPeer) return { state, events: out };
+  const nextProfiles = { ...state.profiles };
+  if (nextProfiles[chosenPeer]) {
+    nextProfiles[chosenPeer] = { ...nextProfiles[chosenPeer], lastPhoneContactRound: ctx.round };
+  }
+  return {
+    state: { ...state, lastPhoneContactRound: ctx.round, profiles: nextProfiles },
+    events: out,
+  };
+}
+
 /** 主动联系 / 社媒帖事件推送：实体协议（消息/来电只放行本轮焦点角色名，防幻觉；社媒帖作者允许路人——
  *  公共平台本就有路人生态，主角名屏蔽在小手机落库层执行）→ 宿主桥 → 小手机。返回投递条数。 */
 export function dispatchWorldPhoneEvents(events: WorldPhoneEvent[] | undefined, focusNames: readonly string[]): number {
@@ -1601,6 +1676,15 @@ export async function doEvolve(kind: EvolveKind): Promise<boolean> {
     next.chronicle.unshift(generateChronicle(base, next, kind, dateKey, delta.vignette)); // WS8：vignette 优先作纪事主文
     next.chronicle = next.chronicle.slice(0, CHRONICLE_MAX);
 
+    // 小手机主动联系门控：在场角色与冷却期内角色不投递私聊/来电；放行后一并更新冷却轮次再落盘。
+    const focusNames = focus.map(p => p.name);
+    let deliverPhoneEvents: WorldPhoneEvent[] = [];
+    if (delta.phoneEvents?.length && cfg.worldPhoneLink) {
+      const filtered = applyPhoneContactPolicy(next, delta.phoneEvents, { round, focusNames, onStageNames: onStage });
+      next = filtered.state;
+      deliverPhoneEvents = filtered.events;
+    }
+
     // F5 代际守卫：AI 请求期间聊天已切换 → 本次结果属于旧聊天，整体放弃（静默，不打扰新聊天）
     if (getCurrentStoryChatKey() !== chatKeyAtStart) {
       console.info('[ub-world] evolve aborted: chat switched during generation');
@@ -1617,8 +1701,8 @@ export async function doEvolve(kind: EvolveKind): Promise<boolean> {
       enqueueWorldEvolutionPopup(newArrivals, surfacedRumors);
     }
     // 小手机联动：主动联系/社媒帖事件推入瑟瑟小手机（微信红点/来电界面/社媒信息流）；消息与来电走实体协议=只放行本轮焦点角色
-    if (delta.phoneEvents?.length && cfg.worldPhoneLink) {
-      dispatchWorldPhoneEvents(delta.phoneEvents, focus.map(p => p.name));
+    if (deliverPhoneEvents.length && cfg.worldPhoneLink) {
+      dispatchWorldPhoneEvents(deliverPhoneEvents, focusNames);
     }
     await projectWorldDigest(next.frontDigest);
     await projectCharacterDynamics(); // 离场/在场角色动向绿灯条目投影（含暗中打算+主角不知情提示）

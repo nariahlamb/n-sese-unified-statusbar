@@ -181,6 +181,8 @@ export interface WorldState {
   guidance?: WorldGuidance;
   /** 上次演化时的当前日期键。 */
   lastClockDay?: string;
+  /** 最近一次世界演化主动向小手机发起私聊/来电的聊天轮次（全局冷却防每轮轰炸）。 */
+  lastPhoneContactRound?: number;
 }
 
 export interface CharProfile {
@@ -215,6 +217,8 @@ export interface CharProfile {
   experiences?: CharExperience[];
   updatedAt: string;
   lastEvolveRound: number;
+  /** 该角色最近一次通过世界演化主动向主角发手机消息/来电的轮次（同角色冷却）。 */
+  lastPhoneContactRound?: number;
 }
 
 export interface Rumor {
