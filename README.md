@@ -17,7 +17,7 @@
   2. 在酒馆「扩展 → 安装扩展」粘贴本仓库地址，装好后刷新页面；同名旧脚本请先停用。
   3. 搭配 `n-sese-ledger`（瑟瑟台账）使用；若使用外部数据库，需切到 SQL 模式。
   4. 进入角色聊天，打开右上角 `⚙` 设置 API 与表格；新开档导入模板，已有数据只修复模板，不要重填。
-- **延伸参考**：[简易教程](https://docs.google.com/document/d/1f5B-GmNLJExH7FE9bwpOb4Ditx5EDHfQtTIXY0WDnX4/edit) · [来源说明](SOURCE_NOTICE.md)
+- **来源与参考**：业务原始源码源自原作者 2026-10-25 公开分享包（原作者已停更），本仓库为个人后续适配与改造维护版本，版权归属见 [SOURCE_NOTICE.md](SOURCE_NOTICE.md) 与 [src/README.md](src/README.md)。 · [简易教程](https://docs.google.com/document/d/1f5B-GmNLJExH7FE9bwpOb4Ditx5EDHfQtTIXY0WDnX4/edit)
 
 ---
 
