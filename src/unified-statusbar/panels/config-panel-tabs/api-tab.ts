@@ -4,6 +4,7 @@
 // 故收敛为两个入参；其余依赖全部走 import（原区内 6 处 _onConfigChanged 直呼改为 notifyChanged()）。
 
 import { getConfig, setConfig, type StatusBarConfig } from '../../core/config-store';
+import { cleanContextTextWithMeta, normalizeContextTags } from '../../core/context-strip';
 import { getToastr } from '../../core/env';
 import { showCardEntryBlacklistPopup } from '../../renderers/card-entry-blacklist-popup';
 import { PROMPT_POST_PROCESSING_DEFAULT, normalizeAiRetryMax, type ApiMode, type AiRetryScope, type CustomApiPreset, type PromptPostProcessingValue, type SceneApiPreset, type SceneProfile } from '../../core/constants';
@@ -95,29 +96,74 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
     });
   }
 
-  // 上下文标签剥离保存按钮（仅 MANUAL 模式：地图 / 立绘 / 瑟瑟指导）
+  // 上下文标签剥离保存按钮 + 本地试跑预览
+  const parseTagInput = (val: string): string[] =>
+    normalizeContextTags(String(val || '').split(/[\n,，;；]+/));
   const stripTagsSaveBtn = document.getElementById('contextStripTagsSaveBtn');
   if (stripTagsSaveBtn) {
     stripTagsSaveBtn.addEventListener('click', function () {
-      const ta = document.getElementById('contextStripTagsInput') as HTMLTextAreaElement | null;
-      if (!ta) return;
-      // 兼容换行 / 中英文逗号 / 分号；去空、trim、小写、去重
-      const parts = ta.value.split(/[\n,，;；]+/);
-      const seen = new Set<string>();
-      const arr: string[] = [];
-      for (const raw of parts) {
-        const tag = String(raw == null ? '' : raw).trim().toLowerCase();
-        if (!tag || seen.has(tag)) continue;
-        seen.add(tag);
-        arr.push(tag);
-      }
-      config.contextStripTags = arr;
-      setConfig('contextStripTags', arr);
-      // 同步回 textarea：归一化后的内容（空数组显示为空）
-      ta.value = arr.length > 0 ? arr.join('\n') : '';
+      const keepTa = document.getElementById('contextKeepTagsInput') as HTMLTextAreaElement | null;
+      const stripTa = document.getElementById('contextStripTagsInput') as HTMLTextAreaElement | null;
+      if (!stripTa) return;
+      const keepArr = keepTa ? parseTagInput(keepTa.value) : config.contextKeepTags;
+      const stripArr = parseTagInput(stripTa.value);
+      config.contextKeepTags = keepArr;
+      config.contextStripTags = stripArr;
+      setConfig('contextKeepTags', keepArr);
+      setConfig('contextStripTags', stripArr);
+      if (keepTa) keepTa.value = keepArr.length > 0 ? keepArr.join('\n') : '';
+      stripTa.value = stripArr.length > 0 ? stripArr.join('\n') : '';
       if (typeof toastr !== 'undefined' && toastr) {
-        toastr.success(arr.length > 0 ? `已保存 ${arr.length} 个待剥离标签` : '已清空，剥离已关闭', '上下文标签剥离');
+        const keepMsg = keepArr.length > 0 ? '保留 ' + keepArr.length + ' 个' : '未设保留标签';
+        const stripMsg = stripArr.length > 0 ? '剥离 ' + stripArr.length + ' 个' : '剥离已关闭';
+        toastr.success(keepMsg + '，' + stripMsg, '上下文标签剥离');
       }
+    });
+  }
+  const stripPreviewBtn = document.getElementById('contextStripPreviewBtn');
+  if (stripPreviewBtn) {
+    stripPreviewBtn.addEventListener('click', function () {
+      const keepTa = document.getElementById('contextKeepTagsInput') as HTMLTextAreaElement | null;
+      const stripTa = document.getElementById('contextStripTagsInput') as HTMLTextAreaElement | null;
+      const sampleTa = document.getElementById('contextStripPreviewInput') as HTMLTextAreaElement | null;
+      const metaEl = document.getElementById('contextStripPreviewMeta');
+      const outEl = document.getElementById('contextStripPreviewOutput');
+      if (!sampleTa || !outEl) return;
+      const keepArr = parseTagInput(keepTa ? keepTa.value : '');
+      const stripArr = parseTagInput(stripTa ? stripTa.value : '');
+      const res = cleanContextTextWithMeta(sampleTa.value, { keepTags: keepArr, stripTags: stripArr });
+      outEl.style.display = 'block';
+      outEl.textContent = res.text || '（剥离后为空）';
+      if (metaEl) {
+        if (keepArr.length > 0) {
+          metaEl.textContent = res.matchedKeepTag
+            ? '已命中保留标签提取（长度 ' + res.text.length + ' 字）'
+            : '未命中保留标签，已按剥离规则回退（长度 ' + res.text.length + ' 字）';
+        } else {
+          metaEl.textContent = '仅按剥离标签清理（长度 ' + res.text.length + ' 字）';
+        }
+      }
+    });
+  }
+  const stripFillSampleBtn = document.getElementById('contextStripPreviewFillSampleBtn');
+  if (stripFillSampleBtn) {
+    stripFillSampleBtn.addEventListener('click', function () {
+      const sampleTa = document.getElementById('contextStripPreviewInput') as HTMLTextAreaElement | null;
+      if (!sampleTa) return;
+      sampleTa.value = [
+        '<thinking>',
+        '自言自语：先别输出 </thinking>，草稿 <content>思考里的示例正文</content> 与 <options>1. 假选项</options> 都不能泄漏。',
+        '</thinking>',
+        '<content>',
+        '<novel_header>第1章</novel_header>',
+        '这里是真正保留下来的正文内容。',
+        '<orange><div>内嵌装饰便签</div></orange>',
+        '</content>',
+        '<options>',
+        '1. 下一步行动',
+        '</options>',
+      ].join('\n');
+      stripPreviewBtn?.dispatchEvent(new Event('click'));
     });
   }
 

@@ -3,8 +3,7 @@
 import { getConfig } from '../config-store';
 import { getCellByHeader, getSheetByName, isNsfwPlayActive } from '../data-manager';
 import { parseProtagonistAttitude, parseCharacterRelationRows, formatRelationInjectionLines } from '../character-relation-model';
-import { getCleanChatHistory, getRecentStoryContext } from '../map-system';
-import { stripWithContextConfig } from '../context-strip';
+import { getAiReplyContext, getRecentStoryContext } from '../map-system';
 import { getTodayDateKey } from '../calendar-core';
 import { getTavernHelper } from '../env';
 import {
@@ -178,7 +177,7 @@ export async function readEvolutionSources(focus: CharProfile[], _state: WorldSt
     readChronicleRowsForNames(focus.map(p => p.name), chronicleTotal),
     { overview: overviewCount, full: chronicleTotal - overviewCount },
   );
-  const recentChat = stripWithContextConfig(getCleanChatHistory(cfg.worldContextCount || 2));
+  const recentChat = getAiReplyContext(cfg.worldContextCount || 2);
   const relationLines = formatRelationInjectionLines(
     parseCharacterRelationRows(getSheetByName('人物关系表')),
     { involve: focus.map(p => p.name), limit: 20 },

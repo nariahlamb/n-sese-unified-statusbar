@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.4`（最新提交基线 `4d11bd4`）
+- **当前版本**：`0.1.0-alpha.5`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -30,7 +30,7 @@
 | **P3 技能提示词降载** | ✅ 代码+单测完成 | `reference` 模式常亮仅保留技能名+主动/被动+单句前提；完整详述拆为 `UBS-技能-详情-*`（`selective`, `scanDepth: 2`）按严格关键词触发，排除泛动作误命中（[skill-worldbook.ts](src/unified-statusbar/core/skill-worldbook.ts)） |
 | **P4 跨插件认知快照桥** | ✅ 代码+单测完成 | 暴露 `window.__ubWorldCognitionSnapshot`（版本化只读深拷贝，不含 `desc`/`hiddenGoal`/写接口）供 `n-sese-ledger` 剧情推进消费（[world-snapshot.ts](src/unified-statusbar/core/world-engine/world-snapshot.ts)） |
 | **P4-Fix 小手机联动去强制** | ✅ 代码+单测完成（已实机确认） | 解除四套风格 `PHONE_LINK_RULES` 的「禁止缺席/至少产出 1 份」，改为默认留空有事才发；新增 `applyPhoneContactPolicy` 拦截在场角色、同轮限 1 人 ≤2 条，全剧冷却 2 轮/单人冷却 4 轮（[world-evolution.ts](src/unified-statusbar/core/world-engine/world-evolution.ts) `v0.1.0-alpha.4`） |
-| **上下文标签剥离防误吞** | ✅ 代码+单测完成 | `stripContextTags` 重写为单遍栈式配对，解决 `<thinking>` 内提及未闭合 `<options>`/`<orange>`/`<UpdateVariable>` 时先跑正则跨块吞光 `<content>` 正文的问题（[context-strip.ts](src/unified-statusbar/core/context-strip.ts) `v0.1.0-alpha.3`） |
+| **上下文标签剥离分层与 UI 试跑** | ✅ 代码+单测完成 | 拆分 `contextKeepTags`（保留标签白名单）与 `contextStripTags`（剥离标签黑名单，从上到下优先级保护），改为逐楼独立清洗后再拼接；设置页新增双框编辑与零 API 本地试跑预览（[context-strip.ts](src/unified-statusbar/core/context-strip.ts) `v0.1.0-alpha.5`） |
 | **事件调度与双端 UI 适配** | ✅ 代码+单测完成 | `MESSAGE_RECEIVED` 让出当前事件栈避免抢在台账之前运行（`ad73be6`）；`applyMobileFixes` 收敛到 `<= 600px`，悬浮球实时 resize 重算边界；TT `ChatSurface` 虚拟化贴尾适配（[index.ts](src/unified-statusbar/index.ts)、[mobile-environment.ts](src/unified-statusbar/core/mobile-environment.ts)） |
 | **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **83/83 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性」在 TT Static/Managed 与手机端待持续实机观察 |
 
@@ -59,8 +59,8 @@
 
 ### 3.2 上下文标签剥离与角色卡输出格式兼容
 
-- 角色卡自带的 `<thinking>`、`<novel_header>`、`<UpdateVariable>`、`<options>`、`<orange>` 等非正文块，可在状态栏「上下文标签剥离」中按行配置（每行一个标签名，大小写不敏感）。
-- 自 `0.1.0-alpha.3` 起，`stripContextTags` 采用**单遍栈式配对**：角色卡思维链 `<thinking>` 中随意举例未闭合的 `<options>` / `<orange>` / `<UpdateVariable>`，**不会**跨出 `</thinking>` 误吞正文 `<content>`，也无需严格纠结标签列表先后顺序。
+- 状态栏「设置 → API → 上下文标签剥离」支持分别配置**保留标签**（正文白名单，如 `content`、`playtxt`）与**剥离标签**（思考与功能块黑名单，从上到下按优先级，建议将 `thinking` / `think` 置于最前），并提供**本地试跑预览**。
+- 自 `0.1.0-alpha.5` 起，上下文采用**逐楼层独立清洗后再拼接**：先按剥离标签优先级清除思考/功能块，命中保留标签时仅提取其正文并二次净化，未命中则回退为剥离标签以外的内容；同时联动台账与小手机。
 
 ### 3.3 跨插件对外窗口桥（状态栏暴露给台账与小手机）
 
@@ -99,7 +99,7 @@
 
 ```powershell
 npm run build   # esbuild 打包 dist/index.js 并生成 dist/statusbar.html
-npm test        # node --test tests/*.test.mjs（当前 83 项全通过）
+npm test        # node --test tests/*.test.mjs（当前 90 项全通过）
 npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 完整性校验
 ```
 
@@ -111,6 +111,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-17 | `0.1.0-alpha.5` | 上下文标签剥离拆分为「保留标签」+「剥离标签（从上到下优先级）」，全链路改为逐楼独立清洗（`map-system.ts`/`nsfw-guidance.ts`/`story-image-parser.ts` 等），设置页新增双框编辑与本地试跑预览；新增 JSDOM UI 与优先级/跨楼测试 | `build` / `test` 90/90 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-15 | `0.1.0-alpha.4` (`4d11bd4`) | 修复世界演化小手机联动每轮强制产消息：`world-evolution.ts` 删除四风格「禁止缺席/至少产出 1 份」要求改为默认留空；新增 `applyPhoneContactPolicy` 拦截在场角色、同轮限 1 人 ≤2 条并加全剧 2 轮/单人 4 轮硬冷却；新增 `tests/world-phone-policy.test.mjs` | `build` / `test` 83/83 / `check` 全绿；已推仓且用户实机确认 OK |
 | 2026-11-15 | `0.1.0-alpha.3` (`fcc5960`) | 修复 `context-strip.ts` 顺序正则跨块吞正文漏洞，改写为单遍栈式配对；新增 `tests/context-strip.test.mjs` | `build` / `test` 81/81 / `check` 全绿 |
 | 2026-11-15 | (`ad73be6`) | `world-sources.ts` `MESSAGE_RECEIVED` 监听包裹 `setTimeout(..., 0)`，退出宿主同步栈让出优先权给台账 | `build` / `test` 79/79 / `check` 全绿 |

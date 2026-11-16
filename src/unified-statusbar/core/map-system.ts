@@ -41,7 +41,7 @@ import {
   type MapNode, type ExplorationDesc, type ExploreLogEntry,
   type MapLibNodeInfo, type MapExit, type MapTreeIndex,
 } from './map-tree-store';
-import { stripWithContextConfig } from './context-strip';
+import { stripWithContextMessages } from './context-strip';
 import { resolveMapLocationForRefresh } from './map-location-decision';
 import { removeLocationAlias, addLocationAliasToIndex } from './map-location-identity';
 // eslint-disable-next-line import-x/no-cycle -- cycle-debt: 07 待修：同上（四元环中的 map-system → map-scene-generation：调用场景图生成）
@@ -351,18 +351,14 @@ export function getRecentStoryContext(maxTurns: number): string {
   return '';
 }
 
-/** 资料块上下文：最近 N 层 AI 回复，过「上下文标签剥离」设置。三段式 AI 请求的资料块正文段专用。 */
+/** 资料块上下文：最近 N 层 AI 回复，逐楼独立过「上下文标签剥离」设置后再拼接。 */
 export function getAiReplyContext(maxTurns: number): string {
-  return stripWithContextConfig(getCleanChatHistory(maxTurns || 0));
+  return stripWithContextMessages(getCleanChatMessages(maxTurns || 0), 'AI：');
 }
 
-/**
- * 获取纯净聊天历史（仅 AI 消息，含隐藏楼层，不含世界书深度条目、不含用户消息）。
- * 优先使用酒馆助手框架接口 getChatMessages（与 generateRaw 同源，iframe 内稳定可用，
- * 不依赖跨域访问 parent.SillyTavern.chat），避免 'chat_history' 占位符注入的世界书条目。
- * 回退：直接访问 SillyTavern.chat 原始数组。
- */
-export function getCleanChatHistory(maxTurns: number): string {
+/** 获取最近 maxTurns 条原始 AI 回复数组（按时间正序，含隐藏楼层，不含用户/系统消息）。 */
+export function getCleanChatMessages(maxTurns: number): string[] {
+  if (!maxTurns || maxTurns <= 0) return [];
   const th = getTavernHelper();
   if (th && typeof th.getChatMessages === 'function' && typeof th.getLastMessageId === 'function') {
     try {
@@ -376,15 +372,14 @@ export function getCleanChatHistory(maxTurns: number): string {
           include_swipes: false,
         }) as any[];
         if (Array.isArray(messages) && messages.length > 0) {
-          const lines: string[] = [];
-          let turns = 0;
-          for (let i = messages.length - 1; i >= 0 && turns < maxTurns; i--) {
+          const out: string[] = [];
+          for (let i = messages.length - 1; i >= 0 && out.length < maxTurns; i--) {
             const m = messages[i];
             if (!m || !m.message) continue;
-            lines.unshift(`AI：${String(m.message).trim()}`);
-            turns++;
+            const trimmed = String(m.message).trim();
+            if (trimmed) out.unshift(trimmed);
           }
-          if (lines.length > 0) return lines.join('\n\n');
+          if (out.length > 0) return out;
         }
       }
     } catch (e) {
@@ -397,20 +392,26 @@ export function getCleanChatHistory(maxTurns: number): string {
       : ((window as any).SillyTavern && (window as any).SillyTavern.chat)
         ? (window as any).SillyTavern.chat as any[]
         : null;
-    if (!chatObj || !Array.isArray(chatObj)) return '';
-    const lines: string[] = [];
-    let turns = 0;
-    for (let i = chatObj.length - 1; i >= 0 && turns < maxTurns; i--) {
+    if (!chatObj || !Array.isArray(chatObj)) return [];
+    const out: string[] = [];
+    for (let i = chatObj.length - 1; i >= 0 && out.length < maxTurns; i--) {
       const m = chatObj[i];
       if (!m || !m.mes) continue;
       if (m.is_user) continue;
       if (m.is_system || m.extra?.api === 'nomes') continue;
-      lines.unshift(`AI：${String(m.mes).trim()}`);
-      turns++;
+      const trimmed = String(m.mes).trim();
+      if (trimmed) out.unshift(trimmed);
     }
-    return lines.join('\n\n');
+    return out;
   } catch (e) { /* ignore */ }
-  return '';
+  return [];
+}
+
+/**
+ * 获取纯净聊天历史（仅 AI 消息，含隐藏楼层，不含世界书深度条目、不含用户消息）。
+ */
+export function getCleanChatHistory(maxTurns: number): string {
+  return getCleanChatMessages(maxTurns).map((m) => `AI：${m}`).join('\n\n');
 }
 
 export function hashText(text: string): string {
@@ -593,7 +594,7 @@ async function callGenerateRaw(userInput: string, contextCount: number): Promise
   // 手动获取纯净聊天历史（不含世界书深度条目），注入到 user_input 中，
   // 避免 'chat_history' 占位符自动注入世界书条目。
   // MANUAL 模式专属：注入前剥离可配置的标签（默认 <image>...</image>），避免污染提示词。
-  const cleanHistory = stripWithContextConfig(getCleanChatHistory(contextCount));
+  const cleanHistory = getAiReplyContext(contextCount);
   const fullUserInput = cleanHistory
     ? `【剧情上下文】\n${cleanHistory}\n\n${userInput}`
     : userInput;

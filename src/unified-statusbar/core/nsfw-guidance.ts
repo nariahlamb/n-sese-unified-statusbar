@@ -10,7 +10,7 @@ import { getCustomApiConfig, validateCustomApiConfig, withTextAiRetry, isAiAbort
 import { playTypes } from './constants';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
 import { deriveNodeId, parseLocationHierarchy, readMapNode } from './map-tree-store';
-import { stripWithContextConfig } from './context-strip';
+import { stripWithContextConfig, stripWithContextMessages } from './context-strip';
 import { getPlayData, isManagedPlayEntry } from './play-worldbook';
 import { buildNsfwGuidanceUserInput, NSFW_GUIDANCE_SYSTEM_PROMPT } from './nsfw-guidance-prompts';
 import { wbEntryName, wbEntryKeysMatchAny, wbEntryMatchedKeywords } from './worldbook-entry';
@@ -144,9 +144,6 @@ function getRecentAiOutputs(maxTurns: number): string[] {
   }
 }
 
-function formatAiContext(outputs: string[]): string {
-  return outputs.map(text => 'AI：' + text).join('\n\n');
-}
 
 function collectRelatedCharacters(originalInput: string, lastAiOutput: string): string[] {
   const candidates = new Set<string>([
@@ -297,7 +294,7 @@ export async function performNsfwGuidance(originalInput: string, plays: Selected
     const maxWorldbookEntries = Math.max(1, Math.min(50, Math.floor(config.nsfwGuidanceMaxWorldbookEntries || 20)));
     const location = getCurrentLocation();
     const recentAiOutputs = getRecentAiOutputs(contextCount);
-    const cleanContext = stripWithContextConfig(formatAiContext(recentAiOutputs));
+    const cleanContext = stripWithContextMessages(recentAiOutputs, 'AI：');
     const lastAiOutput = stripWithContextConfig(recentAiOutputs[recentAiOutputs.length - 1] || '');
     const relatedCharacters = collectRelatedCharacters(input, lastAiOutput);
     const locationKeywords = getLocationKeywords(location);

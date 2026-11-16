@@ -1901,25 +1901,42 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   // ===== 统一生图 API（立绘 / 衣柜 / 地图场景） =====
   html += renderUnifiedImageGenerationModule(config, V);
 
-  // ===== 上下文标签剥离（仅 MANUAL 模式：地图 / 立绘 / 瑟瑟指导）=====
+  // ===== 上下文标签剥离（MANUAL 模式 + 小手机/台账共享）=====
   html += '<details class="settings-section">';
-  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 上下文标签剥离' + helpTipButton('上下文标签剥离说明：\\n各功能生成时先取最近若干段 AI 回复（或正文）作上下文，再注入提示词。\\n若上下文里混入 <image>…</image> 等富媒体标签，会污染提示词、浪费 token。\\n\\n本配置在「取上下文后、注入提示词前」剥离指定的标签对（含内容、最短匹配、大小写不敏感、全部出现处、含自闭合）。\\n\\n【仅作用于】各功能读取「剧情上下文」的位置：地图、立绘、瑟瑟指导、正文插图，以及大调查、大采访、日历、剧情特卖、技能树、世界演化的资料块与触发正文。\\n【不作用于】宅仙问答等其余功能。\\n\\n每行一个标签名，不含尖括号，例如 image。留空（清空全部）= 关闭剥离。') + '</summary>';
+  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 上下文标签剥离' + helpTipButton('上下文标签剥离说明：\n各功能取最近若干层 AI 回复作上下文时，会先逐楼独立清洗再拼接，防止跨楼误吞。\n\n【保留标签（白名单）】如 content、playtxt（每行一个，留空=不限定）。若某条消息命中保留标签，则只提取其内部正文段，思考/选项等外部碎片天然挡在门外；若未命中或留空，则自动回退到「剥离标签以外的全部内容」。\n\n【剥离标签（黑名单）】如 thinking、think、options、orange、image（每行一个，从上到下按优先级）。建议把 thinking、think 等外层思考标签写在最前面，优先整块清除并防止思考内提到的标签造成误伤。') + '</summary>';
   html += '<div style="padding-top:8px;">';
+  html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:8px;">';
+  html += '<span class="settings-label" style="font-size:11px;">保留标签（正文白名单，每行一个）</span>';
+  const keepTagsText = (config.contextKeepTags && config.contextKeepTags.length > 0)
+    ? config.contextKeepTags.join('\n')
+    : '';
+  html += '<textarea id="contextKeepTagsInput" rows="2" placeholder="例如：content&#10;playtxt（每行一个，留空=不限定保留标签）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(keepTagsText) + '</textarea>';
+  html += '</div>';
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
-  html += '<span class="settings-label" style="font-size:11px;">待剥离标签（每行一个）</span>';
+  html += '<span class="settings-label" style="font-size:11px;">剥离标签（思考与功能片段，每行一个，从上到下优先）</span>';
   const stripTagsText = (config.contextStripTags && config.contextStripTags.length > 0)
     ? config.contextStripTags.join('\n')
     : '';
-  html += '<textarea id="contextStripTagsInput" rows="3" placeholder="例如 image（每行一个，留空=关闭剥离）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(stripTagsText) + '</textarea>';
+  html += '<textarea id="contextStripTagsInput" rows="4" placeholder="建议把 thinking / think 写在最前面&#10;再写 options / orange / updatevariable / image（留空=关闭剥离）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(stripTagsText) + '</textarea>';
   html += '<div style="font-size:10px;color:var(--text-soft,var(--sweet-text-soft,#999));line-height:1.5;padding:2px 0;">';
-  html += '说明：每行一个标签名（不含尖括号），例如 <code>image</code>。';
-  html += '将剥离成对的 <code>&lt;tag&gt;…&lt;/tag&gt;</code>（含内容、最短匹配、大小写不敏感、含自闭合 <code>&lt;tag/&gt;</code>）。';
-  html += '<br>仅作用于各功能读取「剧情上下文」的位置：地图、立绘、瑟瑟指导、正文插图，以及大调查/大采访/日历/剧情特卖/技能树/世界演化的资料块与触发正文。';
-  html += '<br>留空（清空全部）= 关闭剥离。';
+  html += '说明：每行一个标签名（不含尖括号）。先按<strong>剥离标签</strong>从上到下优先级清掉思考与功能块；若填写了<strong>保留标签</strong>且当前回复命中，则仅提取保留标签内正文并二次清理内部杂项；未命中或未填保留标签时，默认保留剥离标签以外的全部内容。';
+  html += '<br>逐楼独立处理，同时作用于状态栏各功能、瑟瑟台账（填表/推进）以及小手机（微信/电话/正文联动提取）。';
   html += '</div>';
-  html += '<div style="display:flex;gap:6px;padding-top:4px;">';
+  html += '<div style="display:flex;gap:6px;padding-top:4px;flex-wrap:wrap;">';
   html += '<button class="settings-btn" id="contextStripTagsSaveBtn" style="font-size:11px;padding:5px 12px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">保存</button>';
   html += '</div>';
+  html += '<details style="width:100%;margin-top:8px;padding-top:6px;border-top:1px dashed var(--divider,var(--sweet-border,#e0e0e0));">';
+  html += '<summary style="font-size:11px;cursor:pointer;color:var(--text-soft,var(--sweet-text-soft,#888));">本地试跑预览（零 API 消耗，贴入原文即可验证是否误伤）</summary>';
+  html += '<div style="display:flex;flex-direction:column;gap:6px;padding-top:6px;">';
+  html += '<textarea id="contextStripPreviewInput" rows="4" placeholder="在这里粘贴一段带 <thinking> / <content> / <options> 的 AI 回复原文..." style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;"></textarea>';
+  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
+  html += '<button class="settings-btn" id="contextStripPreviewBtn" type="button" style="font-size:11px;padding:4px 10px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">试跑剥离</button>';
+  html += '<button class="settings-btn" id="contextStripPreviewFillSampleBtn" type="button" style="font-size:11px;padding:4px 10px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">填入误伤测试样例</button>';
+  html += '<span id="contextStripPreviewMeta" style="font-size:10px;color:var(--text-soft,var(--sweet-text-soft,#999));"></span>';
+  html += '</div>';
+  html += '<pre id="contextStripPreviewOutput" style="margin:0;padding:6px 8px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-word;max-height:160px;overflow:auto;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;display:none;"></pre>';
+  html += '</div>';
+  html += '</details>';
   html += '</div>';
   html += '</div>';
   html += '</details>'; // end 上下文标签剥离

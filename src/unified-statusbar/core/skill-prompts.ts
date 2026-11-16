@@ -7,8 +7,7 @@ import { looseJsonParse } from './ai-parse';
 import { getCellByHeader } from './data-manager';
 import { readCharAgeText } from './birthday';
 import { getTodayDateKey } from './calendar-core';
-import { getCleanChatHistory } from './map-system';
-import { stripWithContextConfig } from './context-strip';
+import { getAiReplyContext } from './map-system';
 
 
 export const SKILL_TREE_JSON_SCHEMA_DESC = `输出一棵天赋树的 JSON 结构（不含基础节点——基础形态即技能初始描述，由系统提供）：
@@ -73,7 +72,7 @@ export async function buildSkillTreePromptParts(ctx: AssembleSkillTreeCtx): Prom
     pApp && `外貌：${pApp}`, pBg && `身份：${pBg}`, pNow && `近况：${pNow}`].filter(Boolean).join('\n');
 
   // 剧情上下文（资料块；仅 AI 回复 + 标签剥离）
-  const hist = stripWithContextConfig(getCleanChatHistory(ctx.contextCount));
+  const hist = getAiReplyContext(ctx.contextCount);
 
   const dossier = [
     pInfo ? '【主角信息】\n' + pInfo : '',

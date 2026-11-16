@@ -2,8 +2,7 @@ import { getCellByHeader } from './data-manager';
 import { readCharAgeText } from './birthday';
 import { getTodayDateKey } from './calendar-core';
 // eslint-disable-next-line import-x/no-cycle -- cycle-debt: 07 待修：同上（四元环中的 portrait-prompts → map-system：只为借 getCleanChatHistory，应下沉成独立模块）
-import { getCleanChatHistory } from './map-system';
-import { stripWithContextConfig } from './context-strip';
+import { getAiReplyContext } from './map-system';
 import type { NaturalPromptLanguage, PortraitComposeMode } from './portrait-config';
 import type { PortraitClothingOverride } from './wardrobe-prompts';
 import { PORTRAIT_PRESET_TAGS, buildPortraitSystemPromptNatural, buildPortraitSystemPromptTags } from './portrait-prompt-text';
@@ -245,7 +244,7 @@ export function buildPortraitPrompt(args: BuildPortraitPromptArgs): { system: st
   const acc = presenceRow !== -1 ? (getCellByHeader('在场角色表', presenceRow, '饰品') || '') : '';
 
   // MANUAL 模式专属：注入前剥离可配置的标签（默认 <image>...</image>），避免污染提示词。
-  const context = stripWithContextConfig(getCleanChatHistory(contextCount));
+  const context = getAiReplyContext(contextCount);
 
   const parts: string[] = [];
   if (isProtagonist) {
