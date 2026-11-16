@@ -21,6 +21,7 @@ import type { AssistantBook, AssistantSession } from './assistant-types';
 import { getConfig } from './config-store';
 import { getTavernHelper } from './env';
 import { expandPromptEntryMacros } from './ai-prompt-macros';
+import { getCustomApiPostProcessingMode, normalizeOutboundMessages } from './ai-tool-shield';
 import { getCurrentStoryChatKey, isStoryStorageReady } from './story-floor-store';
 
 export interface AssistantAskInput {
@@ -82,12 +83,12 @@ function generationId(kind: 'planner' | 'answer'): string {
   return `zhaixian-${kind}-${random}`;
 }
 
-/** 直连端点 URL 规范化：已带 /chat/completions 原样；/v1 结尾补路径；裸地址补 /v1/chat/completions。 */
+/** 直连端点 URL 规范化：已带 /chat/completions 原样；/v1 或 /v1beta/openai 结尾补路径；裸地址补 /v1/chat/completions。 */
 function normalizeCompletionsUrl(raw: string): string {
   const url = String(raw || '').trim().replace(/\/+$/, '');
   if (!url) return '';
   if (/\/chat\/completions$/.test(url)) return url;
-  if (/\/v\d+$/.test(url)) return `${url}/chat/completions`;
+  if (/\/(?:v\d+|v1beta\/openai)$/i.test(url)) return `${url}/chat/completions`;
   return `${url}/v1/chat/completions`;
 }
 
@@ -411,9 +412,11 @@ export function createAssistantRuntime(deps: AssistantRuntimeDeps = defaultAssis
     const mode = deriveAnswerMode(selection);
     input.onPhase?.('answering');
     const streaming = deps.getConfig().assistantStreaming !== false;
-    // 直连流式需要独立预设的 apiurl+model；未配置时走宿主 generateRaw（一次性返回，无逐字流）
+    // 直连流式仅支持 OpenAI / Custom 兼容端点（硬拼 /chat/completions）；其余源（makersuite/claude 等）走宿主 generateRaw
     const api = (customApi || {}) as Record<string, unknown>;
+    const apiSource = typeof api.source === 'string' && api.source ? api.source : 'openai';
     const directApi = streaming
+      && (apiSource === 'openai' || apiSource === 'custom')
       && typeof api.apiurl === 'string' && api.apiurl.trim()
       && typeof api.model === 'string' && api.model.trim()
       ? api
@@ -484,10 +487,12 @@ export function createAssistantRuntime(deps: AssistantRuntimeDeps = defaultAssis
           const sub = typeof th?.substitudeMacros === 'function'
             ? (s: string) => th.substitudeMacros(s)
             : undefined;
-          const directMessages = expandPromptEntryMacros(
+          const expandedMessages = expandPromptEntryMacros(
             [...getJailbreakHeadPrompts(), ...promptItems, { role: 'user', content: text }, ...getJailbreakTailPrompts()],
             sub,
           );
+          const postMode = getCustomApiPostProcessingMode(customApi) ?? 'semi';
+          const directMessages = normalizeOutboundMessages(expandedMessages, postMode);
           finalText = await deps.streamCompletion({
             url: String(directApi.apiurl),
             apiKey: typeof directApi.key === 'string' && directApi.key ? directApi.key : undefined,

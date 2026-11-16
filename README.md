@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.7`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.8`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -33,7 +33,8 @@
 | **上下文标签剥离分层与 UI 试跑** | ✅ 代码+单测完成 | 拆分 `contextKeepTags`（保留标签白名单）与 `contextStripTags`（剥离标签黑名单，从上到下优先级保护），改为逐楼独立清洗后再拼接；设置页新增双框编辑与零 API 本地试跑预览（[context-strip.ts](src/unified-statusbar/core/context-strip.ts) `v0.1.0-alpha.5`） |
 | **事件调度与双端 UI 适配** | ✅ 代码+单测完成 | `MESSAGE_RECEIVED` 让出当前事件栈避免抢在台账之前运行（`ad73be6`）；`applyMobileFixes` 收敛到 `<= 600px`，悬浮球实时 resize 重算边界；TT `ChatSurface` 虚拟化贴尾适配（[index.ts](src/unified-statusbar/index.ts)、[mobile-environment.ts](src/unified-statusbar/core/mobile-environment.ts)） |
 | **Toast 半透明紧凑与防误触改造** | ✅ 代码+单测完成 | 宿主通知壳（素瓷/云墨/手账/怪盗）与成就通知卡统一改为半透明与紧凑尺寸；右上角关闭到后台 `×` 放大至 `30px`（配 `::after` 扩热区与右内边距 40px 隔离带），`ai-activity-notify.ts` 加右侧防误触拦截及单开/原版兜底样式（[notify-base.ts](src/unified-statusbar/styles/notify-base.ts)、[ai-activity-notify.ts](src/unified-statusbar/core/ai-activity-notify.ts)、[achievement-notify.ts](src/unified-statusbar/renderers/achievement-notify.ts) `v0.1.0-alpha.6`） |
-| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **83/83 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性」在 TT Static/Managed 与手机端待持续实机观察 |
+| **API 源透传与中段消息兼容（gpt-load 适配）** | ✅ 代码+单测完成 | 新增 `CustomApiSource`（`openai`/`makersuite`/`claude` 等 8 种源）与 `CustomApiPostProcessingMode`（默认 `semi`：前端出站层折叠首条对话后的 `system/developer` 为 `user` 并合并连续同角色）；`ai-tool-shield.ts` 导出 `tagCustomApiPostProcessing` 联动三仓，保留 `custom_prompt_post_processing = ''` 防二次工具注入；`assistant-runtime.ts` 非 OpenAI/Custom 源自动回退宿主 `generateRaw`；`fetchModelList` 保留路径前缀并支持原生 `/v1beta/models` 回退（`v0.1.0-alpha.8`） |
+| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **99/99 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性」在 TT Static/Managed 与手机端待持续实机观察 |
 
 ---
 
@@ -100,7 +101,7 @@
 
 ```powershell
 npm run build   # esbuild 打包 dist/index.js 并生成 dist/statusbar.html
-npm test        # node --test tests/*.test.mjs（当前 94 项全通过）
+npm test        # node --test tests/*.test.mjs（当前 99 项全通过）
 npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 完整性校验
 ```
 
@@ -112,6 +113,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-17 | `0.1.0-alpha.8` | 适配 `gpt-load` 及中转网关：`constants.ts`/`config-store.ts`/`api-config.ts` 新增 `source`（8 种 API 源）与 `promptPostProcessing`（默认 `semi`）；`ai-tool-shield.ts` 新增 `normalizeOutboundMessages` 与 `tagCustomApiPostProcessing` 在出站层折叠中段 `system/developer` 并兼容 `custom_url` 指纹与宿主映射；`assistant-runtime.ts` 对非 `openai/custom` 源回退宿主并在直连流式应用同款折叠；`config-panel.ts`/`api-tab.ts`/`assistant-help.ts` 补齐 UI 与帮助；新增 `tests/ai-tool-shield.test.mjs` | `build` / `test` 99/99 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.7` | `env.ts` 的 `getToastr()` 统一通过非侵入代理为状态栏全部 toast（含报错）自动加「状态栏」前缀；`notify-base.ts` 禁止 `planToastOneline` 剥离插件前缀；`api-tab.ts` 直调补充前缀；扩展 `tests/toast-ui.test.mjs` | `build` / `test` 94/94 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.6` | 通知壳（`notify-base.ts`）全主题半透明与紧凑缩小，`×` 关闭到后台按钮放大至 `30×30` 并扩展热区防误触；`ai-activity-notify.ts` 新增贴边防误触转关闭与单开/原版兜底样式；`achievement-notify.ts` 成就浮卡同步半透明缩小并放大关闭钮；新增 `tests/toast-ui.test.mjs` | `build` / `test` 93/93 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.5` | 上下文标签剥离拆分为「保留标签」+「剥离标签（从上到下优先级）」，全链路改为逐楼独立清洗（`map-system.ts`/`nsfw-guidance.ts`/`story-image-parser.ts` 等），设置页新增双框编辑与本地试跑预览；新增 JSDOM UI 与优先级/跨楼测试 | `build` / `test` 90/90 / `check` 全绿；已推仓待 TT 拉取真机验收 |

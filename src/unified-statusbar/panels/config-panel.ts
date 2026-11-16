@@ -13,7 +13,7 @@ import { normalizeImageGenerationConfig, resolveImageTaskConfig, resolvePromptPr
 import { ensureSkillTable, setSkillTableEnabled } from '../core/skill-table-ensure';
 import { ensureSkillRegexInjection, removeSkillRegexScripts } from '../core/skill-regex';
 import type { SkillProseMode } from '../core/skill-types';
-import { type StyleType, type AiRetryScope, STYLE_LABELS, type PositionMode, type WidthMode, type CollapseBtnStyle, COLLAPSE_BTN_STYLE_LABELS, POSITION_LABELS, WIDTH_LABELS, CUSTOM_HEIGHT_DEFAULT, CUSTOM_SIZE_PERCENT_MIN, INVESTIGATION_DEFAULT_CONTEXT_COUNT, type SceneApiPreset, type SceneProfile, PROMPT_POST_PROCESSING_OPTIONS, PROMPT_POST_PROCESSING_DEFAULT, GACHA_COST, GACHA10_COST, PORTRAIT_DEFAULT_CONTEXT_COUNT } from '../core/constants';
+import { type StyleType, type AiRetryScope, STYLE_LABELS, type PositionMode, type WidthMode, type CollapseBtnStyle, COLLAPSE_BTN_STYLE_LABELS, POSITION_LABELS, WIDTH_LABELS, CUSTOM_HEIGHT_DEFAULT, CUSTOM_SIZE_PERCENT_MIN, INVESTIGATION_DEFAULT_CONTEXT_COUNT, type SceneApiPreset, type SceneProfile, PROMPT_POST_PROCESSING_OPTIONS, PROMPT_POST_PROCESSING_DEFAULT, CUSTOM_API_SOURCE_OPTIONS, CUSTOM_API_SOURCE_DEFAULT, CUSTOM_API_POST_PROCESSING_OPTIONS, CUSTOM_API_POST_PROCESSING_DEFAULT, GACHA_COST, GACHA10_COST, PORTRAIT_DEFAULT_CONTEXT_COUNT } from '../core/constants';
 import { NOVELAI_MODELS, NOVELAI_SAMPLERS, NOVELAI_SCHEDULERS, ASPECT_RATIO_OPTIONS, UC_PRESET_OPTIONS, RESOLUTION_PRESETS, normalizePortraitImageGen, DEFAULT_PROMPT_PRESET_ID, getDefaultPromptPresets, normalizePromptPresets, resolveActivePreset, applyPresetToConfig, applyPresetOpenAiToConfig, applyPresetComfyToConfig, nextPresetId, resolvePresetNovelAiParams, resolvePresetOpenAiParams, resolvePresetComfyUiParams, buildPresetNovelAiParamsFrom, buildPresetOpenAiParamsFrom, buildPresetComfyUiParamsFrom, normalizePresetNovelAiParams, normalizePresetOpenAiParams, normalizePresetComfyUiParams, type PortraitApiFormat, type PortraitPromptPreset } from '../core/portrait-config';
 import { generateImage } from '../core/image-gen';
 import { chatu8ModeLabel, chatu8HasGenerator, chatu8StatusNote, chatu8FormatNote, ensureChatu8Model, getChatu8BackendModel, getChatu8Models, getChatu8Mode, setChatu8Model } from '../core/chatu8-bridge';
@@ -1754,6 +1754,27 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   html += '</div>';
   html += '</div>';
 
+  // API 源
+  html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
+  html += '<span class="settings-label" style="font-size:11px;">API 源 ' + helpTipButton('决定生成请求走哪种协议：\n• OpenAI 兼容（默认）：URL 一般填 .../v1，配合下方「半严格」可过 gpt-load 等中转的 Gemini/Claude 渠道。\n• Google AI Studio (makersuite)：原生 Gemini 协议，连 gpt-load 等多协议网关时 URL 填根地址（不加 /v1）。\n• Claude (Anthropic) / Vertex AI 等：走对应原生通道。') + '</span>';
+  html += '<select id="customApiSourceSelect" style="width:100%;padding:5px 8px;font-size:11px;font-family:inherit;border:1px solid ' + V.border + ';background:' + V.bg + ';color:' + V.text + ';border-radius:4px;cursor:pointer;appearance:auto;min-width:0;">';
+  for (const opt of CUSTOM_API_SOURCE_OPTIONS) {
+    html += '<option value="' + opt.value + '"' + (opt.value === CUSTOM_API_SOURCE_DEFAULT ? ' selected' : '') + '>' + _escAttr(opt.label) + '</option>';
+  }
+  html += '</select>';
+  html += '<div style="font-size:10px;color:var(--text-muted,var(--sweet-text-muted,#999));line-height:1.4;">连 gpt-load 等网关时：选 <b>makersuite</b> 填根地址（不加 /v1）；选 <b>OpenAI 兼容</b>填 .../v1。</div>';
+  html += '</div>';
+
+  // 中段系统消息兼容
+  html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
+  html += '<span class="settings-label" style="font-size:11px;">中段系统消息兼容 ' + helpTipButton('状态栏/台账/小手机的尾部破限与部分资料块会落在对话消息之后（构成中段 system）。\n• 半严格（推荐）：把首条对话消息之后出现的 system/developer 原地转为 user 并合并相邻同角色，可解决 gpt-load / Gemini / Claude 422 拒发问题；头部系统提示词保持不变。\n• 严格：在半严格基础上确保首条对话消息为 user。\n• 合并相邻同角色：保留所有 system，仅合并相邻同角色。\n• 单一用户消息：合并全部纯文本为单条 user。\n• 不处理：原样发送（适合纯 OpenAI/DeepSeek 官方直连）。') + '</span>';
+  html += '<select id="customApiPostProcessingSelect" style="width:100%;padding:5px 8px;font-size:11px;font-family:inherit;border:1px solid ' + V.border + ';background:' + V.bg + ';color:' + V.text + ';border-radius:4px;cursor:pointer;appearance:auto;min-width:0;">';
+  for (const opt of CUSTOM_API_POST_PROCESSING_OPTIONS) {
+    html += '<option value="' + opt.value + '"' + (opt.value === CUSTOM_API_POST_PROCESSING_DEFAULT ? ' selected' : '') + '>' + _escAttr(opt.label) + '</option>';
+  }
+  html += '</select>';
+  html += '</div>';
+
   // 高级参数（折叠，默认折叠）
   html += '<details style="margin-top:4px;"><summary style="font-size:11px;cursor:pointer;color:var(--text-muted,var(--sweet-text-muted,#999));">高级参数（最大 tokens / 温度 / top_p / top_k / 频率惩罚 / 存在惩罚）</summary>';
   html += '<div style="padding-top:6px;">';
@@ -1774,7 +1795,7 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   html += '<details class="settings-section" id="apiAssignmentSection" open>';
   html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('plug') + ' API分配' + helpTipButton('API分配说明：\\n决定状态栏各功能发请求时用哪套 API。\\n\\n【使用酒馆API】全部走酒馆当前主连接（默认）。\\n【使用自定义API】所有功能共用下方选中的一个预设。\\n【按功能独立分配】每个功能分别绑定预设，留空的功能走酒馆主 API。\\n\\n预设来自上方「API预设管理」；这里只做引用，删除预设会自动回退到酒馆主 API。\\n自动重试也在这里：按功能分配时总开关隐藏，改为逐个功能勾选「重试」。') + '</summary>';
   html += '<div style="padding-top:8px;">';
-  html += '<div class="ub-api-subsection-desc" style="font-size:11px;">预设仓库在上方「API预设管理」；这里决定每个功能实际用哪套连接。</div>';
+  html += '<div class="ub-api-subsection-desc" style="font-size:11px;">预设仓库在上方「API预设管理」；这里决定每个功能实际用哪套连接。若选择「使用酒馆API」且主连接为 Gemini/Claude 中转，请在酒馆主连接将提示词后处理设为 Semi-Strict，或改用上方自带兼容的自定义预设。</div>';
 
   // API 来源选择（三选一）
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px;">';

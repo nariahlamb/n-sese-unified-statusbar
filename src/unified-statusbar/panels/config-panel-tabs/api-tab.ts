@@ -7,7 +7,20 @@ import { getConfig, setConfig, type StatusBarConfig } from '../../core/config-st
 import { cleanContextTextWithMeta, normalizeContextTags } from '../../core/context-strip';
 import { getToastr } from '../../core/env';
 import { showCardEntryBlacklistPopup } from '../../renderers/card-entry-blacklist-popup';
-import { PROMPT_POST_PROCESSING_DEFAULT, normalizeAiRetryMax, type ApiMode, type AiRetryScope, type CustomApiPreset, type PromptPostProcessingValue, type SceneApiPreset, type SceneProfile } from '../../core/constants';
+import {
+  CUSTOM_API_POST_PROCESSING_DEFAULT,
+  CUSTOM_API_SOURCE_DEFAULT,
+  PROMPT_POST_PROCESSING_DEFAULT,
+  normalizeAiRetryMax,
+  normalizeCustomApiPostProcessingMode,
+  normalizeCustomApiSource,
+  type ApiMode,
+  type AiRetryScope,
+  type CustomApiPreset,
+  type PromptPostProcessingValue,
+  type SceneApiPreset,
+  type SceneProfile,
+} from '../../core/constants';
 import { fetchModelList, showPersistentError, generatePresetId } from '../../core/api-config';
 import { fetchSceneModels, saveSecretToTavern, applyScene, validateSceneProfile, saveSceneApiPreset, deleteSceneApiPreset, injectSceneApiDirectly, listPromptPresets } from '../../core/scene-switcher';
 import { ubIcon } from '../../core/icons';
@@ -239,7 +252,9 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
       btn.textContent = '加载中...';
       btn.disabled = true;
       try {
-        const models = await fetchModelList(url, key || undefined);
+        const sourceEl = document.getElementById('customApiSourceSelect') as HTMLSelectElement | null;
+        const source = normalizeCustomApiSource(sourceEl?.value);
+        const models = await fetchModelList(url, key || undefined, source);
         customCombo.setLoaded(models);
         getToastr()?.success('已加载 ' + models.length + ' 个可用模型', '加载模型');
       } catch (e) {
@@ -342,6 +357,8 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
       url: (document.getElementById('customApiUrlInput') as HTMLInputElement | null)?.value || '',
       key: (document.getElementById('customApiKeyInput') as HTMLInputElement | null)?.value || '',
       model: (document.getElementById('customApiModelInput') as HTMLInputElement | null)?.value || '',
+      source: normalizeCustomApiSource((document.getElementById('customApiSourceSelect') as HTMLSelectElement | null)?.value),
+      promptPostProcessing: normalizeCustomApiPostProcessingMode((document.getElementById('customApiPostProcessingSelect') as HTMLSelectElement | null)?.value),
       maxTokens: numOrUnset('maxTokens'),
       temperature: numOrUnset('temperature'),
       topP: numOrUnset('topP'),
@@ -360,6 +377,10 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
     setText('customApiUrlInput', preset.url);
     setText('customApiKeyInput', preset.key);
     setText('customApiModelInput', preset.model);
+    const sourceSel = document.getElementById('customApiSourceSelect') as HTMLSelectElement | null;
+    if (sourceSel) sourceSel.value = normalizeCustomApiSource(preset.source);
+    const postSel = document.getElementById('customApiPostProcessingSelect') as HTMLSelectElement | null;
+    if (postSel) postSel.value = normalizeCustomApiPostProcessingMode(preset.promptPostProcessing);
 
     const setNum = (key: string, val: number | 'unset'): void => {
       const unsetBox = document.getElementById('api' + key + 'Unset') as HTMLInputElement | null;
@@ -632,7 +653,22 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
       refreshApiPresetSelect();
       // 清空编辑输入框 + 已加载模型列表
       customCombo.reset();
-      applyPresetToInputs({ id: '', name: '', url: '', key: '', model: '', maxTokens: 'unset', temperature: 'unset', topP: 'unset', topK: 'unset', frequencyPenalty: 'unset', presencePenalty: 'unset', createdAt: 0 });
+      applyPresetToInputs({
+        id: '',
+        name: '',
+        url: '',
+        key: '',
+        model: '',
+        source: CUSTOM_API_SOURCE_DEFAULT,
+        promptPostProcessing: CUSTOM_API_POST_PROCESSING_DEFAULT,
+        maxTokens: 'unset',
+        temperature: 'unset',
+        topP: 'unset',
+        topK: 'unset',
+        frequencyPenalty: 'unset',
+        presencePenalty: 'unset',
+        createdAt: 0,
+      });
       getToastr()?.success('已删除预设：' + preset.name, 'API 预设');
     });
   }
