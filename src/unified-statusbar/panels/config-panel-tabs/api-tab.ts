@@ -116,7 +116,7 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
       if (typeof toastr !== 'undefined' && toastr) {
         const keepMsg = keepArr.length > 0 ? '保留 ' + keepArr.length + ' 个' : '未设保留标签';
         const stripMsg = stripArr.length > 0 ? '剥离 ' + stripArr.length + ' 个' : '剥离已关闭';
-        toastr.success(keepMsg + '，' + stripMsg, '上下文标签剥离');
+        toastr.success(keepMsg + '，' + stripMsg, '状态栏 · 上下文标签剥离');
       }
     });
   }
@@ -187,7 +187,7 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
       // 同步回 textarea：归一化后的内容（空数组显示为空）
       ta.value = arr.length > 0 ? arr.join('\n') : '';
       if (typeof toastr !== 'undefined' && toastr) {
-        toastr.success(arr.length > 0 ? `已保存 ${arr.length} 条黑名单规则` : '已清空，条目黑名单已关闭', '条目黑名单');
+        toastr.success(arr.length > 0 ? `已保存 ${arr.length} 条黑名单规则` : '已清空，条目黑名单已关闭', '状态栏 · 条目黑名单');
       }
     });
   }

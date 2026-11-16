@@ -141,3 +141,42 @@ test('ai-activity-notify：点关闭 ×（及安全边沿）不触发任务中�
     dom.window.close();
   }
 });
+
+test('env.getToastr & planToastOneline：状态栏所有 toast（含报错）自动加「状态栏」前缀且不污染原生对象', async () => {
+  const { getToastr, prefixToastTitle } = await loadTs('src/unified-statusbar/core/env.ts');
+  const { planToastOneline } = await loadTs('src/unified-statusbar/styles/notify-base.ts');
+  assert.equal(prefixToastTitle(''), '状态栏');
+  assert.equal(prefixToastTitle('日历生成错误'), '状态栏 · 日历生成错误');
+  assert.equal(prefixToastTitle('状态栏 · 地图'), '状态栏 · 地图');
+  assert.equal(prefixToastTitle('瑟瑟灵感状态栏 · 测试'), '状态栏 · 测试');
+  assert.equal(planToastOneline('状态栏', '状态栏已同步', { persist: false, type: 'info' }).mode, 'none');
+
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost' });
+  const prevWin = globalThis.window;
+  const calls = [];
+  const rawToastr = {
+    options: { timeOut: 3000 },
+    error(msg, title) { calls.push(['error', msg, title]); },
+    warning(msg, title) { calls.push(['warning', msg, title]); },
+    info(msg, title) { calls.push(['info', msg, title]); },
+    success(msg, title) { calls.push(['success', msg, title]); },
+  };
+  dom.window.toastr = rawToastr;
+  globalThis.window = dom.window;
+  try {
+    const wrapped = getToastr();
+    wrapped.error('空回', '日历生成错误');
+    wrapped.warning('未就绪');
+    wrapped.info('完成', '状态栏 · 地图');
+    rawToastr.error('外部错误', '外部插件');
+    assert.deepEqual(calls, [
+      ['error', '空回', '状态栏 · 日历生成错误'],
+      ['warning', '未就绪', '状态栏'],
+      ['info', '完成', '状态栏 · 地图'],
+      ['error', '外部错误', '外部插件'],
+    ]);
+  } finally {
+    globalThis.window = prevWin;
+    dom.window.close();
+  }
+});

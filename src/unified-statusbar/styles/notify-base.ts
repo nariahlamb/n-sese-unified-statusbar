@@ -498,6 +498,7 @@ export function planToastOneline(title: string, msg: string, opts: { persist: bo
   if (/[<>&]/.test(msg)) return { mode: 'none' };
   const trimmed = msg.trim();
   if (!trimmed || /\n/.test(trimmed)) return { mode: 'none' };
+  if (/^(?:状态栏|台账|小手机)(?:\s*[·•|:\-]|$)/.test(title.trim())) return { mode: 'none' };
   if (trimmed.indexOf(title) !== -1) return { mode: 'drop-title' };
   return { mode: 'none' };
 }

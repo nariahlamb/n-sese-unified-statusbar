@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.6`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.7`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -100,7 +100,7 @@
 
 ```powershell
 npm run build   # esbuild 打包 dist/index.js 并生成 dist/statusbar.html
-npm test        # node --test tests/*.test.mjs（当前 93 项全通过）
+npm test        # node --test tests/*.test.mjs（当前 94 项全通过）
 npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 完整性校验
 ```
 
@@ -112,6 +112,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-17 | `0.1.0-alpha.7` | `env.ts` 的 `getToastr()` 统一通过非侵入代理为状态栏全部 toast（含报错）自动加「状态栏」前缀；`notify-base.ts` 禁止 `planToastOneline` 剥离插件前缀；`api-tab.ts` 直调补充前缀；扩展 `tests/toast-ui.test.mjs` | `build` / `test` 94/94 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.6` | 通知壳（`notify-base.ts`）全主题半透明与紧凑缩小，`×` 关闭到后台按钮放大至 `30×30` 并扩展热区防误触；`ai-activity-notify.ts` 新增贴边防误触转关闭与单开/原版兜底样式；`achievement-notify.ts` 成就浮卡同步半透明缩小并放大关闭钮；新增 `tests/toast-ui.test.mjs` | `build` / `test` 93/93 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.5` | 上下文标签剥离拆分为「保留标签」+「剥离标签（从上到下优先级）」，全链路改为逐楼独立清洗（`map-system.ts`/`nsfw-guidance.ts`/`story-image-parser.ts` 等），设置页新增双框编辑与本地试跑预览；新增 JSDOM UI 与优先级/跨楼测试 | `build` / `test` 90/90 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-15 | `0.1.0-alpha.4` (`4d11bd4`) | 修复世界演化小手机联动每轮强制产消息：`world-evolution.ts` 删除四风格「禁止缺席/至少产出 1 份」要求改为默认留空；新增 `applyPhoneContactPolicy` 拦截在场角色、同轮限 1 人 ≤2 条并加全剧 2 轮/单人 4 轮硬冷却；新增 `tests/world-phone-policy.test.mjs` | `build` / `test` 83/83 / `check` 全绿；已推仓且用户实机确认 OK |

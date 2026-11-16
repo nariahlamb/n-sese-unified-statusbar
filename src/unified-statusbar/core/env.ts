@@ -47,11 +47,46 @@ export function makeGenerationId(prefix: string): string {
   return makeUniqueId(prefix); // U3：委托统一出口（导出保留，行为逐字节不变）
 }
 
-/** toastr 通知全局对象。跨源访问受限时返回 null。 */
+const _wrappedToastrCache = new WeakMap<object, any>();
+
+/** 为状态栏发出的所有 toast 标题统一加「状态栏」前缀（不重复叠加）。 */
+export function prefixToastTitle(title?: unknown, pluginName = '状态栏'): string {
+  const raw = typeof title === 'string' ? title.trim() : '';
+  if (!raw) return pluginName;
+  const cleaned = raw
+    .replace(/^瑟瑟灵感状态栏(?:\s*[·•|:\-]\s*|$)/, '')
+    .replace(/^状态栏(?:\s*[·•|:\-]\s*|$)/, '')
+    .trim();
+  if (!cleaned) return pluginName;
+  return `${pluginName} · ${cleaned}`;
+}
+
+function _wrapToastr(raw: any): any {
+  if (!raw || typeof raw !== 'object') return raw;
+  const cached = _wrappedToastrCache.get(raw);
+  if (cached) return cached;
+  const wrapped = new Proxy(raw, {
+    get(target, prop, receiver) {
+      if (prop === 'info' || prop === 'success' || prop === 'warning' || prop === 'error') {
+        const orig = Reflect.get(target, prop, target);
+        if (typeof orig !== 'function') return orig;
+        return function (msg: any, title?: any, opts?: any) {
+          return orig.call(target, msg, prefixToastTitle(title, '状态栏'), opts);
+        };
+      }
+      const val = Reflect.get(target, prop, receiver);
+      return typeof val === 'function' ? val.bind(target) : val;
+    },
+  });
+  _wrappedToastrCache.set(raw, wrapped);
+  return wrapped;
+}
+
+/** toastr 通知全局对象（自动为状态栏通知标题加「状态栏」前缀；不污染全局原始 window.toastr）。 */
 export function getToastr(): any {
   try {
-    if ((window as any).toastr) return (window as any).toastr;
-    if ((window.parent as any).toastr) return (window.parent as any).toastr;
+    if ((window as any).toastr) return _wrapToastr((window as any).toastr);
+    if ((window.parent as any).toastr) return _wrapToastr((window.parent as any).toastr);
   } catch (_e) { /* cross-origin */ }
   return null;
 }
