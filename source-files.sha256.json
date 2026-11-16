@@ -21,7 +21,7 @@
     "src/unified-statusbar/core/ai-retry.ts": "fcfae4dd5c1d8a815a33796bc86648b09c0f131b14d42fb3076e8ebf7a5f94fc",
     "src/unified-statusbar/core/ai-text-features.ts": "506715d4fb0299248bff4409c5d936ce6440b07fe895c1fe8a53baca7d03c121",
     "src/unified-statusbar/core/ai-tool-shield.ts": "19fc36fe3dc8b6bfbb7b218c7357f63ed18888d909b0a9344e0fc7ac1f4b9459",
-    "src/unified-statusbar/core/api-config.ts": "addc23677c5ee8795720841b8d2c78e772fd225e495a2b959b3d1c864e48f31d",
+    "src/unified-statusbar/core/api-config.ts": "4c3c2771317a3837dd1ea2c2291ec1c5ce191806c1d274c685c11c1ca3c89b94",
     "src/unified-statusbar/core/app-content.ts": "7140c82686f597c519024b6b045c5812f8d35544ae6d79b8ad4d4014c23dbddf",
     "src/unified-statusbar/core/archive-export.ts": "893de49c7c61e2d6178e3ec6b36d89ec2f3a24932841d31f67c2832bf7934496",
     "src/unified-statusbar/core/assistant-help.ts": "e9e54708e2c94bf607a0ddec1e3954d06b1209c170a691501070a1493aab3a34",

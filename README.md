@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.8`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.9`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -113,6 +113,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-17 | `0.1.0-alpha.9` | 修复 `api-config.ts` `fetchModelList` 在 `source === 'makersuite'` 时先拿裸根地址调用宿主 `getModelList` 撞上 `gpt-load` 管理页 HTML 触发 TT 后端非 JSON 报错的 bug：改为优先直连 `/v1beta/models`，失败再补 `/v1` 调 `getModelList`；更新 `tests/ai-tool-shield.test.mjs` | `build` / `test` 99/99 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.8` | 适配 `gpt-load` 及中转网关：`constants.ts`/`config-store.ts`/`api-config.ts` 新增 `source`（8 种 API 源）与 `promptPostProcessing`（默认 `semi`）；`ai-tool-shield.ts` 新增 `normalizeOutboundMessages` 与 `tagCustomApiPostProcessing` 在出站层折叠中段 `system/developer` 并兼容 `custom_url` 指纹与宿主映射；`assistant-runtime.ts` 对非 `openai/custom` 源回退宿主并在直连流式应用同款折叠；`config-panel.ts`/`api-tab.ts`/`assistant-help.ts` 补齐 UI 与帮助；新增 `tests/ai-tool-shield.test.mjs` | `build` / `test` 99/99 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.7` | `env.ts` 的 `getToastr()` 统一通过非侵入代理为状态栏全部 toast（含报错）自动加「状态栏」前缀；`notify-base.ts` 禁止 `planToastOneline` 剥离插件前缀；`api-tab.ts` 直调补充前缀；扩展 `tests/toast-ui.test.mjs` | `build` / `test` 94/94 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.6` | 通知壳（`notify-base.ts`）全主题半透明与紧凑缩小，`×` 关闭到后台按钮放大至 `30×30` 并扩展热区防误触；`ai-activity-notify.ts` 新增贴边防误触转关闭与单开/原版兜底样式；`achievement-notify.ts` 成就浮卡同步半透明缩小并放大关闭钮；新增 `tests/toast-ui.test.mjs` | `build` / `test` 93/93 / `check` 全绿；已推仓待 TT 拉取真机验收 |

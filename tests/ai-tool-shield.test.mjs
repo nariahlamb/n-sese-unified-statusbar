@@ -291,16 +291,7 @@ test('config-store + api-config：预设归一化、source 透传、策略登记
     assert.equal(nativeApi.source, 'makersuite');
     assert.equal(mod.getCustomApiPostProcessingMode(nativeApi), 'strict');
 
-    // fetchModelList 对带子路径的 makersuite 保留前缀回退 /v1
-    const models = await mod.fetchModelList('http://192.168.2.8:3001/proxy/gemini', 'k2', 'makersuite');
-    assert.deepEqual(models, ['gemini-2.5-flash', 'gemini-2.5-pro']);
-    assert.deepEqual(mockCalls, [
-      'http://192.168.2.8:3001/proxy/gemini',
-      'http://192.168.2.8:3001/proxy/gemini/v1',
-    ]);
-
-    // 再测：/v1 也失败时自动回退原生 /v1beta/models
-    dom.window.TavernHelper.getModelList = async () => { throw new Error('404'); };
+    // makersuite 优先直连原生 /v1beta/models，绝不把裸根地址交给 TavernHelper.getModelList（防撞管理页 HTML）
     globalThis.fetch = async (url) => {
       assert.equal(url, 'https://generativelanguage.googleapis.com/v1beta/models?key=k3');
       return {
@@ -310,6 +301,15 @@ test('config-store + api-config：预设归一化、source 透传、策略登记
     };
     const nativeModels = await mod.fetchModelList('https://generativelanguage.googleapis.com', 'k3', 'makersuite');
     assert.deepEqual(nativeModels, ['gemini-2.5-flash']);
+    assert.deepEqual(mockCalls, []);
+
+    // 若浏览器端 /v1beta/models 失败（如 CORS），再保留子路径并仅用 /v1 调 getModelList（绝不发裸根地址）
+    globalThis.fetch = async () => { throw new TypeError('CORS blocked'); };
+    const models = await mod.fetchModelList('http://192.168.2.8:3001/proxy/gemini', 'k2', 'makersuite');
+    assert.deepEqual(models, ['gemini-2.5-flash', 'gemini-2.5-pro']);
+    assert.deepEqual(mockCalls, [
+      'http://192.168.2.8:3001/proxy/gemini/v1',
+    ]);
   } finally {
     globalThis.window = prevWin;
     globalThis.fetch = prevFetch;
