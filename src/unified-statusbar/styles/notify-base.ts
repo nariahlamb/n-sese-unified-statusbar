@@ -50,70 +50,70 @@ function themeRingCss(): string {
 export const notifyBaseCSS = `
 ${themeRingCss()}
 
-/* ===== 皮肤变量 · 素瓷（暖白瓷面玻璃） ===== */
+/* ===== 皮肤变量 · 素瓷（半透明暖白瓷面玻璃） ===== */
 #toast-container.ub-notify-container.ub-skin-light{
-  --ubn-bg1:rgba(255,255,255,.96); --ubn-bg2:rgba(249,248,245,.9);
+  --ubn-bg1:rgba(255,255,255,.64); --ubn-bg2:rgba(249,248,245,.54);
   --ubn-ink:#2c3036; --ubn-ink2:rgba(44,48,54,.92);
-  --ubn-inset:inset 0 1px 0 rgba(255,255,255,.85);
-  --ubn-sh:0 1px 2px rgba(22,26,34,.08),0 8px 22px rgba(22,26,34,.11),0 18px 40px rgba(22,26,34,.1);
-  --ubn-sh-h:0 1px 2px rgba(22,26,34,.09),0 10px 26px rgba(22,26,34,.13),0 22px 48px rgba(22,26,34,.12);
+  --ubn-inset:inset 0 1px 0 rgba(255,255,255,.62);
+  --ubn-sh:0 1px 2px rgba(22,26,34,.06),0 6px 16px rgba(22,26,34,.09);
+  --ubn-sh-h:0 1px 2px rgba(22,26,34,.08),0 8px 20px rgba(22,26,34,.11);
   --ubn-hover:saturate(1.06);
   --ubn-ok:#2e9e6f; --ubn-ok-bg:rgba(47,158,111,.12); --ubn-ok-ring:rgba(47,158,111,.42);
   --ubn-warn:#c07f1d; --ubn-warn-bg:rgba(192,127,29,.14); --ubn-warn-ring:rgba(192,127,29,.45);
   --ubn-err:#c44343; --ubn-err-bg:rgba(196,67,67,.13); --ubn-err-ring:rgba(196,67,67,.45);
   --ubn-info:#3d88b8; --ubn-info-bg:rgba(61,136,184,.12); --ubn-info-ring:rgba(61,136,184,.4);
-  --ubn-warn1:rgba(255,251,242,.96); --ubn-warn2:rgba(250,244,232,.9); --ubn-warn-ink:#7d5a1a;
-  --ubn-err1:rgba(255,249,248,.96); --ubn-err2:rgba(251,242,242,.9); --ubn-err-ink:#9c3636;
+  --ubn-warn1:rgba(255,251,242,.66); --ubn-warn2:rgba(250,244,232,.56); --ubn-warn-ink:#7d5a1a;
+  --ubn-err1:rgba(255,249,248,.66); --ubn-err2:rgba(251,242,242,.56); --ubn-err-ink:#9c3636;
   --ubn-ab-bd:rgba(44,48,54,.26); --ubn-ab-bg:rgba(44,48,54,.05); --ubn-ab-ink:#2c3036; --ubn-ab-ink2:#fff;
-  --ubn-close-hover:rgba(44,48,54,.08);
+  --ubn-close-hover:rgba(44,48,54,.12);
 }
-/* ===== 皮肤变量 · 云墨（半透明深青岩玻璃，非近黑） ===== */
+/* ===== 皮肤变量 · 云墨（半透明深青岩玻璃） ===== */
 #toast-container.ub-notify-container.ub-skin-dark{
-  --ubn-bg1:rgba(50,56,70,.84); --ubn-bg2:rgba(29,33,44,.88);
+  --ubn-bg1:rgba(42,48,62,.58); --ubn-bg2:rgba(24,28,38,.50);
   --ubn-ink:#f0f4f9; --ubn-ink2:rgba(240,244,249,.88);
   --ubn-inset:inset 0 1px 0 rgba(255,255,255,.09);
-  --ubn-sh:0 1px 2px rgba(8,10,16,.28),0 10px 26px rgba(8,10,16,.32),0 0 16px rgba(8,10,16,.18);
-  --ubn-sh-h:0 1px 2px rgba(8,10,16,.3),0 12px 30px rgba(8,10,16,.36),0 0 18px var(--ub-ntf-rg);
+  --ubn-sh:0 1px 2px rgba(8,10,16,.22),0 6px 18px rgba(8,10,16,.24),0 0 12px rgba(8,10,16,.14);
+  --ubn-sh-h:0 1px 2px rgba(8,10,16,.25),0 8px 22px rgba(8,10,16,.28),0 0 14px var(--ub-ntf-rg);
   --ubn-hover:brightness(1.07);
   --ubn-ok:#6fd0a0; --ubn-ok-bg:rgba(111,208,160,.13); --ubn-ok-ring:rgba(111,208,160,.42);
   --ubn-warn:#e8b25f; --ubn-warn-bg:rgba(232,178,95,.13); --ubn-warn-ring:rgba(232,178,95,.45);
   --ubn-err:#f09a9a; --ubn-err-bg:rgba(240,154,154,.13); --ubn-err-ring:rgba(240,154,154,.45);
   --ubn-info:#8fd4f5; --ubn-info-bg:rgba(143,212,245,.12); --ubn-info-ring:rgba(143,212,245,.4);
-  --ubn-warn1:rgba(62,55,40,.86); --ubn-warn2:rgba(38,32,22,.88); --ubn-warn-ink:#ffe1ae;
-  --ubn-err1:rgba(60,42,44,.86); --ubn-err2:rgba(37,23,26,.88); --ubn-err-ink:#ffc9c9;
+  --ubn-warn1:rgba(58,50,36,.62); --ubn-warn2:rgba(34,28,18,.54); --ubn-warn-ink:#ffe1ae;
+  --ubn-err1:rgba(56,36,40,.62); --ubn-err2:rgba(34,20,24,.54); --ubn-err-ink:#ffc9c9;
   --ubn-ab-bd:rgba(238,242,247,.3); --ubn-ab-bg:rgba(238,242,247,.06); --ubn-ab-ink:#eef2f7; --ubn-ab-ink2:#14181f;
-  --ubn-close-hover:rgba(255,255,255,.12);
+  --ubn-close-hover:rgba(255,255,255,.15);
 }
 
 /* ===== 容器：固定顶部、按 notifyAlign 定位、堆叠向下（最新在顶）===== */
 #toast-container.ub-notify-container{
-  position:fixed; top:12px; left:auto; right:auto;
-  width:auto; max-width:320px; z-index:100000;
+  position:fixed; top:8px; left:auto; right:auto;
+  width:auto; max-width:258px; z-index:100000;
   pointer-events:none;
   --ub-ntf-rs:#b8f5ff; --ub-ntf-re:#669cff; --ub-ntf-rg:rgba(126,232,255,.34);
 }
-#toast-container.ub-notify-container.ub-align-left{left:12px;right:auto;transform:none;}
+#toast-container.ub-notify-container.ub-align-left{left:10px;right:auto;transform:none;}
 #toast-container.ub-notify-container.ub-align-center{left:50%;right:auto;transform:translateX(-50%);}
-#toast-container.ub-notify-container.ub-align-right{right:12px;left:auto;transform:none;}
+#toast-container.ub-notify-container.ub-align-right{right:10px;left:auto;transform:none;}
 
-/* ===== 单条 toast：皮肤壳（fit-content 宽度，单行自动变胶囊） ===== */
+/* ===== 单条 toast：紧凑半透明皮肤壳（右侧为放大关闭钮预留安全区） ===== */
 #toast-container.ub-notify-container .toast{
   position:relative; width:fit-content !important; min-width:0 !important;
-  max-width:320px;
-  border:1px solid transparent !important; border-radius:10px !important;
-  padding:7px 24px 8px 33px !important; overflow:hidden;
+  max-width:258px;
+  border:1px solid transparent !important; border-radius:8px !important;
+  padding:5px 40px 6px 26px !important; overflow:hidden;
   background:linear-gradient(168deg,var(--ubn-bg1),var(--ubn-bg2)) padding-box,
              linear-gradient(145deg,var(--ub-ntf-rs),var(--ub-ntf-re)) border-box !important;
   background-image:linear-gradient(168deg,var(--ubn-bg1),var(--ubn-bg2)),
                    linear-gradient(145deg,var(--ub-ntf-rs),var(--ub-ntf-re)) !important;
   color:var(--ubn-ink) !important;
   box-shadow:var(--ubn-inset),var(--ubn-sh) !important;
-  -webkit-backdrop-filter:blur(18px) saturate(1.45);
-  backdrop-filter:blur(18px) saturate(1.45);
+  -webkit-backdrop-filter:blur(12px) saturate(1.35);
+  backdrop-filter:blur(12px) saturate(1.35);
   font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
-  font-size:12.5px; cursor:pointer; pointer-events:auto;
+  font-size:11px; cursor:pointer; pointer-events:auto;
   transition:filter .18s ease,box-shadow .18s ease;
-  margin:0 0 8px;
+  margin:0 0 6px;
   opacity:1; /* toastr fade 由 opacity 过渡控制，此处仅保底 */
 }
 #toast-container.ub-notify-container .toast:hover{
@@ -144,11 +144,11 @@ ${themeRingCss()}
   border-left:none !important;
 }
 
-/* ===== 严重度小图标章（::before）—— 15px 圆，极轻色光，不抢眼 ===== */
+/* ===== 严重度小图标章（::before）—— 13px 紧凑圆，极轻色光，不抢眼 ===== */
 #toast-container.ub-notify-container .toast::before{
-  content:""; position:absolute; left:10px; top:9px; width:15px; height:15px;
+  content:""; position:absolute; left:8px; top:7px; width:13px; height:13px;
   border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-size:9.5px; font-weight:700; line-height:1;
+  font-size:8.5px; font-weight:700; line-height:1;
 }
 #toast-container.ub-notify-container .toast-success::before{content:"✓";color:var(--ubn-ok);background:var(--ubn-ok-bg);box-shadow:inset 0 0 0 1px var(--ubn-ok-ring);}
 #toast-container.ub-notify-container .toast-error::before{content:"✕";color:var(--ubn-err);background:var(--ubn-err-bg);box-shadow:inset 0 0 0 1px var(--ubn-err-ring);}
@@ -160,17 +160,17 @@ ${themeRingCss()}
    标题保持 toastr 原生 .toast-title 元素 display:inline 流入正文行首，::after 生成「·」分隔点，
    与正文形成字号/字重/颜色三重区分；错误/持久标题恢复独立成行（详情优先）。*/
 #toast-container.ub-notify-container .toast .toast-title{
-  display:inline; font-weight:600; font-size:12.5px; line-height:1.4; margin:0;
+  display:inline; font-weight:600; font-size:11.5px; line-height:1.3; margin:0;
   color:var(--ubn-ink) !important; text-align:left;
 }
 #toast-container.ub-notify-container .toast .toast-title::after{
-  content:" · "; font-weight:400; font-size:12px; color:var(--ubn-ink2);
+  content:" · "; font-weight:400; font-size:11px; color:var(--ubn-ink2);
 }
 /* 严重度标题色：警告偏暖、报错偏红（跨皮肤统一）*/
 #toast-container.ub-notify-container .toast-warning .toast-title{color:var(--ubn-warn-ink) !important;}
 #toast-container.ub-notify-container .toast-error .toast-title{color:var(--ubn-err-ink) !important;}
 #toast-container.ub-notify-container .toast-message{
-  display:inline; font-size:12px; line-height:1.5; margin:0;
+  display:inline; font-size:11px; line-height:1.38; margin:0;
   color:var(--ubn-ink2) !important; text-align:left;
   -webkit-font-smoothing:antialiased; word-break:break-word; white-space:pre-line;
 }
@@ -184,40 +184,53 @@ ${themeRingCss()}
 #toast-container.ub-notify-container .toast-error .toast-title::after,
 #toast-container.ub-notify-container .toast.ub-persist .toast-title::after{content:none;}
 
-/* ===== 关闭按钮（toastr closeButton:true 时出现）===== */
+/* ===== 关闭按钮（toastr closeButton:true 时出现；改大+扩展安全热区，防误触任务本体终止）===== */
 #toast-container.ub-notify-container .toast-close-button{
-  position:absolute; top:6px; right:7px; width:15px; height:15px;
-  border:none; background:transparent; color:var(--ubn-ink); opacity:.38; cursor:pointer;
-  font-size:12px; line-height:1; display:flex; align-items:center; justify-content:center;
-  border-radius:4px; padding:0; text-shadow:none;
+  position:absolute !important; top:2px !important; right:2px !important;
+  width:30px !important; height:30px !important; min-width:30px !important; min-height:30px !important;
+  border:none !important; background:var(--ubn-close-hover,rgba(128,128,128,.14)) !important;
+  color:var(--ubn-ink) !important; opacity:.82 !important; cursor:pointer !important;
+  font-size:18px !important; font-weight:700 !important; line-height:1 !important;
+  display:flex !important; align-items:center; justify-content:center;
+  border-radius:6px !important; padding:0 !important; text-shadow:none !important;
+  z-index:4 !important; touch-action:manipulation;
 }
-#toast-container.ub-notify-container .toast-close-button:hover{opacity:1;background:var(--ubn-close-hover);}
+#toast-container.ub-notify-container .toast-close-button::after{
+  content:"" !important; position:absolute !important;
+  top:-4px !important; right:-4px !important; bottom:-8px !important; left:-8px !important;
+  background:transparent !important;
+}
+#toast-container.ub-notify-container .toast-close-button:hover,
+#toast-container.ub-notify-container .toast-close-button:active{
+  opacity:1 !important; background:var(--ubn-close-hover,rgba(128,128,128,.22)) !important;
+}
 
 /* ===== 倒计时条（自动消失型；JS 按本条 timeOut 注入 .ub-ntf-bar，animationDuration 同步）===== */
 #toast-container.ub-notify-container .toast .ub-ntf-bar{
   position:absolute; left:0; bottom:0; height:2px; width:100%;
   background:linear-gradient(90deg,var(--ub-ntf-rs),var(--ub-ntf-re)); opacity:.75;
-  border-radius:0 0 9px 9px;
+  border-radius:0 0 8px 8px;
   animation:ub-ntf-drain 5s linear forwards;
 }
 @keyframes ub-ntf-drain{from{width:100%;}to{width:0%;}}
 
-/* ===== 持久通知（ub-persist：PERSIST_OPTS 不自动消失，报错/警告档）紧凑化 =====
-   持久通知长期占据屏幕：内边距/字号/行距/图标/关闭钮收窄；错误详情完整保留。 */
+/* ===== 持久通知（ub-persist：PERSIST_OPTS 不自动消失，报错/警告/进度档）紧凑化 =====
+   持久通知长期占据屏幕：内边距/字号/行距/图标收窄；右留 40px 给放大关闭钮，防误触中止。 */
 #toast-container.ub-notify-container .toast.ub-persist{
-  padding:7px 24px 8px 31px !important;
+  padding:5px 40px 6px 25px !important;
 }
 #toast-container.ub-notify-container .toast.ub-persist .toast-title{
-  font-size:12.5px; line-height:1.35; margin:0 0 1px;
+  font-size:11.5px; line-height:1.3; margin:0 0 1px;
 }
 #toast-container.ub-notify-container .toast.ub-persist .toast-message{
-  font-size:12px; line-height:1.45;
+  font-size:11px; line-height:1.38;
 }
 #toast-container.ub-notify-container .toast.ub-persist::before{
-  left:9px; top:8px; width:14px; height:14px; font-size:9px;
+  left:8px; top:7px; width:13px; height:13px; font-size:8.5px;
 }
 #toast-container.ub-notify-container .toast.ub-persist .toast-close-button{
-  top:5px; right:6px; width:14px; height:14px; font-size:11px;
+  top:2px !important; right:2px !important;
+  width:30px !important; height:30px !important; font-size:18px !important;
 }
 
 /* ===== 劫持数据库插件（ACU）.acu-toast：高特异性覆盖其 !important 主题 =====
@@ -227,9 +240,9 @@ ${themeRingCss()}
    background 拆长属性（image/clip/origin/color）规避插件 background 简写 !important 连带重置 clip。
    视觉值全部走皮肤变量（--ubn-*），素瓷/云墨自动成立。*/
 #toast-container.ub-notify-container .toast.acu-toast{
-  position:relative; width:fit-content !important; min-width:0 !important; max-width:320px;
-  border:1px solid transparent !important; border-left:none !important; border-radius:10px !important;
-  padding:7px 24px 8px 31px !important; overflow:hidden;
+  position:relative; width:fit-content !important; min-width:0 !important; max-width:258px;
+  border:1px solid transparent !important; border-left:none !important; border-radius:8px !important;
+  padding:5px 40px 6px 26px !important; overflow:hidden;
   opacity:1 !important;
   background-color:transparent !important;
   background-image:linear-gradient(168deg,var(--ubn-bg1),var(--ubn-bg2)),
@@ -241,11 +254,11 @@ ${themeRingCss()}
   color:var(--ubn-ink) !important;
   box-shadow:var(--ubn-inset),var(--ubn-sh) !important;
   font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif !important;
-  font-size:12.5px !important; font-weight:400 !important; letter-spacing:normal !important;
+  font-size:11px !important; font-weight:400 !important; letter-spacing:normal !important;
   cursor:pointer; pointer-events:auto;
   transition:filter .18s ease,box-shadow .18s ease;
-  -webkit-backdrop-filter:blur(18px) saturate(1.45);
-  backdrop-filter:blur(18px) saturate(1.45);
+  -webkit-backdrop-filter:blur(12px) saturate(1.35);
+  backdrop-filter:blur(12px) saturate(1.35);
 }
 #toast-container.ub-notify-container .toast.acu-toast:hover{
   filter:var(--ubn-hover);
@@ -285,12 +298,12 @@ ${themeRingCss()}
   background-position:0 0 !important;
   border-left:none !important;
 }
-/* 图标 1,3,1（基）+ 1,4,1（类型）：压插件 1,2,1 的 达/知/警/误 26px 方块，复用我们 ✓/✕/!/i 15px 圆 */
+/* 图标 1,3,1（基）+ 1,4,1（类型）：压插件 1,2,1 的 达/知/警/误 26px 方块，复用我们 ✓/✕/!/i 13px 圆 */
 #toast-container.ub-notify-container .toast.acu-toast::before{
-  content:"" !important; position:absolute !important; left:10px !important; top:9px !important;
-  width:15px !important; height:15px !important; border-radius:50% !important;
+  content:"" !important; position:absolute !important; left:8px !important; top:7px !important;
+  width:13px !important; height:13px !important; border-radius:50% !important;
   display:flex !important; align-items:center; justify-content:center;
-  font-size:9.5px !important; font-weight:700 !important; line-height:1 !important;
+  font-size:8.5px !important; font-weight:700 !important; line-height:1 !important;
   background:transparent !important;
   border:none !important; box-shadow:none !important; filter:none !important;
   transform:none !important;
@@ -301,30 +314,36 @@ ${themeRingCss()}
 #toast-container.ub-notify-container .toast.acu-toast.toast-info::before{content:"i" !important;color:var(--ubn-info) !important;background:var(--ubn-info-bg) !important;box-shadow:inset 0 0 0 1px var(--ubn-info-ring) !important;}
 /* 标题/正文 1,3,0：压插件 .acu-toast.toast .toast-{title,message} (0,3,0) */
 #toast-container.ub-notify-container .toast.acu-toast .toast-title{
-  font-weight:600 !important; font-size:12.5px !important; line-height:1.35 !important;
+  font-weight:600 !important; font-size:11.5px !important; line-height:1.3 !important;
   margin:0 0 1px !important; color:var(--ubn-ink) !important; text-align:left !important;
   letter-spacing:normal !important; text-shadow:none !important; background:transparent !important;
 }
 #toast-container.ub-notify-container .toast.acu-toast.toast-warning .toast-title{color:var(--ubn-warn-ink) !important;}
 #toast-container.ub-notify-container .toast.acu-toast.toast-error .toast-title{color:var(--ubn-err-ink) !important;}
 #toast-container.ub-notify-container .toast.acu-toast .toast-message{
-  font-size:12px !important; line-height:1.45 !important; margin:0 !important;
+  font-size:11px !important; line-height:1.38 !important; margin:0 !important;
   color:var(--ubn-ink2) !important; text-align:left !important;
   font-weight:400 !important; letter-spacing:normal !important; text-shadow:none !important;
   background:transparent !important; -webkit-font-smoothing:antialiased;
   word-break:break-word; white-space:pre-line;
 }
-/* 关闭钮 1,3,0：压插件 .acu-toast.toast .toast-close-button (0,3,0) */
+/* 关闭钮 1,3,0：压插件 .acu-toast.toast .toast-close-button (0,3,0)；同步改大防误触 */
 #toast-container.ub-notify-container .toast.acu-toast .toast-close-button{
-  position:absolute !important; top:5px !important; right:6px !important;
-  width:14px !important; height:14px !important;
-  border:none !important; background:transparent !important;
-  color:var(--ubn-ink) !important; opacity:.38 !important; cursor:pointer !important;
-  font-size:11px !important; line-height:1 !important; text-shadow:none !important;
+  position:absolute !important; top:2px !important; right:2px !important;
+  width:30px !important; height:30px !important; min-width:30px !important; min-height:30px !important;
+  border:none !important; background:var(--ubn-close-hover,rgba(128,128,128,.14)) !important;
+  color:var(--ubn-ink) !important; opacity:.82 !important; cursor:pointer !important;
+  font-size:18px !important; font-weight:700 !important; line-height:1 !important; text-shadow:none !important;
   display:flex !important; align-items:center; justify-content:center;
-  border-radius:4px !important; padding:0 !important;
+  border-radius:6px !important; padding:0 !important; z-index:4 !important; touch-action:manipulation;
 }
-#toast-container.ub-notify-container .toast.acu-toast .toast-close-button:hover{opacity:1 !important;background:var(--ubn-close-hover) !important;}
+#toast-container.ub-notify-container .toast.acu-toast .toast-close-button::after{
+  content:"" !important; position:absolute !important;
+  top:-4px !important; right:-4px !important; bottom:-8px !important; left:-8px !important;
+  background:transparent !important;
+}
+#toast-container.ub-notify-container .toast.acu-toast .toast-close-button:hover,
+#toast-container.ub-notify-container .toast.acu-toast .toast-close-button:active{opacity:1 !important;background:var(--ubn-close-hover) !important;}
 /* 进度条：插件 progressBar:true 生 .toast-progress（包装器未就绪时不走 .ub-ntf-bar）→ 复用为我们的倒计时条配色 */
 #toast-container.ub-notify-container .toast .toast-progress{
   background:linear-gradient(90deg,var(--ub-ntf-rs),var(--ub-ntf-re)) !important;
@@ -334,15 +353,15 @@ ${themeRingCss()}
    插件给的是内联样式琥珀描边小按钮，此统一改皮肤次级按钮（1,3,1 + !important 压内联 style）。
    hover 1,4,1 填充主题渐变。 */
 #toast-container.ub-notify-container .toast .toast-message button{
-  display:inline-block; vertical-align:middle; margin:2px 0 1px 8px;
-  padding:2px 10px !important;
-  border-radius:6px !important;
+  display:inline-block; vertical-align:middle; margin:2px 0 1px 6px;
+  padding:1px 7px !important;
+  border-radius:5px !important;
   border:1px solid var(--ubn-ab-bd) !important;
   background:var(--ubn-ab-bg) !important;
   color:var(--ubn-ab-ink) !important;
   font-weight:600 !important;
   font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif !important;
-  font-size:11px !important; letter-spacing:.04em;
+  font-size:10px !important; letter-spacing:.03em;
   cursor:pointer !important; box-shadow:none !important; text-shadow:none !important;
   float:none !important; transition:background .15s ease,border-color .15s ease,color .15s ease;
 }
@@ -369,11 +388,14 @@ ${themeRingCss()}
 }
 #toast-container.ub-notify-container.ub-theme-minimal .toast,#toast-container.ub-notify-container.ub-theme-minimal .toast.acu-toast{
   border:1.5px solid var(--border-color)!important;border-radius:var(--mn-radius)!important;
-  background:var(--mn-card)!important;box-shadow:var(--mn-shadow-soft)!important;
+  background:rgba(255,250,241,.66)!important;
+  background:color-mix(in srgb,var(--mn-card) 64%,transparent)!important;
+  box-shadow:var(--mn-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);
   font-family:var(--mn-font-body)!important;
 }
-#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-warning{background:var(--mn-note)!important;border-color:var(--mn-honey)!important;--ub-ntf-rs:var(--mn-honey);--ub-ntf-re:var(--mn-honey);--ub-ntf-rg:var(--mn-honey-soft);}
-#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-error{background:var(--mn-sakura-soft)!important;border-color:var(--ub-danger)!important;--ub-ntf-rs:var(--ub-danger);--ub-ntf-re:var(--ub-danger);--ub-ntf-rg:var(--mn-sakura-soft);}
+#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-warning{background:rgba(255,246,220,.68)!important;background:color-mix(in srgb,var(--mn-note) 66%,transparent)!important;border-color:var(--mn-honey)!important;--ub-ntf-rs:var(--mn-honey);--ub-ntf-re:var(--mn-honey);--ub-ntf-rg:var(--mn-honey-soft);}
+#toast-container.ub-notify-container.ub-theme-minimal .toast.toast-error{background:rgba(255,240,242,.68)!important;background:color-mix(in srgb,color-mix(in srgb,var(--mn-card) 78%,var(--ub-danger)) 66%,transparent)!important;border-color:var(--ub-danger)!important;--ub-ntf-rs:var(--ub-danger);--ub-ntf-re:var(--ub-danger);--ub-ntf-rg:var(--mn-sakura-soft);}
 #toast-container.ub-notify-container.ub-theme-minimal .toast .ub-ntf-bar,#toast-container.ub-notify-container.ub-theme-minimal .toast .toast-progress{border-radius:var(--mn-radius-sm);}
 #toast-container.ub-notify-container.ub-theme-minimal .toast .toast-message button:hover{background:var(--mn-sakura)!important;color:var(--accent-ink)!important;border-color:var(--mn-sakura)!important;}
 
@@ -393,8 +415,10 @@ ${themeRingCss()}
 }
 #toast-container.ub-notify-container.ub-theme-bridge .toast,#toast-container.ub-notify-container.ub-theme-bridge .toast.acu-toast{
   border:2px solid var(--bridge-line-strong)!important;border-left:5px solid var(--bridge-signal)!important;border-radius:0!important;
-  background:var(--bridge-panel)!important;box-shadow:4px 4px 0 var(--bridge-offset)!important;
-  backdrop-filter:none;-webkit-backdrop-filter:none;font-family:var(--bridge-font-ui)!important;text-shadow:none;
+  background:rgba(246,240,228,.68)!important;
+  background:color-mix(in srgb,var(--bridge-panel) 64%,transparent)!important;
+  box-shadow:3px 3px 0 var(--bridge-offset)!important;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:var(--bridge-font-ui)!important;text-shadow:none;
 }
 #toast-container.ub-notify-container.ub-theme-bridge .toast.toast-warning{border-left-color:var(--bridge-warn)!important}
 #toast-container.ub-notify-container.ub-theme-bridge .toast.toast-error{border-left-color:var(--bridge-danger)!important}
@@ -409,8 +433,8 @@ ${themeRingCss()}
 
 /* ===== 移动端视口纪律：100dvh、width 100% 非 100vw（SillyTavern transform 压扁 fixed）===== */
 @media (max-width: 599px){
-  #toast-container.ub-notify-container{max-width:calc(100% - 24px);}
-  #toast-container.ub-notify-container.ub-align-center{left:12px;right:12px;transform:none;max-width:none;}
+  #toast-container.ub-notify-container{max-width:calc(100% - 20px);}
+  #toast-container.ub-notify-container.ub-align-center{left:10px;right:10px;transform:none;max-width:none;}
   #toast-container.ub-notify-container .toast{max-width:100% !important;}
 }
 `;
