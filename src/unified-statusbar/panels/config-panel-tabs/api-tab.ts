@@ -180,7 +180,47 @@ export function bindApiTab(config: StatusBarConfig, notifyChanged: () => void): 
     });
   }
 
-  // 条目黑名单保存按钮（1A 类请求的世界书条目过滤；正则模式，每行一个正则）
+  // 后台请求净化开关（外挂世界书与正文向条目隔离）
+  const bgIsolationCheckboxes: Array<[string, 'bgIsolationBlockGlobalLore' | 'bgIsolationBlockAdditionalLore' | 'bgIsolationDropAssistantLore' | 'bgIsolationUseBuiltinKeywords' | 'bgIsolationStripForeignInjections']> = [
+    ['bgIsolationBlockGlobalLore', 'bgIsolationBlockGlobalLore'],
+    ['bgIsolationBlockAdditionalLore', 'bgIsolationBlockAdditionalLore'],
+    ['bgIsolationDropAssistantLore', 'bgIsolationDropAssistantLore'],
+    ['bgIsolationUseBuiltinKeywords', 'bgIsolationUseBuiltinKeywords'],
+    ['bgIsolationStripForeignInjections', 'bgIsolationStripForeignInjections'],
+  ];
+  for (const [domId, cfgKey] of bgIsolationCheckboxes) {
+    const chk = document.getElementById(domId) as HTMLInputElement | null;
+    if (chk) {
+      chk.addEventListener('change', function () {
+        const checked = this.checked;
+        config[cfgKey] = checked;
+        setConfig(cfgKey, checked);
+      });
+    }
+  }
+  const bgAllowedBooksSaveBtn = document.getElementById('bgIsolationAllowedBooksSaveBtn');
+  if (bgAllowedBooksSaveBtn) {
+    bgAllowedBooksSaveBtn.addEventListener('click', function () {
+      const ta = document.getElementById('bgIsolationAllowedBooksInput') as HTMLTextAreaElement | null;
+      if (!ta) return;
+      const seen = new Set<string>();
+      const arr: string[] = [];
+      for (const rawLine of ta.value.split(/\r?\n/)) {
+        const name = String(rawLine == null ? '' : rawLine).trim();
+        if (!name || seen.has(name)) continue;
+        seen.add(name);
+        arr.push(name);
+      }
+      config.bgIsolationAllowedBooks = arr;
+      setConfig('bgIsolationAllowedBooks', arr);
+      ta.value = arr.length > 0 ? arr.join('\n') : '';
+      if (typeof toastr !== 'undefined' && toastr) {
+        toastr.success(arr.length > 0 ? `已保存 ${arr.length} 本放行世界书` : '已清空白名单，仅放行角色卡主世界书', '状态栏 · 后台净化');
+      }
+    });
+  }
+
+  // 条目黑名单保存按钮（后台请求的世界书条目过滤；正则模式，每行一个正则）
   const entryBlacklistSaveBtn = document.getElementById('entryBlacklistSaveBtn');
   if (entryBlacklistSaveBtn) {
     entryBlacklistSaveBtn.addEventListener('click', function () {

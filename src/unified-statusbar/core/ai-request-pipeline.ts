@@ -5,7 +5,9 @@
 // 破限头与尾部破限统一走 core/jailbreak-config 的段数组解析器（...getJailbreakHeadPrompts() /
 // ...getJailbreakTailPrompts()），本模块不再提供字符串版整串装配（旧装配函数已删，只留中段与上下文常量）。
 
-/** 九元素中段：world_info_before → user_input（原生槽位序列，全部 generateRaw 站共用）。 */
+/** 精简中段：world_info_before → user_input（全部 1A generateRaw 站共用）。
+ *  已移除 'chat_history'：max_chat_history=0 时保留 'chat_history' 仍会被酒馆/TT 自动塞入
+ *  at_depth 深度条目（如 <场景美化>）与 in_chat 扩展注入；剧情上下文一律走 after_system 资料块。 */
 export const STANDARD_PROMPT_MIDDLE = [
   'world_info_before',
   'persona_description',
@@ -14,7 +16,6 @@ export const STANDARD_PROMPT_MIDDLE = [
   'scenario',
   'world_info_after',
   'dialogue_examples',
-  'chat_history',
   'user_input',
 ] as const;
 

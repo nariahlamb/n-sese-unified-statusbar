@@ -13,7 +13,14 @@ import { deriveNodeId, parseLocationHierarchy, readMapNode } from './map-tree-st
 import { stripWithContextConfig, stripWithContextMessages } from './context-strip';
 import { getPlayData, isManagedPlayEntry } from './play-worldbook';
 import { buildNsfwGuidanceUserInput, NSFW_GUIDANCE_SYSTEM_PROMPT } from './nsfw-guidance-prompts';
-import { wbEntryName, wbEntryKeysMatchAny, wbEntryMatchedKeywords } from './worldbook-entry';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import {
+  wbEntryName,
+  wbEntryKeysMatchAny,
+  wbEntryMatchedKeywords,
+  filterBoundWorldbookNamesForBackgroundAi,
+  shouldExcludeEntryForBackgroundAi,
+} from './worldbook-entry';
 import { captureChatScope } from './story-floor-store';
 
 export interface SelectedNsfwGuidancePlay {
@@ -167,12 +174,8 @@ function getLocationKeywords(location: string): string[] {
 async function loadCharacterWorldbooks(th: any): Promise<Array<{ name: string; entries: any[] }>> {
   try {
     const bound = th.getCharWorldbookNames?.('current');
-    const names = new Set<string>();
-    if (bound?.primary) names.add(String(bound.primary));
-    if (Array.isArray(bound?.additional)) {
-      for (const name of bound.additional) if (name) names.add(String(name));
-    }
-    const loaded = await Promise.all(Array.from(names).map(async name => {
+    const names = filterBoundWorldbookNamesForBackgroundAi(bound);
+    const loaded = await Promise.all(names.map(async name => {
       try {
         const entries = await th.getWorldbook(name);
         return { name, entries: Array.isArray(entries) ? entries : [] };
@@ -204,6 +207,8 @@ function matchWorldbookEntries(
       if (!comment || comment.startsWith('UBS-地图-') || comment.startsWith('__map_')) continue;
       // 排除 play-worldbook 按选注入的聚合玩法/物品使用条目（已进提示词，勿重复计入地点/角色匹配）。
       if (isManagedPlayEntry(comment)) continue;
+      // 过滤正文向条目（role: assistant + shujuku 核心词根）及条目黑名单
+      if (shouldExcludeEntryForBackgroundAi(entry)) continue;
       // 地点：条目名含末两段任一段（逐段），或触发关键词与末两段拼串双向子串命中。
       const locNameHits = locationKeywords.filter(seg => comment.includes(seg));
       const locKeyHit = joinedLoc !== '' && wbEntryKeysMatchAny(entry, [joinedLoc]);
@@ -333,6 +338,7 @@ export async function performNsfwGuidance(originalInput: string, plays: Selected
         'user_input',
         ...getJailbreakTailPrompts(),
       ],
+      max_chat_history: STANDARD_MAX_CHAT_HISTORY,
       custom_api: getCustomApiConfig('nsfwGuidance'),
     }), { feature: 'nsfwGuidance' });
     if (typeof result !== 'string') throw new Error('模型未返回可用文本');

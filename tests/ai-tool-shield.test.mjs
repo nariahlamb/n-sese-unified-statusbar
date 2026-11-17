@@ -447,3 +447,74 @@ test('设置页 API 标签页 UI：API 源与中段系统消息兼容下拉回�
     dom.window.close();
   }
 });
+
+test('scrubGenerateData + createShieldedGenerateRaw：出站剥离 stray assistant 与第三方 extensionPrompts（不动自定义预设自身 assistant）', async () => {
+  const mod = await loadBundle(`
+    export * from './src/unified-statusbar/core/ai-tool-shield.ts';
+  `);
+
+  const listeners = new Map();
+  const foreignExt = {
+    'some-beautify-ext': { value: '请用HTML卡片输出<场景美化>状态栏面板。' },
+    'ub_my_own_inject': { value: '这是状态栏自己的内容不能被误剥。' },
+  };
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost' });
+  const prevWin = globalThis.window;
+  dom.window.SillyTavern = {
+    getContext: () => ({
+      extensionPrompts: foreignExt,
+      eventSource: {
+        on(t, fn) { listeners.set(t, fn); },
+        removeListener(t, fn) { if (listeners.get(t) === fn) listeners.delete(t); },
+      },
+      eventTypes: { CHAT_COMPLETION_SETTINGS_READY: 'chat_completion_settings_ready' },
+      chatCompletionSettings: { custom_prompt_post_processing: 'semi' },
+    }),
+  };
+  globalThis.window = dom.window;
+
+  try {
+    let seen = null;
+    const shielded = mod.createShieldedGenerateRaw(
+      async () => {
+        const payload = {
+          messages: [
+            { role: 'system', content: '结构头前缀测试文本'.repeat(4) },
+            { role: 'system', content: '请用HTML卡片输出<场景美化>状态栏面板。' },
+            { role: 'system', content: '这是状态栏自己的内容不能被误剥。' },
+            { role: 'assistant', content: '用户自定义的合法assistant预填' },
+            { role: 'assistant', content: '<场景美化>混入的伪对话5.3k</场景美化>' },
+            { role: 'user', content: '任务输入' },
+            { role: 'system', content: '尾破限' },
+          ],
+        };
+        listeners.get('chat_completion_settings_ready')?.(payload);
+        seen = payload;
+        return 'ok';
+      },
+      {},
+    );
+
+    await shielded({
+      ordered_prompts: [
+        { role: 'system', content: '结构头前缀测试文本'.repeat(4) },
+        'world_info_before',
+        'user_input',
+        { role: 'assistant', content: '用户自定义的合法assistant预填' },
+      ],
+      user_input: '任务输入',
+      max_chat_history: 0,
+    });
+
+    const texts = seen.messages.map(m => m.content).join('\n');
+    assert.equal(texts.includes('请用HTML卡片输出<场景美化>状态栏面板'), false);
+    assert.equal(texts.includes('<场景美化>混入的伪对话5.3k</场景美化>'), false);
+    assert.ok(texts.includes('这是状态栏自己的内容不能被误剥'));
+    assert.ok(texts.includes('用户自定义的合法assistant预填'));
+    // 全局 SillyTavern.extensionPrompts 原对象绝不被篡改
+    assert.equal(foreignExt['some-beautify-ext'].value, '请用HTML卡片输出<场景美化>状态栏面板。');
+  } finally {
+    globalThis.window = prevWin;
+    dom.window.close();
+  }
+});

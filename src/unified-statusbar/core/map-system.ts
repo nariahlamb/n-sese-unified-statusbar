@@ -18,6 +18,7 @@ import { beginMapRefreshTrace, recordMapRefreshTrace } from './map-refresh-trace
 // （JSON 始终缓存；SVG 仅两阶段模式缓存。元数据 storyHash/updatedAt 放进 JSON 自身字段。）
 
 import { getConfig } from './config-store';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { getCurrentStoryChatKey } from './story-floor-store';
 import { looseJsonParse, parseAiJsonObject } from './ai-parse';
 import { getCellByHeader, getSheetByName, getAutoCardAPI } from './data-manager';
@@ -610,6 +611,7 @@ async function callGenerateRaw(userInput: string, contextCount: number): Promise
           'user_input',
           ...getJailbreakTailPrompts(),
         ],
+        max_chat_history: STANDARD_MAX_CHAT_HISTORY,
         custom_api: getCustomApiConfig('map'),
       });
       if (typeof r !== 'string' || !r.trim()) throw new Error('AI 返回为空');

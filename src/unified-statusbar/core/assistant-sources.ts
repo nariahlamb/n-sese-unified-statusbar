@@ -15,6 +15,7 @@ import { getAllCycleRecords } from './cycle-store';
 import { loadWorldState } from './world-engine/world-store';
 import type { CharProfile, WorldState } from './world-engine/world-types';
 import {
+  isBuiltinMainStoryBlockedEntry,
   isManagedSkillEntry,
   wbEntryIsConstant,
   wbEntryKeys,
@@ -394,6 +395,10 @@ async function serializeWorldbooks(host: AssistantSourceHost, terms: string[]): 
       const name = wbEntryName(entry) || '未命名条目';
       if (isManagedSkillEntry(entry)) {
         listed.push(`${name}（受管投影条目）`);
+        continue;
+      }
+      if (isBuiltinMainStoryBlockedEntry(entry).blocked) {
+        listed.push(`${name}（正文向规则已跳过）`);
         continue;
       }
       if (entry?.enabled === false) {

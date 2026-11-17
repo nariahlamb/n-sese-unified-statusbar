@@ -13,7 +13,7 @@ import { type StyleType } from '../core/constants';
 import { getToastr, getTavernHelper } from '../core/env';
 import { getCurrentCardName } from '../core/current-card';
 import { escapeHtml, escapeHtmlAttr } from '../core/html-escape';
-import { isUserEntryName, wbEntryIsConstant, wbEntryKeys, wbEntryName } from '../core/worldbook-entry';
+import { isBuiltinMainStoryBlockedEntry, isUserEntryName, wbEntryIsConstant, wbEntryKeys, wbEntryName } from '../core/worldbook-entry';
 import { hasCharacterCardContext } from '../core/card-variable-store';
 import { readCardEntryBlacklist, splitStaleCardEntryBlacklist, writeCardEntryBlacklist } from '../core/card-entry-blacklist';
 import { showConfirmDialog } from './confirm-dialog';
@@ -115,11 +115,14 @@ export function refreshCardEntryBlacklistRow(): void {
 interface PickerRow {
   name: string;
   book: string;
+  isAdditional: boolean;
   /** 同名条目还出现在其它 N 本绑定世界书里（排除按名生效，故只列一行）。 */
   bookExtra: number;
   keys: string[];
   constant: boolean;
   enabled: boolean;
+  charCount: number;
+  builtinBlocked: boolean;
 }
 
 interface PickerData {
@@ -154,10 +157,13 @@ async function loadPickerData(): Promise<PickerData> {
       byName.set(name, {
         name,
         book,
+        isAdditional: book !== data.primary,
         bookExtra: 0,
         keys: wbEntryKeys(entry),
         constant: wbEntryIsConstant(entry),
         enabled: entry?.enabled !== false,
+        charCount: String(entry?.content ?? '').length,
+        builtinBlocked: isBuiltinMainStoryBlockedEntry(entry).blocked,
       });
     }
   }
@@ -254,6 +260,10 @@ export function showCardEntryBlacklistPopup(style: StyleType): void {
     let badges = '';
     if (row.constant) badges += '<span class="ub-cebl-badge blue">蓝灯</span>';
     if (!row.enabled) badges += '<span class="ub-cebl-badge">已禁用</span>';
+    if (row.isAdditional) badges += '<span class="ub-cebl-badge">附加书</span>';
+    if (row.builtinBlocked) badges += '<span class="ub-cebl-badge">内置默认拦截</span>';
+    const sizeText = row.charCount >= 1000 ? (row.charCount / 1000).toFixed(1) + 'k字' : row.charCount + '字';
+    badges += '<span class="ub-cebl-badge">' + sizeText + '</span>';
     const keys = row.keys.length
       ? '触发词：' + escapeHtml(row.keys.slice(0, KEYS_PREVIEW_MAX).join('、')) + (row.keys.length > KEYS_PREVIEW_MAX ? ' …' : '')
       : '（无触发词）';

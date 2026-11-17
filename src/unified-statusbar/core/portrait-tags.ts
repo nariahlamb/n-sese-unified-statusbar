@@ -4,7 +4,14 @@ import { getTodayDateKey } from './calendar-core';
 import { getCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
 import { getTavernHelper } from './env';
-import { iterBoundEntries, wbEntryMatchedKeywords, isManagedSkillEntry, wbEntryName } from './worldbook-entry';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import {
+  wbEntryMatchedKeywords,
+  isManagedSkillEntry,
+  wbEntryName,
+  filterBoundWorldbookNamesForBackgroundAi,
+  shouldExcludeEntryForBackgroundAi,
+} from './worldbook-entry';
 import { savePortraitCharTags, savePortraitFanTags } from './portrait-system';
 import { PORTRAIT_PROTAGONIST_KEY } from './portrait-protagonist';
 import { captureChatScope } from './story-floor-store';
@@ -46,16 +53,27 @@ export function collectDbTraits(npc: string): Record<string, string> {
 
 // —— 取数：世界书触发关键词命中角色名的条目（一次性，点击生成时才执行）——
 async function collectWorldbookEntries(npc: string): Promise<{ comment: string; content: string }[]> {
+  const th = getTavernHelper();
+  if (!th || typeof th.getCharWorldbookNames !== 'function' || typeof th.getWorldbook !== 'function') return [];
+  let bound: any = null;
+  try { bound = th.getCharWorldbookNames('current'); } catch (_e) { return []; }
+  const wbs = filterBoundWorldbookNamesForBackgroundAi(bound);
   const out: { comment: string; content: string }[] = [];
   const seen = new Set<string>();
-  await iterBoundEntries((entry) => {
-    if (isManagedSkillEntry(entry)) return;
-    if (wbEntryMatchedKeywords(entry, [npc]).length === 0) return;
-    const comment = wbEntryName(entry);
-    if (!comment || seen.has(comment)) return;
-    seen.add(comment);
-    out.push({ comment, content: String(entry.content || '') });
-  });
+  for (const wbName of wbs) {
+    let entries: any;
+    try { entries = await th.getWorldbook(wbName); } catch (_e) { continue; }
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      if (isManagedSkillEntry(entry)) continue;
+      if (shouldExcludeEntryForBackgroundAi(entry)) continue;
+      if (wbEntryMatchedKeywords(entry, [npc]).length === 0) continue;
+      const comment = wbEntryName(entry);
+      if (!comment || seen.has(comment)) continue;
+      seen.add(comment);
+      out.push({ comment, content: String(entry.content || '') });
+    }
+  }
   return out.slice(0, 20);
 }
 
@@ -139,6 +157,7 @@ export async function generateCharTags(npc: string): Promise<{ ok: boolean; tags
           'user_input',
           ...getJailbreakTailPrompts(),
         ],
+        max_chat_history: STANDARD_MAX_CHAT_HISTORY,
         custom_api: customApi,
       });
       const text = typeof r === 'string' ? r : '';
@@ -212,6 +231,7 @@ export async function generateFanTags(npc: string): Promise<{ ok: boolean; tags?
           'user_input',
           ...getJailbreakTailPrompts(),
         ],
+        max_chat_history: STANDARD_MAX_CHAT_HISTORY,
         custom_api: customApi,
       });
       const text = typeof r === 'string' ? r : '';

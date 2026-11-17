@@ -3,6 +3,7 @@ import { getTavernHelper } from './env';
 import { getCustomApiConfig, validateCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { getConfig } from './config-store';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { generateImage } from './image-gen';
 import { isChatu8Channel } from './chatu8-bridge';
 import { isBaiBaiChannel } from './baibai-bridge';
@@ -228,6 +229,7 @@ async function generateItemOverviewText(
         'user_input',
         ...getJailbreakTailPrompts(),
       ],
+      max_chat_history: STANDARD_MAX_CHAT_HISTORY,
       custom_api: getCustomApiConfig('imageGeneration'),
     });
     if (signal?.aborted) throw new Error('请求已取消');

@@ -1,6 +1,7 @@
 import { getConfig } from './config-store';
 import { getCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { getTavernHelper } from './env';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { beginAiActivity, endAiActivity, updateAiActivity, readAiActivityChatKey } from './ai-activity';
 import { AI_TEXT_FEATURE_LABEL } from './ai-text-features';
 import { generateImage } from './image-gen';
@@ -119,6 +120,7 @@ async function defaultGeneratePrompt(
       'user_input',
       ...getJailbreakTailPrompts(),
     ],
+    max_chat_history: STANDARD_MAX_CHAT_HISTORY,
     custom_api: getCustomApiConfig('imageGeneration'),
   });
   return typeof result === 'string' ? result : '';

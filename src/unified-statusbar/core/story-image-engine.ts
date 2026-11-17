@@ -14,6 +14,7 @@
 // 插入：生成一张插入一张（每张对最新正文重新定位后立即写回 setChatMessages），不等全部完成。
 // 终止：常驻通知带「终止」按钮——生图阶段经 AbortSignal 中断，提示词阶段请求返回后丢弃。
 import { getTavernHelper, getToastr, stopGenerationById } from './env';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { debounce } from './timing';
 import { makeUniqueId } from './id';
 import { getConfig } from './config-store';
@@ -458,6 +459,7 @@ async function runStoryImageGeneration(last: LastAiMessage): Promise<StoryImageR
               'user_input',
               ...getJailbreakTailPrompts(),
             ],
+            max_chat_history: STANDARD_MAX_CHAT_HISTORY,
             custom_api: getCustomApiConfig('imageGeneration'),
           });
         } catch (e) {

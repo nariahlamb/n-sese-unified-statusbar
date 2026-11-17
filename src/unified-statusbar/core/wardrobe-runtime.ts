@@ -598,6 +598,7 @@ async function generateWardrobeText(
         'user_input',
         ...getJailbreakTailPrompts(),
       ],
+      max_chat_history: STANDARD_MAX_CHAT_HISTORY,
       custom_api: getCustomApiConfig(scope),
     });
     if (signal?.aborted) throw new Error('请求已取消');

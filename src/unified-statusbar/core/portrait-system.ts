@@ -7,6 +7,7 @@ import { getTavernHelper, getToastr } from './env';
 import { getCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { findRowByColumn, getCellByHeader, getSheetByName, invalidateCache, isNsfwPlayActive } from './data-manager';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
+import { STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { buildPortraitPrompt, parsePromptOutput, buildPromptTextByMode, assembleFinalPrompt } from './portrait-prompts';
 import type { PortraitTheme } from './portrait-prompts';
 import type { PortraitClothingOverride } from './wardrobe-prompts';
@@ -850,6 +851,7 @@ export async function generatePortrait(npc: string, args: GeneratePortraitArgs):
         generation_id: ctx.generationId,
         user_input: userInput,
         ordered_prompts: [...getJailbreakHeadPrompts(), { role: 'system', content: system }, 'user_input', ...getJailbreakTailPrompts()],
+        max_chat_history: STANDARD_MAX_CHAT_HISTORY,
         custom_api: customApi,
       }), { feature: 'portraitPrompt' });
       result = typeof r === 'string' ? r : '';
