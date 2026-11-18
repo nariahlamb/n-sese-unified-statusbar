@@ -36,7 +36,7 @@ test('STANDARD_PROMPT_MIDDLE 已移除 chat_history 槽位且保留其余 8 槽'
   ]);
 });
 
-test('isBuiltinMainStoryBlockedEntry：沿用 shujuku 核心词根 + role:assistant + 护栏', async () => {
+test('isBuiltinMainStoryBlockedEntry：内置核心词根 + role:assistant + 受管族护栏', async () => {
   const mod = await loadBundle(`export * from './src/unified-statusbar/core/worldbook-entry.ts';`);
 
   // 1. role: assistant 条目拦截（含 normalized position.role 与 raw role=2）
@@ -54,7 +54,7 @@ test('isBuiltinMainStoryBlockedEntry：沿用 shujuku 核心词根 + role:assist
     { blocked: false },
   );
 
-  // 2. shujuku 核心词根拦截用户条目（中文子串 + 英文边界）
+  // 2. 内置核心词根拦截用户条目（中文子串 + 英文边界）
   for (const name of [
     '正文文风设定',
     'CoT思维链输出',

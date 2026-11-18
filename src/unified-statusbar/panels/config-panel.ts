@@ -1924,35 +1924,31 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
 
   // ===== 上下文标签剥离（MANUAL 模式 + 小手机/台账共享）=====
   html += '<details class="settings-section">';
-  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 上下文标签剥离' + helpTipButton('上下文标签剥离说明：\n各功能取最近若干层 AI 回复作上下文时，会先逐楼独立清洗再拼接，防止跨楼误吞。\n\n【保留标签（白名单）】如 content、playtxt（每行一个，留空=不限定）。若某条消息命中保留标签，则只提取其内部正文段，思考/选项等外部碎片天然挡在门外；若未命中或留空，则自动回退到「剥离标签以外的全部内容」。\n\n【剥离标签（黑名单）】如 thinking、think、options、orange、image（每行一个，从上到下按优先级）。建议把 thinking、think 等外层思考标签写在最前面，优先整块清除并防止思考内提到的标签造成误伤。') + '</summary>';
+  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 上下文标签剥离</summary>';
   html += '<div style="padding-top:8px;">';
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:8px;">';
-  html += '<span class="settings-label" style="font-size:11px;">保留标签（正文白名单，每行一个）</span>';
+  html += '<span class="settings-label" style="font-size:11px;">保留标签（每行一个）</span>';
   const keepTagsText = (config.contextKeepTags && config.contextKeepTags.length > 0)
     ? config.contextKeepTags.join('\n')
     : '';
-  html += '<textarea id="contextKeepTagsInput" rows="2" placeholder="例如：content&#10;playtxt（每行一个，留空=不限定保留标签）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(keepTagsText) + '</textarea>';
+  html += '<textarea id="contextKeepTagsInput" rows="2" placeholder="content&#10;playtxt（留空=不限定）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(keepTagsText) + '</textarea>';
   html += '</div>';
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
-  html += '<span class="settings-label" style="font-size:11px;">剥离标签（思考与功能片段，每行一个，从上到下优先）</span>';
+  html += '<span class="settings-label" style="font-size:11px;">剥离标签（每行一个，优先序）</span>';
   const stripTagsText = (config.contextStripTags && config.contextStripTags.length > 0)
     ? config.contextStripTags.join('\n')
     : '';
-  html += '<textarea id="contextStripTagsInput" rows="4" placeholder="建议把 thinking / think 写在最前面&#10;再写 options / orange / updatevariable / image（留空=关闭剥离）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(stripTagsText) + '</textarea>';
-  html += '<div style="font-size:10px;color:var(--text-soft,var(--sweet-text-soft,#999));line-height:1.5;padding:2px 0;">';
-  html += '说明：每行一个标签名（不含尖括号）。先按<strong>剥离标签</strong>从上到下优先级清掉思考与功能块；若填写了<strong>保留标签</strong>且当前回复命中，则仅提取保留标签内正文并二次清理内部杂项；未命中或未填保留标签时，默认保留剥离标签以外的全部内容。';
-  html += '<br>逐楼独立处理，同时作用于状态栏各功能、瑟瑟台账（填表/推进）以及小手机（微信/电话/正文联动提取）。';
-  html += '</div>';
+  html += '<textarea id="contextStripTagsInput" rows="4" placeholder="thinking&#10;think&#10;options&#10;image（留空=关闭）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(stripTagsText) + '</textarea>';
   html += '<div style="display:flex;gap:6px;padding-top:4px;flex-wrap:wrap;">';
   html += '<button class="settings-btn" id="contextStripTagsSaveBtn" style="font-size:11px;padding:5px 12px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">保存</button>';
   html += '</div>';
   html += '<details style="width:100%;margin-top:8px;padding-top:6px;border-top:1px dashed var(--divider,var(--sweet-border,#e0e0e0));">';
-  html += '<summary style="font-size:11px;cursor:pointer;color:var(--text-soft,var(--sweet-text-soft,#888));">本地试跑预览（零 API 消耗，贴入原文即可验证是否误伤）</summary>';
+  html += '<summary style="font-size:11px;cursor:pointer;color:var(--text-soft,var(--sweet-text-soft,#888));">本地试跑预览</summary>';
   html += '<div style="display:flex;flex-direction:column;gap:6px;padding-top:6px;">';
-  html += '<textarea id="contextStripPreviewInput" rows="4" placeholder="在这里粘贴一段带 <thinking> / <content> / <options> 的 AI 回复原文..." style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;"></textarea>';
+  html += '<textarea id="contextStripPreviewInput" rows="4" placeholder="贴入 AI 回复原文..." style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;"></textarea>';
   html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
   html += '<button class="settings-btn" id="contextStripPreviewBtn" type="button" style="font-size:11px;padding:4px 10px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">试跑剥离</button>';
-  html += '<button class="settings-btn" id="contextStripPreviewFillSampleBtn" type="button" style="font-size:11px;padding:4px 10px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">填入误伤测试样例</button>';
+  html += '<button class="settings-btn" id="contextStripPreviewFillSampleBtn" type="button" style="font-size:11px;padding:4px 10px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">填入样例</button>';
   html += '<span id="contextStripPreviewMeta" style="font-size:10px;color:var(--text-soft,var(--sweet-text-soft,#999));"></span>';
   html += '</div>';
   html += '<pre id="contextStripPreviewOutput" style="margin:0;padding:6px 8px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-word;max-height:160px;overflow:auto;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;display:none;"></pre>';
@@ -1962,38 +1958,32 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   html += '</div>';
   html += '</details>'; // end 上下文标签剥离
 
-  // ===== 条目黑名单与后台请求净化（世界书范围隔离 + 正文向内置过滤 + 正则/按卡名单） =====
+  // ===== 条目黑名单与后台净化（世界书范围隔离 + 正文向内置过滤 + 正则/按卡名单） =====
   html += '<details class="settings-section">';
-  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 条目黑名单与后台净化' + helpTipButton('条目黑名单与后台净化说明：\\n默认只让扩展后台 AI 读取「角色卡主世界书（primary）」中的正常人物/世界设定，阻止只服务主聊天正文 AI 的内容混入后台请求，世界书底账不改。\\n\\n【四道防线】\\n1. 屏蔽全局外挂世界书（globalLore）：默认开，拦截酒馆全局启用的美化/状态栏/选项/预设世界书；\\n2. 屏蔽角色卡附加世界书（additional）与聊天书：默认开，仅放行角色卡主世界书；需要例外可在下方「放行世界书白名单」按书名放行；\\n3. 过滤 role:assistant 条目与内置核心词根：默认开，拦截 <场景美化> 等伪对话条目，并沿用 shujuku 核心词根（规则/思维链/cot/MVU/变量/状态/Status/Rule/检定/判断/叙事/文风/InitVar/格式）屏蔽正文向规则条目（自动跳过 UBS-/SeseLedger-/[UBS手机]/TavernDB- 受管族）；\\n4. 出站兜底净化 + 叠加黑名单：出站层剥离第三方常驻扩展注入与 stray assistant，并继续叠加全局正则黑名单与角色卡按条目勾选黑名单。\\n\\n【作用于】大调查、大采访、日历、剧情特卖、世界演化、技能树、角色世界书、待办目标、AI设计穿搭、AI生成币种、瑟瑟台账（填表/推进）、小手机全线，以及瑟瑟指导/立绘tag/宅仙资料读取。') + '</summary>';
+  html += '<summary class="settings-section-summary" style="font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;">' + ubIcon('scissors') + ' 条目黑名单与后台净化</summary>';
   html += '<div style="padding-top:8px;">';
-  const chkStyle = 'display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:1.45;cursor:pointer;color:var(--text,var(--sweet-text,#111));';
+  const chkStyle = 'display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.4;cursor:pointer;color:var(--text,var(--sweet-text,#111));';
   html += '<div style="padding:8px 10px;margin-bottom:10px;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:6px;background:var(--panel-bg,var(--sweet-panel,#f6f6f6));display:flex;flex-direction:column;gap:6px;">';
-  html += '<div style="font-size:11px;font-weight:600;color:var(--text,var(--sweet-text,#111));">后台请求净化（隔离正文向预设与外挂世界书）</div>';
-  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationBlockGlobalLore"' + (config.bgIsolationBlockGlobalLore !== false ? ' checked' : '') + ' style="margin-top:2px;"><span>屏蔽全局外挂世界书（<code>globalLore</code>）<span style="color:var(--text-soft,var(--sweet-text-soft,#888));">—— 推荐开启，拦截全局启用的美化/状态栏/选项书</span></span></label>';
-  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationBlockAdditionalLore"' + (config.bgIsolationBlockAdditionalLore !== false ? ' checked' : '') + ' style="margin-top:2px;"><span>屏蔽角色卡附加世界书（<code>additional</code>）与聊天书，仅放行主世界书</span></label>';
-  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationDropAssistantLore"' + (config.bgIsolationDropAssistantLore !== false ? ' checked' : '') + ' style="margin-top:2px;"><span>剔除 <code>role: assistant</code> 世界书条目<span style="color:var(--text-soft,var(--sweet-text-soft,#888));">—— 防止 &lt;场景美化&gt; 伪对话插话并避免 semi 空回</span></span></label>';
-  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationUseBuiltinKeywords"' + (config.bgIsolationUseBuiltinKeywords !== false ? ' checked' : '') + ' style="margin-top:2px;"><span>启用内置「正文向核心词根」过滤<span style="color:var(--text-soft,var(--sweet-text-soft,#888));">—— 沿用 shujuku 16 词根（仅滤用户条目，受管族不误伤）</span></span></label>';
-  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationStripForeignInjections"' + (config.bgIsolationStripForeignInjections !== false ? ' checked' : '') + ' style="margin-top:2px;"><span>出站剥离第三方常驻扩展注入与非我方 assistant 伪插话</span></label>';
+  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationBlockGlobalLore"' + (config.bgIsolationBlockGlobalLore !== false ? ' checked' : '') + '><span>屏蔽全局世界书（globalLore）</span></label>';
+  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationBlockAdditionalLore"' + (config.bgIsolationBlockAdditionalLore !== false ? ' checked' : '') + '><span>屏蔽附加与聊天世界书（仅放行主书）</span></label>';
+  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationDropAssistantLore"' + (config.bgIsolationDropAssistantLore !== false ? ' checked' : '') + '><span>剔除 role: assistant 世界书条目</span></label>';
+  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationUseBuiltinKeywords"' + (config.bgIsolationUseBuiltinKeywords !== false ? ' checked' : '') + '><span>过滤内置正文向规则条目</span></label>';
+  html += '<label style="' + chkStyle + '"><input type="checkbox" id="bgIsolationStripForeignInjections"' + (config.bgIsolationStripForeignInjections !== false ? ' checked' : '') + '><span>出站剥离第三方扩展与伪对话注入</span></label>';
   const allowedBooksText = (config.bgIsolationAllowedBooks && config.bgIsolationAllowedBooks.length > 0)
     ? config.bgIsolationAllowedBooks.join('\n')
     : '';
   html += '<div style="margin-top:4px;display:flex;flex-direction:column;gap:4px;">';
-  html += '<span class="settings-label" style="font-size:11px;">放行世界书白名单（精确书名，每行一本；填写的全局/附加书将放行给后台 AI）</span>';
-  html += '<textarea id="bgIsolationAllowedBooksInput" rows="2" placeholder="例如：某共享世界观设定书（留空=仅放行角色卡主世界书）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(allowedBooksText) + '</textarea>';
+  html += '<span class="settings-label" style="font-size:11px;">放行世界书白名单（精确书名，每行一本）</span>';
+  html += '<textarea id="bgIsolationAllowedBooksInput" rows="2" placeholder="留空=仅主世界书" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(allowedBooksText) + '</textarea>';
   html += '<div style="display:flex;gap:6px;"><button class="settings-btn" id="bgIsolationAllowedBooksSaveBtn" style="font-size:11px;padding:5px 12px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">保存白名单</button></div>';
   html += '</div>';
   html += '</div>';
   html += '<div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px;">';
-  html += '<span class="settings-label" style="font-size:11px;">黑名单关键词（每行一个正则，全后台请求通用）</span>';
+  html += '<span class="settings-label" style="font-size:11px;">黑名单关键词（每行一个正则）</span>';
   const blacklistText = (config.entryBlacklist && config.entryBlacklist.length > 0)
     ? config.entryBlacklist.join('\n')
     : '';
-  html += '<textarea id="entryBlacklistInput" rows="3" placeholder="例如：^UBS-地图-（每行一个正则，留空=关闭）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(blacklistText) + '</textarea>';
-  html += '<div style="font-size:10px;color:var(--text-soft,var(--sweet-text-soft,#999));line-height:1.5;padding:2px 0;">';
-  html += '说明：当前为<strong>正则模式</strong>——每行一个正则表达式（默认忽略英文大小写），普通字符即普通子串匹配，也可用 <code>^</code>、<code>|</code>、字符类等正则能力，例如 <code>^UBS-地图-</code> 一次性剔除全部地图条目。';
-  html += '<br>条目<strong>名称</strong>（备注名）命中即剔除：不进提示词、不参与绿灯扫描，蓝灯常亮一并剔除；世界书底账不改。';
-  html += '<br>作用于状态栏 10 个 1A 站、瑟瑟台账（填表/推进）、小手机全线，以及瑟瑟指导/立绘 tag；写错的正则会跳过（控制台警告）；留空 = 关闭。';
-  html += '</div>';
+  html += '<textarea id="entryBlacklistInput" rows="3" placeholder="^UBS-地图-（留空=关闭）" style="width:100%;padding:6px 8px;font-size:11px;font-family:monospace;border:1px solid var(--divider,var(--sweet-border,#e0e0e0));background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));color:var(--text,var(--sweet-text,#111));border-radius:4px;resize:vertical;min-width:0;line-height:1.4;">' + _escAttr(blacklistText) + '</textarea>';
   html += '<div style="display:flex;gap:6px;padding-top:4px;">';
   html += '<button class="settings-btn" id="entryBlacklistSaveBtn" style="font-size:11px;padding:5px 12px;line-height:1;background:var(--card,var(--sweet-card,var(--jade-surface-1,#fff)));border:1px solid var(--divider,var(--sweet-border,#e0e0e0));border-radius:4px;cursor:pointer;color:var(--text,var(--sweet-text,#111));">保存</button>';
   html += '</div>';
@@ -2003,18 +1993,17 @@ export function showConfigPanel(style: StyleType, activeTab?: string): void {
   ensureCardEntryBlacklistStyles();
   const ceHasCard = hasCharacterCardContext();
   html += '<div class="ub-cebl-entry">';
-  html += '<div class="ub-cebl-entry-title">角色卡黑名单（按条目勾选）' + helpTipButton('角色卡黑名单说明：\\n从当前角色卡绑定的世界书里勾选**不参与 1A 类 AI 请求**的条目，点弹窗里的「保存」一次性写入角色卡并生效：被勾条目在请求装载世界书时被剔除——不进提示词、不参与绿灯扫描（蓝灯常亮一并剔除），世界书底账不改，也不影响填表等并发请求。\\n\\n命中口径＝条目名精确相等（勾哪个名字就排除哪个名字）；与上面的全局正则名单并行叠加，两者任一命中即剔除。\\n\\n名单保存在角色卡自身（角色卡变量）：随角色卡同步、删除角色卡即随卡消失，不占本项目存储。\\n\\n数据库（TavernDB）/瑟瑟台账（SeseLedger）/本项目（UBS）/小手机（[UBS手机]）条目不会出现在勾选列表里。\\n适用于大调查/大采访/日历/剧情特卖/世界演化/技能树/角色世界书 + 小手机微信/电话；群聊与未打开角色卡时不生效。') + '</div>';
+  html += '<div class="ub-cebl-entry-title">角色卡黑名单（按条目勾选）</div>';
   html += '<div class="ub-cebl-entry-meta">' + (ceHasCard
     ? '当前角色卡：<b>' + _escAttr(getCurrentCardName() || '（未命名角色卡）') + '</b>'
-    : '未打开角色卡 —— 本名单按角色卡保存，请先进入某个角色卡的聊天') + '</div>';
+    : '未打开角色卡') + '</div>';
   html += '<div class="ub-cebl-entry-row">';
   html += '<button class="settings-btn" id="cardEntryBlacklistPickBtn"' + (ceHasCard ? '' : ' disabled style="opacity:.5;cursor:not-allowed"') + '>选择条目…</button>';
   html += '<span class="ub-cebl-entry-count" id="cardEntryBlacklistCount">' + _escAttr(cardEntryBlacklistSummaryText()) + '</span>';
   html += '</div>';
-  html += '<div class="ub-cebl-entry-hint">从当前角色卡绑定的世界书里勾选不参与 1A 类 AI 请求的条目，点「保存」一次性写入并生效（弹窗里勾选只是暂存，关闭不点保存不生效）；名单保存在角色卡自身，随卡同步、删卡即消失。数据库/瑟瑟台账/本项目/小手机条目不出现在勾选列表里。</div>';
   html += '</div>';
   html += '</div>';
-  html += '</details>'; // end 条目黑名单
+  html += '</details>'; // end 条目黑名单与后台净化
 
   // ===== 场景对话 API 预设仓库 =====
   html += '<details class="settings-section">';

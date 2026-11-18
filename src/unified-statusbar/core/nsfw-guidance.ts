@@ -207,7 +207,7 @@ function matchWorldbookEntries(
       if (!comment || comment.startsWith('UBS-地图-') || comment.startsWith('__map_')) continue;
       // 排除 play-worldbook 按选注入的聚合玩法/物品使用条目（已进提示词，勿重复计入地点/角色匹配）。
       if (isManagedPlayEntry(comment)) continue;
-      // 过滤正文向条目（role: assistant + shujuku 核心词根）及条目黑名单
+      // 过滤正文向条目（role: assistant + 内置核心词根）及条目黑名单
       if (shouldExcludeEntryForBackgroundAi(entry)) continue;
       // 地点：条目名含末两段任一段（逐段），或触发关键词与末两段拼串双向子串命中。
       const locNameHits = locationKeywords.filter(seg => comment.includes(seg));
