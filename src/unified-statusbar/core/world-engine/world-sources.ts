@@ -15,7 +15,8 @@ import {
 } from './world-evolution';
 import { formatChronicleBlocks, readChronicleRowsForNames } from '../chronicle-blocks';
 import { buildFrontDigest, decideEvolve, gapDaysBetween, normalizeRegion, selectFocusSubset, type RosterCandidate } from './world-state';
-import { confirmIntrusionAdoptionFromFloor, markIntrusionCandidatesOffered, reconcileIntrusionsWithChat, selectIntrusionCandidates } from './world-intrusion';
+import { applyWorldAckReceipt, confirmIntrusionAdoptionFromFloor, markIntrusionCandidatesOffered, reconcileIntrusionsWithChat, selectIntrusionCandidates } from './world-intrusion';
+import { getDefaultChatIdentity } from './world-snapshot';
 import { loadWorldState, saveWorldState } from './world-store';
 import { projectCharacterDynamics, projectWorldDigest, setWorldProjectionRuntimeProvider, type WorldProjectionRuntimeContext } from './world-worldbook';
 import type { CharProfile, WorldState } from './world-types';
@@ -185,6 +186,29 @@ export async function readEvolutionSources(focus: CharProfile[], _state: WorldSt
   return { chronicleBlocks, recentChat, relations: relationLines };
 }
 
+/** 读取推进驱动写在用户楼上的确定性回执（sl_world_ack）；形状非法/版本不符一律返回 null。
+ *  台账侧落点：自产用户楼字段（版本 1，picked 单对象或数组，skippedIds 数组）。 */
+function readWorldAck(msg: any): any | null {
+  if (!msg || typeof msg !== 'object') return null;
+  const raw = (msg as any).sl_world_ack ?? (msg as any).extra?.sl_world_ack ?? null;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  if (Number((raw as any).version) !== 1) return null;
+  return raw;
+}
+
+/** 回执命中 id（兼容 picked 单对象 { id } 与数组 [{ id }]）。 */
+function readWorldAckPickedIds(ack: any): string[] {
+  const picked = ack?.picked;
+  const list = Array.isArray(picked) ? picked : (picked && typeof picked === 'object' ? [picked] : []);
+  const ids: string[] = [];
+  for (const item of list) {
+    const id = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.id : '');
+    const clean = String(id || '').trim();
+    if (clean && !ids.includes(clean)) ids.push(clean);
+  }
+  return ids;
+}
+
 /** P2 落楼后同步入镜消费状态：先按现存楼层/Swipe 回退失效的 acted，再依据当前 AI 楼层证据确认实际承接。 */
 async function syncIntrusionsOnTurn(confirmAdoption: boolean): Promise<void> {
   if (isRefillMode() || !isStoryStorageReady() || getConfig().worldEnabled === false) return;
@@ -211,18 +235,25 @@ async function syncIntrusionsOnTurn(confirmAdoption: boolean): Promise<void> {
       const anchor = selectedMessageAnchor(aiMsg, aiFloor);
       const swipeId = Number(aiMsg?.swipe_id) || 0;
       let userText = '';
+      let userMsg: any = null;
       for (let j = aiFloor - 1; j >= 0; j--) {
         if (chat[j]?.is_user && typeof chat[j].mes === 'string') {
           userText = chat[j].mes;
+          userMsg = chat[j];
           break;
         }
       }
+      // 确定性回执：推进驱动若在用户楼上落了 sl_world_ack，就按它优先承接，不再靠窄动词启发式猜
+      const ack = readWorldAck(userMsg);
+      const pickedIds = ack ? readWorldAckPickedIds(ack) : [];
       // 落楼前展示给本轮输入的候选，用同一 AI 锚点绑定；正文承接不依赖用户手点。
       const view = selectIntrusionCandidates(next, {
         dateKey: getTodayDateKey() || next.lastEvolveDateKey || '',
         playerRegion: normalizeRegion(readLocationText()),
         onStageNames: readOnStageNames(),
         sceneGuard: readRuntimeContext() as any,
+        cooldowns: next.eventCooldowns,
+        currentRound: chat.length,
       });
       const offered = markIntrusionCandidatesOffered(next, view, { chatKey, floor: aiFloor, anchor, swipeId });
       if (offered !== next) {
@@ -237,10 +268,26 @@ async function syncIntrusionsOnTurn(confirmAdoption: boolean): Promise<void> {
         aiText: String(aiMsg.mes || ''),
         userText,
         onStageNames: readOnStageNames(),
+        ...(pickedIds.length ? { pickedIds } : {}),
       });
       if (res.confirmedIds.length > 0) {
         next = res.state;
         changed = true;
+      }
+      // 回执消费：picked 的非入镜事件冷却 4 轮、skippedIds 冷却 2 轮；过期冷却顺带清理
+      if (ack) {
+        const withReceipt = applyWorldAckReceipt(next, ack, {
+          chatKey,
+          round: chat.length,
+          floor: aiFloor,
+          anchor,
+          swipeId,
+          liveChatIdentity: getDefaultChatIdentity(),
+        });
+        if (withReceipt !== next) {
+          next = withReceipt;
+          changed = true;
+        }
       }
     }
   }

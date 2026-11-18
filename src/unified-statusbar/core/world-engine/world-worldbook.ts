@@ -27,12 +27,15 @@ import {
 } from './world-types';
 import { deleteStoryFeature } from '../story-floor-store';
 import { getConfig } from '../config-store';
+import { ledgerHandlesWorldFrontEvents } from '../ledger-takeover';
 
 export const WORLD_WB_NAME = 'UBS-世界演化-世界动态';
 export const CHARACTER_DYNAMIC_WB_PREFIX = 'UBS-世界演化-角色动态-';
 export const DIGEST_SECTION_PRIMARY_CANDIDATE = '〔自然入镜·主入口〕';
 export const DIGEST_SECTION_REF_CANDIDATES = '〔自然入镜·参考〕';
 export const DIGEST_SECTION_ANTI_COLLISION = '〔防撞车索引〕';
+/** 双开收敛：已发生入镜事件的回响段（只有这两段会被投影）。 */
+export const DIGEST_SECTION_ACTED = '〔近期入镜余波〕';
 // O18-A：旧版条目名（`瑟瑟灵感状态栏-*`）兼容已退役——改由 core/legacy-worldbook-entries.ts
 // 在投影全量刷新时统一回收；本模块只认当前名。
 
@@ -120,10 +123,72 @@ function formatRefCandidateLine(c: IntrusionCandidate): string {
   return `- [${c.id}#r${c.revision}] ${c.refId}：${c.entryCue}${c.region ? `（${c.region}）` : ''}`;
 }
 
+export interface WorldDigestContentOptions {
+  /** true＝双开收敛：世界书只保留已发生余波 + 极短〔世界暗流〕，未发生事件交由推进驱动按需挑选。 */
+  delegatedToDriver?: boolean;
+  /** acted 余波行（状态里 status==='acted' 且有 desc/title/hook 的事件）。 */
+  actedEchoes?: string[];
+}
+
+const DELEGATED_ECHO_MAX = 3;
+const DELEGATED_UNDER_MAX_ROWS = 3;
+const DELEGATED_UNDER_CHARS_MAX = 300;
+
+/** 双开收敛版世界动态：只留〔近期入镜余波〕（≤3）与极短〔世界暗流〕（≤3 行且正文 ≤300 字）；
+ *  〔此地此刻〕〔风闻轶事〕〔自然入镜·主入口〕〔自然入镜·参考〕〔防撞车索引〕一律剔除。 */
+function buildDelegatedDigestContent(frontDigest: string, actedEchoes: string[]): string {
+  const echoes = (actedEchoes || [])
+    .map(e => String(e || '').trim().replace(/^[-·•]\s*/, ''))
+    .filter(Boolean)
+    .slice(0, DELEGATED_ECHO_MAX);
+
+  const lines = String(frontDigest || '').split('\n').map(l => l.trim()).filter(Boolean);
+  const underRows: string[] = [];
+  let inUnder = false;
+  for (const line of lines) {
+    if (DIGEST_SECTIONS.includes(line) || /^【世界动态/.test(line) || line.includes('入镜】')) {
+      inUnder = line === DIGEST_SECTION_UNDER;
+      continue;
+    }
+    if (!inUnder) continue;
+    const remain = DELEGATED_UNDER_CHARS_MAX - underRows.reduce((n, r) => n + r.length, 0);
+    if (remain <= 1) break;
+    underRows.push(line.length <= remain ? line : line.slice(0, remain - 1) + '…');
+    if (underRows.length >= DELEGATED_UNDER_MAX_ROWS) break;
+  }
+
+  if (!echoes.length && !underRows.length) return '';
+  const body: string[] = [];
+  if (echoes.length) body.push(DIGEST_SECTION_ACTED, ...echoes.map(e => `- ${e}`));
+  if (underRows.length) body.push(DIGEST_SECTION_UNDER, ...underRows);
+  return `【世界动态】只保留已发生余波与极短大势；尚未发生的事件不在世界书里预告，由台前推进按需挑选。\n\n${body.join('\n')}`;
+}
+
+/** 从状态里抽取 acted 事件余波行（双开收敛时投影用）。 */
+export function collectActedEchoes(state: WorldState | null | undefined): string[] {
+  if (!state || !Array.isArray(state.pendingIntrusions)) return [];
+  const out: string[] = [];
+  for (const it of state.pendingIntrusions) {
+    if (it?.status !== 'acted') continue;
+    const title = String(it.title || '').trim();
+    const desc = String(it.desc || '').trim();
+    const hook = String(it.hook || '').trim();
+    if (!title && !desc && !hook) continue;
+    const head = [String(it.refId || '').trim(), title].filter(Boolean).join('·');
+    const rest = desc || hook;
+    out.push(rest ? `${head}：${rest}` : head);
+  }
+  return out;
+}
+
 export function buildWorldDigestContent(
   frontDigest: string,
   candidateView?: IntrusionCandidateView,
+  opts?: WorldDigestContentOptions,
 ): string {
+  // 双开收敛分支：未显式开启时与旧行为 100% 一致
+  if (opts?.delegatedToDriver === true) return buildDelegatedDigestContent(frontDigest, opts.actedEchoes || []);
+
   const hasCandidate = Boolean(
     candidateView && !candidateView.blocked && (candidateView.primary || candidateView.references.length),
   );
@@ -245,11 +310,21 @@ export function reconcileWorldWorldbookEntries(
   entries: any[],
   frontDigest?: string,
   candidateView?: IntrusionCandidateView,
+  opts?: WorldDigestContentOptions,
 ): boolean {
-  const state = frontDigest == null || candidateView === undefined ? loadWorldState() : null;
+  const needDelegated = opts?.delegatedToDriver === undefined;
+  const needEchoes = opts?.actedEchoes === undefined;
+  const state = frontDigest == null || candidateView === undefined || needDelegated || needEchoes
+    ? loadWorldState()
+    : null;
   const digest = frontDigest == null ? (state?.frontDigest || '') : frontDigest;
   const candidates = candidateView === undefined && state ? resolveCurrentCandidateView(state) : candidateView;
-  const content = getConfig().worldEnabled === false ? '' : buildWorldDigestContent(digest, candidates);
+  // 未显式指定时读接管判据：台账驱动世界桥激活即双开收敛（单开完全照旧）
+  const delegatedToDriver = opts?.delegatedToDriver ?? ledgerHandlesWorldFrontEvents();
+  const actedEchoes = opts?.actedEchoes ?? collectActedEchoes(state);
+  const content = getConfig().worldEnabled === false
+    ? ''
+    : buildWorldDigestContent(digest, candidates, { delegatedToDriver, actedEchoes });
   const idx = entries.findIndex((e: any) => (e?.comment || e?.name || '') === WORLD_WB_NAME);
   if (idx < 0 && !content) return false;
   if (idx < 0) {
@@ -288,8 +363,12 @@ export async function projectWorldDigest(frontDigest: string): Promise<void> {
   const toastr = getToastr();
   const wbNames = await getCharWorldbookNames();
   if (!wbNames.length) return;
-  const candidates = resolveCurrentCandidateView(loadWorldState());
-  const content = buildWorldDigestContent(frontDigest, candidates);
+  const state = loadWorldState();
+  const candidates = resolveCurrentCandidateView(state);
+  const content = buildWorldDigestContent(frontDigest, candidates, {
+    delegatedToDriver: ledgerHandlesWorldFrontEvents(),
+    actedEchoes: collectActedEchoes(state),
+  });
   for (const wbName of wbNames) {
     try {
       const w = getTavernHelper();
@@ -353,19 +432,31 @@ function normalizedKnownFacts(p: CharProfile): string[] {
 }
 
 /** 角色是否有可注入角色动态条目的内容（不构造字符串，仅布尔判定；供 reconcile 判空用）。 */
-function hasCharacterDynamicContent(p: CharProfile, state: WorldState | undefined, currentDate: string): boolean {
+function hasCharacterDynamicContent(
+  p: CharProfile,
+  state: WorldState | undefined,
+  currentDate: string,
+  opts?: { delegatedToDriver?: boolean },
+): boolean {
   if (currentDate && p.updatedAt === currentDate) return true; // 动向可注入（含「如常」）
   if (p.plans) return true;
   if (p.hiddenGoal) return true;
   if (normalizedKnownFacts(p).length > 0) return true;
-  if (arrivalEventInfo(state, p.name)) return true;
+  const arr = arrivalEventInfo(state, p.name);
+  // acted 余波始终可注入；pending 线索在双开收敛下改走事件池，不再生成角色动态
+  if (arr && (arr.acted || opts?.delegatedToDriver !== true)) return true;
   return false;
 }
 
 /** 角色动态条目：绿色 selective、关键词=角色名、注入角色定义前 order 202、整条替换不可迭代。 */
-export function buildCharacterDynamicEntry(name: string, p: CharProfile, state?: WorldState): any {
+export function buildCharacterDynamicEntry(
+  name: string,
+  p: CharProfile,
+  state?: WorldState,
+  opts?: { delegatedToDriver?: boolean },
+): any {
   const currentDate = state?.lastEvolveDateKey || '';
-  const parts = characterDynamicParts(p, state, currentDate);
+  const parts = characterDynamicParts(p, state, currentDate, opts);
   const asOf = p.updatedAt || state?.lastEvolveDateKey || '';
   const asOfPart = asOf ? `截至 ${asOf} ` : '';
   const content = `以下是${name}${asOfPart}不在主角视野中的真实状态与角色自身认知边界（主角不知情；除非剧情自然推进令其得知，否则不得作为主角已知信息使用，亦不得把主角全知视角强加给${name}）。\n· ${parts.join('\n· ')}`;
@@ -382,8 +473,15 @@ export function buildCharacterDynamicEntry(name: string, p: CharProfile, state?:
   };
 }
 
-/** 构造角色动态条目正文各字段行（不含包装语）。pending 入镜绝不输出完整 desc。 */
-function characterDynamicParts(p: CharProfile, state: WorldState | undefined, currentDate: string): string[] {
+/** 构造角色动态条目正文各字段行（不含包装语）。pending 入镜绝不输出完整 desc。
+ *  双开收敛（delegatedToDriver=true）：保留 acted 余波与动向/打算/暗中打算/认知视角，
+ *  不再输出 pending「待入镜线索」——未发生事件统一走事件池，避免两处重复喂料。 */
+export function characterDynamicParts(
+  p: CharProfile,
+  state: WorldState | undefined,
+  currentDate: string,
+  opts?: { delegatedToDriver?: boolean },
+): string[] {
   const parts: string[] = [];
   // 动向日期闸：仅当动向日期与当前日期一致时注入；旧日期动向视为过时不注入
   if (currentDate && p.updatedAt === currentDate) {
@@ -406,7 +504,7 @@ function characterDynamicParts(p: CharProfile, state: WorldState | undefined, cu
   if (arr) {
     if (arr.acted && arr.desc) {
       parts.push(`近期已入镜（近两轮内消散）：${arr.desc}`);
-    } else if (!arr.acted) {
+    } else if (!arr.acted && opts?.delegatedToDriver !== true) {
       // P1/P2：pending 入镜禁出完整 desc，只留极简非剧透线索
       const brief = [arr.title, arr.publicInfo].filter(Boolean).join('｜');
       if (brief) parts.push(`待入镜线索（尚未发生，勿提前剧透结局）：${brief}`);
@@ -425,13 +523,19 @@ function sameCharacterEntry(a: any, b: any): boolean {
 }
 
 /** 由投影协调器调用；同步全部「有动向/打算/暗中打算/认知/入镜」角色的动态条目。 */
-export function reconcileCharacterDynamicEntries(entries: any[], state?: WorldState): boolean {
+export function reconcileCharacterDynamicEntries(
+  entries: any[],
+  state?: WorldState,
+  opts?: { delegatedToDriver?: boolean },
+): boolean {
   const st = state || loadWorldState();
   const currentDate = st.lastEvolveDateKey || '';
+  // 未显式指定时读接管判据（与 reconcileWorldWorldbookEntries 同口径）
+  const resolved = { delegatedToDriver: opts?.delegatedToDriver ?? ledgerHandlesWorldFrontEvents() };
   const desired = new Map<string, { entry: any }>();
   for (const p of Object.values(st.profiles)) {
-    if (!hasCharacterDynamicContent(p, st, currentDate)) continue;
-    const entry = buildCharacterDynamicEntry(p.name, p, st);
+    if (!hasCharacterDynamicContent(p, st, currentDate, resolved)) continue;
+    const entry = buildCharacterDynamicEntry(p.name, p, st, resolved);
     desired.set(entry.name, { entry });
   }
   let changed = false;

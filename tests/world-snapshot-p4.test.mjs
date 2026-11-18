@@ -105,7 +105,8 @@ test('P4：版本化只读快照含聊天身份、必要角色 knownFacts、候�
   assert.deepEqual(Object.keys(bridge).sort(), ['getSnapshot', 'version'], '只读桥不得暴露任何写入/突变接口');
 
   const snap = bridge.getSnapshot();
-  assert.equal(snap.version, 1);
+  assert.equal(snap.version, types.WORLD_SNAPSHOT_VERSION);
+  assert.equal(snap.version, 2, 'v2：快照版本号已升级');
   assert.equal(snap.chatKey, 'chat_uuid_1');
   assert.equal(snap.chatIdentity, null, '无实时宿主上下文时 chatIdentity 为 null，不得用 chatKey 冒充');
   assert.equal(snap.available, true);
@@ -113,6 +114,13 @@ test('P4：版本化只读快照含聊天身份、必要角色 knownFacts、候�
   assert.equal(snap.restrictions.forbidHiddenGoal, true);
   assert.equal(snap.restrictions.maxPrimaryCandidate, 1);
   assert.equal(snap.restrictions.maxReferenceCandidates, 2);
+  // v2：双开收敛字段 + 结构化事件池
+  assert.equal(snap.worldbookDelegated, false, '无台账驱动桥时不得自称交由驱动接管');
+  assert.deepEqual(snap.onStageNames, []);
+  assert.ok(Array.isArray(snap.eventPool));
+  const poolArrival = snap.eventPool.filter(e => e.kind === 'arrival');
+  assert.ok(poolArrival.length >= 1, '合格 pending 入镜应进事件池');
+  assert.ok(poolArrival.every(e => !('desc' in e)), '事件池 arrival 不得含 desc');
 
   // 必要角色存在，无关联且无 knownFacts 的路人不冗余塞入
   assert.ok(snap.characters.阿青);
@@ -248,7 +256,7 @@ test('P4：单开/存储未就绪/亲密拦截/跨窗挂载均照常安全降级
     const hostBridge = dom.window[snapMod.WORLD_COGNITION_BRIDGE_KEY];
     assert.ok(hostBridge);
     const unavailable = hostBridge.getSnapshot();
-    assert.equal(unavailable.version, 1);
+    assert.equal(unavailable.version, types.WORLD_SNAPSHOT_VERSION);
     assert.equal(unavailable.chatIdentity, null);
     assert.equal(unavailable.available, false);
     assert.equal(unavailable.sceneGuard.blocked, true);
@@ -256,10 +264,100 @@ test('P4：单开/存储未就绪/亲密拦截/跨窗挂载均照常安全降级
     assert.equal(unavailable.candidates.primary, null);
     assert.deepEqual(unavailable.candidates.references, []);
     assert.deepEqual(unavailable.characters, {});
+    assert.equal(unavailable.worldbookDelegated, false);
+    assert.deepEqual(unavailable.eventPool, []);
+    assert.deepEqual(unavailable.onStageNames, []);
   } finally {
     if (prevWindow === undefined) delete globalThis.window;
     else globalThis.window = prevWindow;
     if (prevDocument === undefined) delete globalThis.document;
     else globalThis.document = prevDocument;
   }
+});
+test('P4 v2：事件池含 arrival/encounter/rumor/ambient，冷却内暂不进池，绝不携带秘密字段', () => {
+  const state = {
+    ...types.emptyWorldState(),
+    lastEvolveDateKey: '2026-06-05',
+    lastEvolveRound: 3,
+    guidance: {
+      signals: [
+        { voice: 'encounter', sourceId: 'seed-2026-06-01-1', text: '码头有人打听账本的下落' },
+        { voice: 'rumor', sourceId: 'clock', text: '街口在传城西要封路' },
+        { voice: 'ambient', sourceId: 'clock', text: '城外的风比昨日更冷' },
+      ],
+    },
+    seeds: [
+      { id: 'seed-2026-06-01-1', title: '码头罢工', status: 'active', level: 2, visibility: 'limited', catalyst: '工钱谈不拢', region: '星海商圈', actorIds: [], expiresAtDay: '', missedOutcome: '绝密后果：罢工失控', createdAtDay: '2026-06-01', revision: 0 },
+      { id: 'seed_hidden', title: '密室交易', status: 'active', level: 3, visibility: 'hidden', catalyst: '暗线', region: '星海商圈', actorIds: [], expiresAtDay: '', missedOutcome: '幕后隐情', createdAtDay: '2026-06-01', revision: 0 },
+    ],
+    rumors: [
+      { id: 'r_local', topic: '码头加派', content: '码头今天加派了人手', level: 'known', progress: 60, createdAt: '2026-06-01', region: '星海商圈' },
+      { id: 'r_cool', topic: '冷却中的传闻', content: '刚被挑过的风声', level: 'known', progress: 60, createdAt: '2026-06-01', region: '星海商圈' },
+    ],
+    pendingIntrusions: [
+      { id: 'in_pool', kind: 'character_arrival', refId: '阿青', title: '码头对账', hook: '阿青抱着旧账本走进院子', desc: '绝密完整描述：今晚要撤离。', dateKey: '2026-06-05', status: 'pending', aiTriggered: true, region: '星海商圈' },
+    ],
+    eventCooldowns: { r_cool: { id: 'r_cool', action: 'picked', untilRound: 20 } },
+  };
+  const bridge = snapMod.createWorldCognitionBridge({
+    getChatKey: () => 'chat_v2',
+    isStorageReady: () => true,
+    isWorldEnabled: () => true,
+    loadState: () => state,
+    getDateKey: () => '2026-06-05',
+    getCurrentRound: () => 5,
+    isWorldbookDelegated: () => false,
+    getRuntimeContext: () => ({ dateKey: '2026-06-05', playerRegion: '星海商圈', onStageNames: [] }),
+  });
+  const snap = bridge.getSnapshot();
+  const kinds = [...new Set(snap.eventPool.map(e => e.kind))].sort();
+  assert.deepEqual(kinds, ['ambient', 'arrival', 'encounter', 'rumor']);
+  assert.ok(snap.eventPool.length <= 8, '事件池总量上限 8 条');
+  assert.ok(snap.eventPool.some(e => e.id === 'in_pool' && e.kind === 'arrival'));
+  assert.ok(!snap.eventPool.some(e => e.id === 'r_cool'), 'picked 冷却期内的传闻暂不进池');
+  assert.ok(!snap.eventPool.some(e => e.id === 'seed_hidden'), 'hidden 伏线不进事件池');
+  const poolJson = JSON.stringify(snap.eventPool);
+  assert.ok(!poolJson.includes('绝密完整描述'), '事件池不得携带 pending desc');
+  assert.ok(!poolJson.includes('绝密后果'), '事件池不得携带 missedOutcome');
+  assert.ok(!poolJson.includes('幕后隐情'));
+});
+
+test('P4 v2：亲密场景拦截时事件池不出现 arrival，但事件本身不被删除', () => {
+  const state = {
+    ...types.emptyWorldState(),
+    lastEvolveDateKey: '2026-06-05',
+    pendingIntrusions: [
+      { id: 'in_guard', kind: 'character_arrival', refId: '阿青', title: '码头对账', hook: '阿青抱着旧账本走进院子', dateKey: '2026-06-05', status: 'pending', aiTriggered: true },
+    ],
+  };
+  const bridge = snapMod.createWorldCognitionBridge({
+    getChatKey: () => 'chat_guard',
+    isStorageReady: () => true,
+    isWorldEnabled: () => true,
+    loadState: () => state,
+    getDateKey: () => '2026-06-05',
+    getCurrentRound: () => 5,
+    isWorldbookDelegated: () => false,
+    getRuntimeContext: () => ({ dateKey: '2026-06-05', playerRegion: '星海商圈', onStageNames: [], nsfwActive: true }),
+  });
+  const snap = bridge.getSnapshot();
+  assert.equal(snap.sceneGuard.blocked, true);
+  assert.equal(snap.eventPool.filter(e => e.kind === 'arrival').length, 0);
+  assert.equal(state.pendingIntrusions.length, 1, '守护只拦截投影，不删事件');
+});
+
+test('P4 v2：isWorldbookDelegated 为真时快照标记 worldbookDelegated', () => {
+  const bridge = snapMod.createWorldCognitionBridge({
+    getChatKey: () => 'chat_delegated',
+    isStorageReady: () => true,
+    isWorldEnabled: () => true,
+    loadState: () => types.emptyWorldState(),
+    getDateKey: () => '2026-06-05',
+    getCurrentRound: () => 0,
+    isWorldbookDelegated: () => true,
+    getRuntimeContext: () => ({ dateKey: '2026-06-05' }),
+  });
+  const snap = bridge.getSnapshot();
+  assert.equal(snap.worldbookDelegated, true);
+  assert.deepEqual(snap.eventPool, []);
 });

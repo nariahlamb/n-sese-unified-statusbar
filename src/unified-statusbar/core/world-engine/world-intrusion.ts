@@ -10,6 +10,7 @@ import {
   INTRUSION_QUEUE_MAX,
   type Intrusion,
   type IntrusionDeliveryMeta,
+  type WorldEventCooldown,
   type WorldState,
 } from './world-types';
 import { plainClone } from '../deep-clone';
@@ -65,6 +66,8 @@ export interface FloorAdoptionContext {
   aiText: string;
   userText?: string;
   onStageNames?: string[];
+  /** v2：本轮确定性回执（sl_world_ack）命中的事件 id；命中项走宽松承接判定，其余保持原严格启发式。 */
+  pickedIds?: string[];
 }
 
 function nextRevision(it: Pick<Intrusion, 'revision'>): number {
@@ -286,15 +289,75 @@ function scoreIntrusionCandidate(
   return score;
 }
 
+/** v2：事件池/候选排序上下文（冷却与当前轮次可选，旧调用签名完全兼容）。 */
+export interface IntrusionCandidatePoolContext {
+  dateKey?: string;
+  playerRegion?: string;
+  onStageNames?: string[];
+  /** v2：事件冷却台账；skipped 冷却期内的入镜事件仅降权，不删事件。 */
+  cooldowns?: Record<string, WorldEventCooldown>;
+  /** v2：当前轮次（缺省回退 state.lastEvolveRound）。 */
+  currentRound?: number;
+}
+
+/** v2：事件是否处于 skipped 冷却（untilRound > currentRound 才算冷却中）。 */
+export function isSkippedCooldownActive(
+  cooldowns: Record<string, WorldEventCooldown> | undefined,
+  id: string,
+  currentRound: number,
+): boolean {
+  const cd = cooldowns ? cooldowns[id] : undefined;
+  if (!cd || cd.action !== 'skipped') return false;
+  const until = Number(cd.untilRound);
+  return Number.isFinite(until) && until > currentRound;
+}
+
+/** v2：事件是否处于任意冷却（picked/skipped 都算；encounter/rumor/ambient 冷却期内暂不进池）。 */
+export function isEventCooledDown(
+  cooldowns: Record<string, WorldEventCooldown> | undefined,
+  id: string,
+  currentRound: number,
+): boolean {
+  const cd = cooldowns ? cooldowns[id] : undefined;
+  if (!cd) return false;
+  const until = Number(cd.untilRound);
+  return Number.isFinite(until) && until > currentRound;
+}
+
+/** v2：skipped 冷却中的入镜事件排序降权（-50），事件本身照旧留在队列里。 */
+export const SKIPPED_COOLDOWN_PENALTY = 50;
+
+function resolvePoolRound(state: WorldState, ctx?: IntrusionCandidatePoolContext): number {
+  const explicit = Number(ctx?.currentRound);
+  if (Number.isFinite(explicit)) return explicit;
+  const stored = Number(state.lastEvolveRound);
+  return Number.isFinite(stored) ? stored : 0;
+}
+
+/** P2/P4 合格 pending 入镜排序（纯函数）：日期/在场/有效期闸 + 评分（v2 含 skipped 冷却 -50 降权）。 */
+export function rankEligibleArrivals(
+  state: WorldState,
+  ctx: IntrusionCandidatePoolContext = {},
+): Intrusion[] {
+  const curRegion = normalizeRegion(ctx.playerRegion || '');
+  const dateKey = ctx.dateKey || state.lastEvolveDateKey || '';
+  const onStage = new Set(ctx.onStageNames || []);
+  const currentRound = resolvePoolRound(state, ctx);
+  const eligible = (state.pendingIntrusions || []).filter(it => {
+    if (it.status !== 'pending' || it.kind !== 'character_arrival') return false;
+    if (onStage.has(it.refId)) return false;
+    if (it.expiresAtDay && dateKey && compareDateKey(dateKey, it.expiresAtDay) > 0) return false;
+    return Boolean((it.hook || it.title || '').trim());
+  });
+  const weight = (it: Intrusion) => scoreIntrusionCandidate(it, state, { curRegion, dateKey })
+    - (isSkippedCooldownActive(ctx.cooldowns, it.id, currentRound) ? SKIPPED_COOLDOWN_PENALTY : 0);
+  return eligible.slice().sort((a, b) => weight(b) - weight(a));
+}
+
 /** P2 双区候选投影（纯函数）：每轮最多 1 个主入口 + 2 条极简参考；pending 绝不携带完整 desc。 */
 export function selectIntrusionCandidates(
   state: WorldState,
-  ctx: {
-    dateKey?: string;
-    playerRegion?: string;
-    onStageNames?: string[];
-    sceneGuard?: IntrusionSceneGuardResult;
-  } = {},
+  ctx: IntrusionCandidatePoolContext & { sceneGuard?: IntrusionSceneGuardResult } = {},
 ): IntrusionCandidateView {
   if (ctx.sceneGuard?.blocked) {
     return {
@@ -305,25 +368,10 @@ export function selectIntrusionCandidates(
       backgroundAntiCollision: [],
     };
   }
-  const curRegion = normalizeRegion(ctx.playerRegion || '');
-  const dateKey = ctx.dateKey || state.lastEvolveDateKey || '';
-  const onStage = new Set(ctx.onStageNames || []);
-
-  const eligible = (state.pendingIntrusions || []).filter(it => {
-    if (it.status !== 'pending' || it.kind !== 'character_arrival') return false;
-    if (onStage.has(it.refId)) return false;
-    if (it.expiresAtDay && dateKey && compareDateKey(dateKey, it.expiresAtDay) > 0) return false;
-    return Boolean((it.hook || it.title || '').trim());
-  });
-
-  if (!eligible.length) {
+  const ranked = rankEligibleArrivals(state, ctx);
+  if (!ranked.length) {
     return { blocked: false, blockReason: '', primary: null, references: [], backgroundAntiCollision: [] };
   }
-
-  const ranked = eligible
-    .slice()
-    .sort((a, b) => scoreIntrusionCandidate(b, state, { curRegion, dateKey })
-      - scoreIntrusionCandidate(a, state, { curRegion, dateKey }));
 
   const primary = ranked.length > 0 ? toCandidate(ranked[0]) : null;
   const references = ranked.slice(INTRUSION_CANDIDATE_PRIMARY_MAX, INTRUSION_CANDIDATE_PRIMARY_MAX + INTRUSION_CANDIDATE_REF_MAX)
@@ -406,11 +454,23 @@ export function confirmIntrusionAdoptionFromFloor(
   const onStageSet = new Set(floorCtx.onStageNames || []);
   const userText = String(floorCtx.userText || '');
 
+  // v2：确定性回执命中的条目优先遍历，其余条目保持原顺序与原严格启发式。
+  const pickedIdSet = new Set((floorCtx.pickedIds || []).map(id => String(id || '').trim()).filter(Boolean));
+  const ordered = pickedIdSet.size
+    ? [
+        ...state.pendingIntrusions.filter(it => pickedIdSet.has(it.id)),
+        ...state.pendingIntrusions.filter(it => !pickedIdSet.has(it.id)),
+      ]
+    : state.pendingIntrusions;
+
   const matchedIds: string[] = [];
-  for (const item of state.pendingIntrusions) {
+  for (const item of ordered) {
     if (item.status !== 'pending' || item.kind !== 'character_arrival') continue;
     if (item.delivery?.chatKey && floorCtx.chatKey && item.delivery.chatKey !== floorCtx.chatKey) continue;
-    if (!item.refId || !aiText.includes(item.refId)) continue;
+    if (!item.refId) continue;
+    const pickedHere = pickedIdSet.has(item.id);
+    // 未命中 pickedIds：保持原严格启发式（正文必须出现角色名才可能承接）
+    if (!pickedHere && !aiText.includes(item.refId)) continue;
 
     const hookCueTokens = Array.from(new Set(tokensOf(`${item.hook || ''} ${item.title || ''}`)));
     let overlap = 0;
@@ -429,11 +489,15 @@ export function confirmIntrusionAdoptionFromFloor(
     );
     const hasArrivalCue = ARRIVAL_ACTION_CUE_RE.test(aiText);
 
-    const reliable = (onStageNow && (overlap >= 2 || draftUsed || hasArrivalCue))
-      || (offeredHere && (overlap >= 1 || hasArrivalCue))
-      || (draftUsed && (overlap >= 1 || hasArrivalCue))
-      || (overlap >= 3 && hasArrivalCue)
-      || overlap >= 4;
+    // v2：命中 pickedIds ＝魔改推进已明确挑选，正文点到角色名即算承接（不再要求固定入镜动词），
+    // 未点到角色名时要求线索重叠 ≥2 或「动作线索 + 至少 1 条重叠」。
+    const reliable = pickedHere
+      ? (aiText.includes(item.refId) || overlap >= 2 || (hasArrivalCue && overlap >= 1))
+      : ((onStageNow && (overlap >= 2 || draftUsed || hasArrivalCue))
+        || (offeredHere && (overlap >= 1 || hasArrivalCue))
+        || (draftUsed && (overlap >= 1 || hasArrivalCue))
+        || (overlap >= 3 && hasArrivalCue)
+        || overlap >= 4);
 
     if (reliable) {
       matchedIds.push(item.id);
@@ -452,6 +516,104 @@ export function confirmIntrusionAdoptionFromFloor(
     });
   }
   return { state: next, confirmedIds: matchedIds };
+}
+
+export interface WorldAckReceiptContext {
+  chatKey: string;
+  /** 当前聊天轮次（= chat.length），冷却截止轮次据此推算。 */
+  round: number;
+  floor?: number;
+  anchor?: string;
+  swipeId?: number;
+  /** 宿主实时聊天身份（getDefaultChatIdentity 口径）；与回执 chatIdentity 不一致则不消费。 */
+  liveChatIdentity?: string | null;
+}
+
+/** 回执里的 picked：兼容单对象 { id } 与数组 [{ id }] 两种形状（也容忍纯字符串 id）。 */
+function ackPickedIds(ack: any): string[] {
+  const raw = ack?.picked;
+  const list = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' ? [raw] : []);
+  const ids: string[] = [];
+  for (const item of list) {
+    const id = typeof item === 'string' ? item : (item && typeof item === 'object' ? item.id : '');
+    const clean = String(id || '').trim();
+    if (clean && !ids.includes(clean)) ids.push(clean);
+  }
+  return ids;
+}
+
+/** v2：确定性回执消费（纯函数）。读取魔改推进写在用户楼上的 `sl_world_ack`，把挑选结果落成
+ *  事件冷却台账（不打乱 pending 入镜队列）：
+ *  - 先清掉 `untilRound <= round` 的过期冷却；
+ *  - picked 里的非 pending 入镜事件（encounter/rumor/ambient/伏线…）→ picked 冷却 4 轮；
+ *  - skippedIds 里未被本轮 picked 选中的 id → skipped 冷却 2 轮（入镜事件只降权，不删事件）；
+ *  - 回执 chatIdentity 与实时聊天身份不一致 → 整条跳过不消费（防跨聊天串味）。 */
+export function applyWorldAckReceipt(
+  state: WorldState,
+  ack: unknown,
+  ctx: WorldAckReceiptContext,
+): WorldState {
+  if (!ack || typeof ack !== 'object' || Array.isArray(ack)) return state;
+  const raw = ack as any;
+  if (Number(raw.version) !== 1) return state;
+  const rounded = Number(ctx.round);
+  if (!Number.isFinite(rounded)) return state;
+  const round = Math.floor(rounded);
+  const liveIdentity = typeof ctx.liveChatIdentity === 'string' && ctx.liveChatIdentity.trim()
+    ? ctx.liveChatIdentity.trim()
+    : null;
+  const ackIdentity = typeof raw.chatIdentity === 'string' ? raw.chatIdentity.trim() : '';
+  if (ackIdentity && liveIdentity && ackIdentity !== liveIdentity) return state;
+
+  const pickedIds = ackPickedIds(raw);
+  const skippedIds = Array.isArray(raw.skippedIds)
+    ? (raw.skippedIds as unknown[]).map(id => String(id || '').trim()).filter(Boolean)
+    : [];
+  const next: WorldState = plainClone(state);
+  const cooldowns: Record<string, WorldEventCooldown> = { ...(next.eventCooldowns || {}) };
+  let changed = false;
+
+  for (const [id, cd] of Object.entries(cooldowns)) {
+    const until = Number(cd?.untilRound);
+    if (!Number.isFinite(until) || until <= round) {
+      delete cooldowns[id];
+      changed = true;
+    }
+  }
+
+  const writeCooldown = (id: string, action: 'picked' | 'skipped', untilRound: number) => {
+    cooldowns[id] = {
+      id,
+      action,
+      untilRound,
+      ...(ctx.chatKey ? { chatKey: ctx.chatKey } : {}),
+      ...(typeof ctx.floor === 'number' ? { floor: ctx.floor } : {}),
+      ...(ctx.anchor ? { anchor: ctx.anchor } : {}),
+      ...(typeof ctx.swipeId === 'number' ? { swipeId: ctx.swipeId } : {}),
+    };
+    changed = true;
+  };
+
+  const pendingArrivalIds = new Set(
+    (next.pendingIntrusions || [])
+      .filter(it => it.status === 'pending' && it.kind === 'character_arrival')
+      .map(it => it.id),
+  );
+  for (const id of pickedIds) {
+    // 被选中的 pending 入镜由楼层承接确认转 acted，不写冷却（否则会把刚发生的事件压掉）
+    if (pendingArrivalIds.has(id)) continue;
+    writeCooldown(id, 'picked', round + 4);
+  }
+  const pickedSet = new Set(pickedIds);
+  for (const id of skippedIds) {
+    if (pickedSet.has(id)) continue;
+    writeCooldown(id, 'skipped', round + 2);
+  }
+
+  if (!changed) return state;
+  if (Object.keys(cooldowns).length) next.eventCooldowns = cooldowns;
+  else delete next.eventCooldowns;
+  return next;
 }
 
 /** P2 删楼 / Swipe / 中止回退校验：基于 story-floor-store / external-story-store 锚点与 swipe 证据，
@@ -505,6 +667,41 @@ export function reconcileIntrusionsWithChat(
       rolledBackIds.push(item.id);
       changed = true;
     }
+  }
+
+  // v2：冷却台账同样带楼层证据——对应楼层已删 / 已切换 swipe / 锚点不符时一并移除（回退为未冷却）
+  const cool = next.eventCooldowns;
+  if (cool) {
+    for (const [id, cd] of Object.entries(cool)) {
+      if (!cd || typeof cd.id !== 'string' || !cd.id) {
+        delete cool[id];
+        changed = true;
+        continue;
+      }
+      if (cd.chatKey && chatKey && cd.chatKey !== chatKey) continue;
+      const hasFloorEvidence = typeof cd.floor === 'number' || Boolean(cd.anchor);
+      if (!hasFloorEvidence) continue;
+      const floorIdx = typeof cd.floor === 'number' ? cd.floor : -1;
+      const msg = floorIdx >= 0 && floorIdx < chat.length ? chat[floorIdx] : null;
+      let cooldownValid = Boolean(msg && msg.is_user !== true);
+      if (cooldownValid && typeof cd.swipeId === 'number') {
+        const curSwipe = Number((msg as any).swipe_id) || 0;
+        if (curSwipe !== cd.swipeId) cooldownValid = false;
+      }
+      if (cooldownValid && cd.anchor) {
+        const curAnchor = selectedMessageAnchor(msg as any, floorIdx);
+        const msgAnchor = messageLevelAnchor(msg as any);
+        const curSwipe = Number((msg as any)?.swipe_id) || 0;
+        const anchorMatches = cd.anchor === curAnchor
+          || (Boolean(msgAnchor) && cd.anchor === msgAnchor && curSwipe === (cd.swipeId ?? 0));
+        if (!anchorMatches) cooldownValid = false;
+      }
+      if (!cooldownValid) {
+        delete cool[id];
+        changed = true;
+      }
+    }
+    if (!Object.keys(cool).length) delete next.eventCooldowns;
   }
 
   return { state: changed ? next : state, rolledBackIds };

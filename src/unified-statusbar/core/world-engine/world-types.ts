@@ -13,7 +13,7 @@ export const INTRUSION_QUEUE_MAX = 30;
 export const INTRUSION_ACT_TTL = 2; // 已触发入镜事件保留的演化轮数（触发时置 2，每轮演化 -1，归 0 删除）
 export const INTRUSION_CANDIDATE_PRIMARY_MAX = 1; // 每轮自然入镜主入口上限
 export const INTRUSION_CANDIDATE_REF_MAX = 2;     // 每轮自然入镜极简参考上限
-export const WORLD_SNAPSHOT_VERSION = 1;          // P4 只读认知/当前事件快照版本号
+export const WORLD_SNAPSHOT_VERSION = 2;          // P4 只读认知快照版本号（v2：新增 worldbookDelegated + eventPool 事件池）
 // ===== F28：主动入镜（自由通道）限流四闸的常量 =====
 export const INTRUSION_FREE_PER_ROUND = 1;      // 每轮自由通道（非线程完成）最多入镜人数
 export const INTRUSION_COOLDOWN_ROUNDS = 6;     // 同一角色两次自由入镜之间的最小间隔轮数
@@ -101,6 +101,51 @@ export interface WorldGuidance {
   signals: GuidanceSignal[];
 }
 
+// ─── 快照 v2：事件池（台前候选事件，供双开魔改推进按需挑选） ───
+
+export type WorldEventPoolKind = 'arrival' | 'encounter' | 'rumor' | 'ambient';
+
+/** 事件池条目：只含公开入口与必要元信息，严禁携带 pending 入镜 desc / hiddenGoal 等秘密细节。 */
+export interface WorldEventPoolItem {
+  id: string;
+  kind: WorldEventPoolKind;
+  /** 标题（事件名 / 传闻主题 / 伏线名 / 信号摘要）。 */
+  title: string;
+  /** 公开入口或一句话内容（无剧透）。 */
+  cue: string;
+  /** 关联角色名（arrival）。 */
+  refId?: string;
+  region?: string;
+  /** 入镜期限日期键（arrival）。 */
+  expiresAtDay?: string;
+  /** 主角可感知的公开表面信息（arrival）。 */
+  publicInfo?: string;
+  /** 当前承接原因（arrival）。 */
+  reason?: string;
+  /** 时空/人物前置条件摘要（arrival）。 */
+  condition?: string;
+  /** 角色认知边界提示（arrival）。 */
+  epistemicBoundary?: string;
+  /** 传闻等级（known/heard/vague）或伏线波及面刻度（0-4）。 */
+  level?: string | number;
+  /** 是否由暗中打算线程完成驱动（arrival 自由通道 = false 时为 true）。 */
+  threadDriven?: boolean;
+  /** arrival 排序评分（含 skipped 冷却 -50 惩罚）。 */
+  score?: number;
+}
+
+/** 事件冷却台账：确定性回执（picked/skipped）消费后按事件 id 记录的轮次冷却。 */
+export interface WorldEventCooldown {
+  id: string;
+  action: 'picked' | 'skipped';
+  /** 冷却截止轮次（round < untilRound 视为冷却中）。 */
+  untilRound: number;
+  chatKey?: string;
+  floor?: number;
+  anchor?: string;
+  swipeId?: number;
+}
+
 export interface CharExperience {
   text: string;
   endedAtDay: string;
@@ -183,6 +228,8 @@ export interface WorldState {
   lastClockDay?: string;
   /** 最近一次世界演化主动向小手机发起私聊/来电的聊天轮次（全局冷却防每轮轰炸）。 */
   lastPhoneContactRound?: number;
+  /** 事件冷却台账（快照 v2：确定性回执消费写入；按事件 id 键控，旧存档无此字段兼容）。 */
+  eventCooldowns?: Record<string, WorldEventCooldown>;
 }
 
 export interface CharProfile {

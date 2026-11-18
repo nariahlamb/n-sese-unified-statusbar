@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.11`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.12`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -35,7 +35,8 @@
 | **Toast 半透明紧凑与防误触改造** | ✅ 代码+单测完成 | 宿主通知壳（素瓷/云墨/手账/怪盗）与成就通知卡统一改为半透明与紧凑尺寸；右上角关闭到后台 `×` 放大至 `30px`（配 `::after` 扩热区与右内边距 40px 隔离带），`ai-activity-notify.ts` 加右侧防误触拦截及单开/原版兜底样式（[notify-base.ts](src/unified-statusbar/styles/notify-base.ts)、[ai-activity-notify.ts](src/unified-statusbar/core/ai-activity-notify.ts)、[achievement-notify.ts](src/unified-statusbar/renderers/achievement-notify.ts) `v0.1.0-alpha.6`） |
 | **API 源透传与中段消息兼容（gpt-load 适配）** | ✅ 代码+单测完成 | 新增 `CustomApiSource`（`openai`/`makersuite`/`claude` 等 8 种源）与 `CustomApiPostProcessingMode`（默认 `semi`：前端出站层折叠首条对话后的 `system/developer` 为 `user` 并合并连续同角色）；`ai-tool-shield.ts` 导出 `tagCustomApiPostProcessing` 联动三仓，保留 `custom_prompt_post_processing = ''` 防二次工具注入；`assistant-runtime.ts` 非 OpenAI/Custom 源自动回退宿主 `generateRaw`；`fetchModelList` 保留路径前缀并支持原生 `/v1beta/models` 回退（`v0.1.0-alpha.8`–`9`） |
 | **后台 AI 请求提示词与外挂世界书清洗** | ✅ 代码+单测完成 | 四道净化防线落地（[worldbook-entry.ts](src/unified-statusbar/core/worldbook-entry.ts)、[ai-request-pipeline.ts](src/unified-statusbar/core/ai-request-pipeline.ts)、[ai-tool-shield.ts](src/unified-statusbar/core/ai-tool-shield.ts)）：① 默认只放行角色卡 `primary` 主世界书，屏蔽 `globalLore`/`additional`/`chatLore`（配放行白名单）；② 内置 `role: assistant` 剔除与正文向核心词根过滤（保护 `UBS-`/`SeseLedger-`/`[UBS手机]`/`TavernDB-` 受管族），并收口 `nsfw-guidance`/`portrait-tags` 旁路与宅仙 `assistant-sources` 跳过列表；③ 移除 `STANDARD_PROMPT_MIDDLE` 的 `'chat_history'` 并补齐 8 处 `max_chat_history: 0`；④ 出站层剥离非我方 `assistant` 伪插话与第三方 `extensionPrompts`；保留楼层「保留标签/剥离标签」原样不动（`v0.1.0-alpha.10`–`11`） |
-| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **104/104 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性 + 后台世界书净化实机日志」在 TT Static/Managed 与手机端待持续实机观察 |
+| **P4 v2 事件池、双开收敛与回执闭环** | ✅ 代码+单测完成 | `WORLD_SNAPSHOT_VERSION = 2` 新增 `worldbookDelegated` 与 `eventPool`（`arrival`/`encounter`/`rumor`/`ambient`，严禁泄密）；新增 `ledgerHandlesWorldFrontEvents`，双开台账魔改推进激活时世界书 `UBS-世界演化-世界动态` 收敛为仅留 `acted` 余波与极短〔世界暗流〕、角色动态不泄 `pending` 待入镜线索，同时完整保留状态栏世界窗口 UI 展示与手动触发；`world-sources.ts`/`world-intrusion.ts` 消费 `sl_world_ack` 写入 `eventCooldowns`（`picked` 4 轮 / `skipped` 2 轮降权）并随删楼/Swipe 回退（`v0.1.0-alpha.12`） |
+| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **114/114 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性 + 后台世界书净化实机日志 + v2 事件池台账按需推选」在 TT Static/Managed 与手机端待持续实机观察 |
 
 ---
 
@@ -47,7 +48,7 @@
 
 | 条目名 / 前缀 | 触发模式 | 注入位置 (`position`) | `order` | 用途与写卡注意事项 |
 |---|---|---|---|---|
-| `UBS-世界演化-世界动态` | `constant` | `at_depth` (`system`, `depth: 0`) | `199` | 台前摘要（此地此刻/传闻/暗流）+ 自然入镜候选（最多 1 主 + 2 参考）+ 防撞车索引 |
+| `UBS-世界演化-世界动态` | `constant` | `at_depth` (`system`, `depth: 0`) | `199` | 单开时：台前摘要+入镜候选+防撞车；**双开且台账魔改推进激活时自动收敛**：仅留 `acted` 余波与极短〔世界暗流〕（未发生事件走 `eventPool` 交由推进按需挑选） |
 | `UBS-世界演化-角色动态-<角色名>` | `selective` | `before_character_definition` (`system`, `depth: 0`) | `202` | 离场/在场角色的动向、公开打算、角色视角 `knownFacts` 与认知限制（**不含**未入镜 `desc`） |
 | `UBS-关系-<A>与<B>` | `selective` (`and_any`) | `before_character_definition` | 详见关系模块 | **台账接管时会主动让位撤场**（由台账侧 `SeseLedger-人物关系表：…` 独占投影） |
 | `UBS-技能-主角当前技能` | `constant` | `before_character_definition` (`system`, `depth: 2`) | `8124` | 主角已掌握技能的极简前提目录（`reference`/`tag`/`off` 三模式） |
@@ -69,7 +70,7 @@
 
 | 全局桥 / 方法 | 位置 | 消费者与契约 |
 |---|---|---|
-| `window.__ubWorldCognitionSnapshot` | [world-snapshot.ts](src/unified-statusbar/core/world-engine/world-snapshot.ts) | 台账只读调用 `getSnapshot()`：读取当前 `chatIdentity`、角色 `knownFacts`、`candidates.primary`/`references` 与 `sceneGuard` |
+| `window.__ubWorldCognitionSnapshot` | [world-snapshot.ts](src/unified-statusbar/core/world-engine/world-snapshot.ts) | 台账只读调用 `getSnapshot()`（v2）：读取 `chatIdentity`、角色 `knownFacts`、分级 `eventPool`（入镜/遭遇/传闻/氛围）、`worldbookDelegated`、`sceneGuard` 与兼容 `candidates` |
 | `window.__ubWorldbookProjection` | [worldbook-projection-runtime.ts](src/unified-statusbar/core/worldbook-projection-runtime.ts) | 台账 (`ledger-projections`) 与小手机 (`phone-messages` / `spy-messages`) 共享单一世界书写入队列，防并发覆写 |
 | `window.__ubStorageRelocation` | [chat-relocation.ts](src/unified-statusbar/core/chat-relocation.ts) / [storage-relocation-bridge.ts](src/unified-statusbar/core/storage-relocation-bridge.ts) | 一键搬家结转桥：台账与小手机各自注册搬家回调 |
 | `window.__ub_currency_host` / `window.__ubImageGenQueue` | [currency-host-bridge.ts](src/unified-statusbar/core/currency-host-bridge.ts) / [image-gen.ts](src/unified-statusbar/core/image-gen.ts) | 向小手机暴露货币读写与统一生图队列 |
@@ -102,7 +103,7 @@
 
 ```powershell
 npm run build   # esbuild 打包 dist/index.js 并生成 dist/statusbar.html
-npm test        # node --test tests/*.test.mjs（当前 104 项全通过）
+npm test        # node --test tests/*.test.mjs（当前 114 项全通过）
 npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 完整性校验
 ```
 
@@ -114,6 +115,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-19 | `0.1.0-alpha.12` | 升级世界认知快照桥至 v2 并打通台账魔改推进双向闭环：`ledger-takeover.ts` 新增 `ledgerHandlesWorldFrontEvents`；`world-snapshot.ts` 输出分级 `eventPool`（`arrival`/`encounter`/`rumor`/`ambient`）与 `worldbookDelegated`；`world-worldbook.ts` 在双开推进激活时收敛世界动态为 `acted` 余波+极短暗流并屏蔽 `pending` 待入镜线索（状态栏世界窗口 UI 原样完整保留）；`world-intrusion.ts`/`world-sources.ts`/`world-store.ts`/`world-types.ts` 新增 `sl_world_ack` 确定性承接、`eventCooldowns` 冷却及删楼/Swipe 回退；扩展 `tests/world-snapshot-p4.test.mjs` 与 `tests/world-p1-p2.test.mjs` | `build` / `test` 114/114 / `check` 全绿；待真机验收 |
 | 2026-11-18 | `0.1.0-alpha.11` | 精简设置页「上下文标签剥离」与「条目黑名单与后台净化」界面冗余提示文本，移除无关第三方引用词 | `build` / `test` 104/104 / `check` 全绿；已推仓 |
 | 2026-11-18 | `0.1.0-alpha.10` | 后台 AI 请求提示词与外挂世界书清洗专项：`constants.ts`/`config-store.ts` 新增五项后台净化开关与放行白名单；`worldbook-entry.ts` 默认屏蔽 `globalLore`/`additional`/`chatLore`（仅放行主世界书与白名单）、剔除 `role:assistant` 并内置正文向核心词根过滤用户条目；`ai-request-pipeline.ts` 移除 `'chat_history'` 并补齐 8 处 `max_chat_history: 0`；`nsfw-guidance.ts`/`portrait-tags.ts`/`assistant-sources.ts` 接入对应过滤；`ai-tool-shield.ts` 出站剥离 stray `assistant` 与第三方 `extensionPrompts`；设置页「条目黑名单与后台净化」、角色卡黑名单弹窗字数/拦截标记及 `assistant-help.ts`（`HELP_VERSION = 127`）同步更新；保留「保留标签/剥离标签」清洗楼层不变；新增 `tests/bg-isolation.test.mjs` 与扩展 `tests/ai-tool-shield.test.mjs` | `build` / `test` 104/104 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-17 | `0.1.0-alpha.9` | 修复 `api-config.ts` `fetchModelList` 在 `source === 'makersuite'` 时先拿裸根地址调用宿主 `getModelList` 撞上 `gpt-load` 管理页 HTML 触发 TT 后端非 JSON 报错的 bug：改为优先直连 `/v1beta/models`，失败再补 `/v1` 调 `getModelList`；更新 `tests/ai-tool-shield.test.mjs` | `build` / `test` 99/99 / `check` 全绿；已推仓待 TT 拉取真机验收 |

@@ -68,3 +68,17 @@ export function ledgerHandlesTableWorldbook(tableName: string): boolean {
     return false;
   }
 }
+
+/** 台账（魔改推进驱动）是否接管了世界台前事件的挑选（双开联动判据）。
+ *  条件：台账 canonical 在场 + 真数据库不在场（非旁观）+ 台账侧「驱动世界桥」已激活。
+ *  true：世界动态投影收敛为已发生余波+极短暗流、角色动态不再输出 pending 待入镜线索，
+ *  待发生事件的按需挑选改由台账侧驱动完成；false 时状态栏侧行为与单开完全一致。 */
+export function ledgerHandlesWorldFrontEvents(): boolean {
+  const ledger = getLedgerCanonical();
+  if (!ledger || ledger.realDbPresent === true) return false;
+  try {
+    return typeof ledger.isDriverWorldBridgeActive === 'function' && ledger.isDriverWorldBridgeActive() === true;
+  } catch (_e) {
+    return false;
+  }
+}

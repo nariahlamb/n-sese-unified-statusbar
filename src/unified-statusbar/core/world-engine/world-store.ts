@@ -2,7 +2,7 @@
 // 世界演化存储：journal `world` feature key，单对象整替换（write-behind）。
 
 import { readStoryFeature, writeStoryFeature, hasStoryFeature, getStoryJournalDataToken } from '../story-floor-store';
-import { WORLD_FEATURE_KEY, WORLD_SCHEMA_VERSION, INTRUSION_ACT_TTL, emptyWorldState, type WorldState, type WorldSeed, type WorldDimension, type GuidanceSignal } from './world-types';
+import { WORLD_FEATURE_KEY, WORLD_SCHEMA_VERSION, INTRUSION_ACT_TTL, emptyWorldState, type WorldState, type WorldSeed, type WorldDimension, type GuidanceSignal, type WorldEventCooldown } from './world-types';
 
 // O25：整份世界状态深拷贝是渲染热路径上最重的一次性克隆（镜头之外入口判断在每主题渲染路径
 // 各调一次 loadWorldState）。调用面契约（O25 落地时逐点审计过）：所有突变方（triggerIntrusion /
@@ -24,6 +24,29 @@ export function loadWorldState(): WorldState {
 
 const objectsOf = <T>(value: unknown): T[] | null =>
   Array.isArray(value) ? value.filter(v => v && typeof v === 'object') as T[] : null;
+
+/** v2：安全归一事件冷却台账（只保留合法对象项；旧存档无此字段 → undefined）。 */
+function normalizeEventCooldowns(raw: unknown): Record<string, WorldEventCooldown> | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const out: Record<string, WorldEventCooldown> = {};
+  for (const val of Object.values(raw as Record<string, unknown>)) {
+    const c = val as any;
+    if (!c || typeof c !== 'object' || typeof c.id !== 'string' || !c.id) continue;
+    const action = c.action === 'picked' || c.action === 'skipped' ? c.action : null;
+    const untilRound = Number(c.untilRound);
+    if (!action || !Number.isFinite(untilRound)) continue;
+    out[c.id] = {
+      id: c.id,
+      action,
+      untilRound: Math.floor(untilRound),
+      ...(typeof c.chatKey === 'string' && c.chatKey ? { chatKey: c.chatKey } : {}),
+      ...(typeof c.floor === 'number' ? { floor: c.floor } : {}),
+      ...(typeof c.anchor === 'string' && c.anchor ? { anchor: c.anchor } : {}),
+      ...(typeof c.swipeId === 'number' ? { swipeId: c.swipeId } : {}),
+    };
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 
 /** 存档原始对象 → 可用状态（纯函数，会就地剥离 raw 上的旧字段）。版本不符即视为无存档。 */
 export function normalizeWorldState(raw: Partial<WorldState> | null | undefined): WorldState {
@@ -47,6 +70,9 @@ export function normalizeWorldState(raw: Partial<WorldState> | null | undefined)
           // 旧 acted 无 ttl → 补 INTRUSION_ACT_TTL 自然过期
           .map(i => i?.status === 'acted' && typeof i.ttl !== 'number' ? { ...i, ttl: INTRUSION_ACT_TTL } : i)
       : base.pendingIntrusions;
+    // v2：事件冷却台账安全归一（非法项剔除；无字段存档保持 undefined）
+    const eventCooldowns = normalizeEventCooldowns(legacy.eventCooldowns);
+    delete legacy.eventCooldowns;
     state = {
       ...base,
       ...raw,
@@ -58,6 +84,7 @@ export function normalizeWorldState(raw: Partial<WorldState> | null | undefined)
       seeds: objectsOf<WorldSeed>(raw.seeds) ?? base.seeds,
       dimensions: objectsOf<WorldDimension>(raw.dimensions) ?? base.dimensions,
       guidance: { signals: objectsOf<GuidanceSignal>(raw.guidance?.signals) ?? [] },
+      ...(eventCooldowns ? { eventCooldowns } : {}),
     };
     if (typeof raw.lastClockDay !== 'string') delete state.lastClockDay;
   }

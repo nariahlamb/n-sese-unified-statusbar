@@ -419,3 +419,267 @@ test('P2：旧存档无扩展字段时 normalizeWorldState 兼容且不丢失原
   assert.equal(norm.pendingIntrusions[0].id, 'legacy_1');
   assert.equal(norm.pendingIntrusions[0].status, 'pending');
 });
+test('v2：sl_world_ack 命中的入镜即使没有固定入镜动词也确定性承接，未命中保持原严格启发式', () => {
+  const mkArrival = (id, refId) => ({
+    id, kind: 'character_arrival', refId, title: '码头对账', hook: '旧账本',
+    desc: '完整秘密', dateKey: '2026-06-05', status: 'pending', aiTriggered: true,
+  });
+  const state = { ...types.emptyWorldState(), pendingIntrusions: [mkArrival('ev_ack', '阿青')] };
+  const aiText = '阿青把账本摊在桌上，抬眼等你开口。'; // 静默承接：没有 赶来/推门 之类的固定动词
+  const base = { chatKey: 'chat_A', floor: 3, anchor: 'anc3', swipeId: 0, aiText, userText: '' };
+
+  const strict = wi.confirmIntrusionAdoptionFromFloor(state, base);
+  assert.equal(strict.confirmedIds.length, 0, '无回执时保持严格启发式，不猜');
+  assert.equal(strict.state.pendingIntrusions[0].status, 'pending');
+
+  const acked = wi.confirmIntrusionAdoptionFromFloor(state, { ...base, pickedIds: ['ev_ack'] });
+  assert.deepEqual(acked.confirmedIds, ['ev_ack']);
+  assert.equal(acked.state.pendingIntrusions[0].status, 'acted');
+  assert.equal(acked.state.pendingIntrusions[0].delivery.actedFloor, 3);
+
+  const unrelated = wi.confirmIntrusionAdoptionFromFloor(state, { ...base, pickedIds: ['ev_other'] });
+  assert.equal(unrelated.confirmedIds.length, 0, '未命中的其余项仍走严格启发式');
+});
+
+test('v2：applyWorldAckReceipt 写入 picked 4 轮 / skipped 2 轮冷却，清理过期项且跨聊天不消费', () => {
+  const state = {
+    ...types.emptyWorldState(),
+    eventCooldowns: { old_one: { id: 'old_one', action: 'skipped', untilRound: 5 } },
+  };
+  const ack = {
+    version: 1,
+    chatIdentity: '',
+    picked: { id: 'r_rumor', targetTag: 'world_cue', reason: '顺势提及' },
+    skippedIds: ['s_seed', 'r_rumor'],
+  };
+  const next = wi.applyWorldAckReceipt(state, ack, {
+    chatKey: 'chat_A', round: 10, floor: 9, anchor: 'anc9', swipeId: 0, liveChatIdentity: null,
+  });
+  assert.equal(next.eventCooldowns.old_one, undefined, '过期冷却应清掉');
+  assert.equal(next.eventCooldowns.r_rumor.action, 'picked');
+  assert.equal(next.eventCooldowns.r_rumor.untilRound, 14);
+  assert.equal(next.eventCooldowns.r_rumor.floor, 9);
+  assert.equal(next.eventCooldowns.r_rumor.chatKey, 'chat_A');
+  assert.equal(next.eventCooldowns.s_seed.action, 'skipped');
+  assert.equal(next.eventCooldowns.s_seed.untilRound, 12);
+
+  // 跨聊天身份：整条跳过不消费
+  const blocked = wi.applyWorldAckReceipt(state, { ...ack, chatIdentity: 'character:a|chat:1' }, {
+    chatKey: 'chat_A', round: 10, liveChatIdentity: 'character:b|chat:2',
+  });
+  assert.equal(blocked, state);
+
+  // 被 picked 的 pending 入镜由楼层承接确认转 acted，不写冷却
+  const withArrival = {
+    ...types.emptyWorldState(),
+    pendingIntrusions: [{ id: 'ev1', kind: 'character_arrival', refId: '甲', title: '来访', dateKey: '', status: 'pending', aiTriggered: true }],
+  };
+  const arrivalAck = wi.applyWorldAckReceipt(withArrival, { version: 1, picked: { id: 'ev1' }, skippedIds: [] }, { chatKey: 'c', round: 3 });
+  assert.equal(arrivalAck.eventCooldowns, undefined);
+
+  // 非法形状 / 版本不符一律不消费
+  assert.equal(wi.applyWorldAckReceipt(state, null, { chatKey: 'c', round: 3 }), state);
+  assert.equal(wi.applyWorldAckReceipt(state, { version: 2, picked: { id: 'x' } }, { chatKey: 'c', round: 3 }), state);
+});
+
+test('v2：skipped 冷却只在候选排序中 -50 降权，不删除事件，过期后恢复原序', () => {
+  const mk = (id, refId) => ({
+    id, kind: 'character_arrival', refId, title: '码头对账', hook: '抱着旧账本走来',
+    dateKey: '2026-06-05', status: 'pending', aiTriggered: true, region: '星海商圈', expiresAtDay: '2026-06-06',
+  });
+  const state = {
+    ...types.emptyWorldState(),
+    lastEvolveDateKey: '2026-06-05',
+    pendingIntrusions: [mk('i_b', '乙'), mk('i_a', '甲')],
+    eventCooldowns: { i_b: { id: 'i_b', action: 'skipped', untilRound: 12 } },
+  };
+  const base = { dateKey: '2026-06-05', playerRegion: '星海商圈', onStageNames: [] };
+
+  const noCooldown = wi.selectIntrusionCandidates(state, { ...base });
+  assert.equal(noCooldown.primary.id, 'i_b');
+
+  const cooled = wi.selectIntrusionCandidates(state, { ...base, cooldowns: state.eventCooldowns, currentRound: 10 });
+  assert.equal(cooled.primary.id, 'i_a', 'skipped 冷却期内降权到后面');
+  assert.equal(state.pendingIntrusions.length, 2, '降权绝不删除事件');
+
+  const expired = wi.selectIntrusionCandidates(state, { ...base, cooldowns: state.eventCooldowns, currentRound: 12 });
+  assert.equal(expired.primary.id, 'i_b', '冷却到期后恢复原排序');
+});
+
+test('v2：删楼 / Swipe 回退同时清掉带楼层证据的 eventCooldowns', () => {
+  const mkState = (cooldowns) => ({
+    ...types.emptyWorldState(),
+    pendingIntrusions: [{
+      id: 'ev_roll', kind: 'character_arrival', refId: '阿青', title: '码头对账', hook: '推门进来',
+      dateKey: '2026-06-05', status: 'acted', ttl: 2, aiTriggered: true,
+      delivery: { eventId: 'ev_roll', revision: 2, chatKey: 'chat_A', actedFloor: 2, actedAnchor: 'anc2', actedSwipeId: 0 },
+    }],
+    eventCooldowns: cooldowns,
+  });
+  const cd = { r1: { id: 'r1', action: 'picked', untilRound: 20, chatKey: 'chat_A', floor: 2, anchor: 'anc2', swipeId: 0 } };
+
+  // 楼层被删除 → acted 回退 + 冷却清除
+  const deleted = wi.reconcileIntrusionsWithChat(mkState(cd), [{ is_user: true, mes: 'hi' }, { is_user: false, mes: '开场', swipe_id: 0 }], 'chat_A');
+  assert.deepEqual(deleted.rolledBackIds, ['ev_roll']);
+  assert.equal(deleted.state.pendingIntrusions[0].status, 'pending');
+  assert.equal(deleted.state.eventCooldowns, undefined, '楼层证据失效的冷却一并回退');
+
+  // Swipe 切到别的变体 → 同样回退
+  const chat = [
+    { is_user: true, mes: 'hi' },
+    { is_user: false, mes: '开场', swipe_id: 0, swipes: ['开场', '另一版'] },
+    { is_user: false, mes: '承接', swipe_id: 1, swipes: ['承接', '另一版承接'] },
+  ];
+  const swiped = wi.reconcileIntrusionsWithChat(mkState(cd), chat, 'chat_A');
+  assert.deepEqual(swiped.rolledBackIds, ['ev_roll']);
+  assert.equal(swiped.state.eventCooldowns, undefined);
+
+  // 别的聊天 / 无楼层证据的冷却不受影响
+  const otherChat = wi.reconcileIntrusionsWithChat(
+    mkState({ r2: { id: 'r2', action: 'picked', untilRound: 20, chatKey: 'chat_B', floor: 2 } }),
+    [{ is_user: true, mes: 'hi' }],
+    'chat_A',
+  );
+  assert.ok(otherChat.state.eventCooldowns?.r2, '其他聊天的冷却不得被误删');
+  const noEvidence = wi.reconcileIntrusionsWithChat(mkState({ r3: { id: 'r3', action: 'skipped', untilRound: 20 } }), [{ is_user: true, mes: 'hi' }], 'chat_A');
+  assert.ok(noEvidence.state.eventCooldowns?.r3, '无楼层证据的冷却保留');
+});
+test('v2：双开收敛 buildWorldDigestContent 只留 acted 余波与极短〔世界暗流〕', () => {
+  const front = [
+    '【世界动态 2026-06-05】',
+    ws.DIGEST_SECTION_HERE,
+    '- 此地此刻：阿青约你午后核对账目',
+    ws.DIGEST_SECTION_RUMOR,
+    '【传闻·码头】码头今天加派了人手',
+    ws.DIGEST_SECTION_UNDER,
+    '- 暗流一',
+    '- 暗流二',
+    '- 暗流三',
+    '- 暗流四',
+    '- 【阿青 入镜】码头对账　阿青抱着账本走来',
+  ].join('\n');
+  const view = {
+    blocked: false,
+    blockReason: '',
+    primary: {
+      id: 'in_main', revision: 1, kind: 'character_arrival', refId: '阿青', title: '码头对账',
+      entryCue: '阿青抱着旧账本在门口张望', reason: '', condition: '', publicInfo: '',
+      epistemicBoundary: '', region: '星海商圈', expiresAtDay: '', delivery: { eventId: 'in_main', revision: 1 },
+    },
+    references: [],
+    backgroundAntiCollision: ['老周·茶馆口信'],
+  };
+
+  const delegated = wb.buildWorldDigestContent(front, view, {
+    delegatedToDriver: true,
+    actedEchoes: ['阿青·码头对账：阿青把账本摊开', '老周·送茶：老周放下茶壶'],
+  });
+  assert.ok(delegated.includes(wb.DIGEST_SECTION_ACTED));
+  assert.ok(delegated.includes('阿青·码头对账：阿青把账本摊开'));
+  assert.ok(delegated.includes(ws.DIGEST_SECTION_UNDER));
+  assert.ok(delegated.includes('暗流一'));
+  assert.ok(!delegated.includes('暗流四'), '世界暗流最多 3 行');
+  assert.ok(!delegated.includes(ws.DIGEST_SECTION_HERE), '剔除此地此刻');
+  assert.ok(!delegated.includes(ws.DIGEST_SECTION_RUMOR), '剔除风闻轶事');
+  assert.ok(!delegated.includes(wb.DIGEST_SECTION_PRIMARY_CANDIDATE), '剔除自然入镜主入口');
+  assert.ok(!delegated.includes(wb.DIGEST_SECTION_REF_CANDIDATES), '剔除自然入镜参考');
+  assert.ok(!delegated.includes(wb.DIGEST_SECTION_ANTI_COLLISION), '剔除防撞车索引');
+  assert.ok(!delegated.includes('码头今天加派了人手'), '收敛版不再注入传闻正文');
+
+  assert.equal(wb.buildWorldDigestContent('', undefined, { delegatedToDriver: true, actedEchoes: [] }), '', '两段皆空返回空串');
+
+  const longUnder = [ws.DIGEST_SECTION_UNDER, '- ' + '很长的暗流行文'.repeat(60)].join('\n');
+  const longOut = wb.buildWorldDigestContent(longUnder, undefined, { delegatedToDriver: true, actedEchoes: [] });
+  const underBody = (longOut.split(ws.DIGEST_SECTION_UNDER)[1] || '').trim();
+  assert.ok(underBody.length <= 300, '世界暗流正文不得超过 300 字，实际 ' + underBody.length);
+
+  const legacy = wb.buildWorldDigestContent(front, view);
+  assert.ok(legacy.includes(ws.DIGEST_SECTION_HERE));
+  assert.ok(legacy.includes(wb.DIGEST_SECTION_PRIMARY_CANDIDATE));
+  assert.ok(legacy.includes(wb.DIGEST_SECTION_ANTI_COLLISION));
+  assert.ok(!legacy.includes(wb.DIGEST_SECTION_ACTED), '未开启收敛时行为与旧版一致');
+});
+
+test('v2：双开收敛时角色动态保留 acted 余波与动向/打算/认知，不输出 pending 待入镜线索', () => {
+  const state = {
+    ...types.emptyWorldState(),
+    lastEvolveDateKey: '2026-06-05',
+    profiles: {
+      阿青: mkProfile('阿青', {
+        activity: '在码头核对账目',
+        plans: '带账本来找主角',
+        hiddenGoal: '偷偷筹集船票钱',
+        goalProgress: 45,
+        knownFacts: ['知道：工头昨夜克扣工钱（亲历）'],
+      }),
+      老周: mkProfile('老周', { activity: '在茶馆歇脚' }),
+      林雪: mkProfile('林雪', { updatedAt: '' }),
+    },
+    pendingIntrusions: [
+      { id: 'in_pending', kind: 'character_arrival', refId: '阿青', title: '码头对账风波', hook: '阿青抱着账簿走来', desc: '绝密：今晚叛逃', dateKey: '2026-06-05', status: 'pending', aiTriggered: true, publicInfo: '神色焦急' },
+      { id: 'in_acted', kind: 'character_arrival', refId: '老周', title: '老周送茶', desc: '已发生回响：老周把茶放到桌上', dateKey: '2026-06-05', status: 'acted', ttl: 2, aiTriggered: true },
+      { id: 'in_lx', kind: 'character_arrival', refId: '林雪', title: '林雪来访', dateKey: '2026-06-05', status: 'pending', aiTriggered: true },
+    ],
+  };
+
+  const delegated = wb.buildCharacterDynamicEntry('阿青', state.profiles.阿青, state, { delegatedToDriver: true });
+  assert.ok(!delegated.content.includes('待入镜线索'), '双开收敛不向角色动态输出 pending 线索');
+  assert.ok(!delegated.content.includes('绝密：今晚叛逃'));
+  assert.ok(delegated.content.includes('动向：在码头核对账目'));
+  assert.ok(delegated.content.includes('打算：带账本来找主角'));
+  assert.ok(delegated.content.includes('暗中打算'));
+  assert.ok(delegated.content.includes('角色自身认知视角'));
+
+  const zhou = wb.buildCharacterDynamicEntry('老周', state.profiles.老周, state, { delegatedToDriver: true });
+  assert.match(zhou.content, /近期已入镜/, 'acted 余波照常保留');
+
+  const plain = wb.buildCharacterDynamicEntry('阿青', state.profiles.阿青, state);
+  assert.match(plain.content, /待入镜线索/, '单开时行为不变');
+
+  const delegatedEntries = [];
+  assert.equal(wb.reconcileCharacterDynamicEntries(delegatedEntries, state, { delegatedToDriver: true }), true);
+  const delegatedNames = delegatedEntries.map(e => e.name);
+  assert.ok(!delegatedNames.includes(wb.CHARACTER_DYNAMIC_WB_PREFIX + '林雪'), '仅 pending 的角色在收敛模式不生成条目');
+  assert.ok(delegatedNames.includes(wb.CHARACTER_DYNAMIC_WB_PREFIX + '阿青'));
+
+  const singleEntries = [];
+  assert.equal(wb.reconcileCharacterDynamicEntries(singleEntries, state, { delegatedToDriver: false }), true);
+  assert.ok(singleEntries.some(e => e.name === wb.CHARACTER_DYNAMIC_WB_PREFIX + '林雪'));
+});
+
+test('v2：双开收敛不改状态栏 UI —— 待定入镜与传闻照常完整展示', async () => {
+  const prevWindow = globalThis.window;
+  const prevDocument = globalThis.document;
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'http://localhost:8000' });
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  try {
+    const worldWindow = await load('renderers/world-window.ts');
+    const state = {
+      ...types.emptyWorldState(),
+      lastEvolveDateKey: '2026-06-05',
+      profiles: { 阿青: mkProfile('阿青', { activity: '在码头核对账目' }) },
+      rumors: [
+        { id: 'r_ui', topic: '码头加派', content: '码头今天加派了人手', level: 'known', progress: 60, createdAt: '2026-06-01', region: '星海商圈' },
+      ],
+      pendingIntrusions: [
+        { id: 'in_ui_1', kind: 'character_arrival', refId: '阿青', title: '码头对账', hook: '阿青抱着旧账本走进院子', dateKey: '2026-06-05', status: 'pending', aiTriggered: true },
+        { id: 'in_ui_2', kind: 'character_arrival', refId: '老周', title: '茶馆口信', hook: '伙计代老周传话', dateKey: '2026-06-05', status: 'pending', aiTriggered: true },
+        { id: 'in_ui_3', kind: 'character_arrival', refId: '小四', title: '修船消息', hook: '小四在巷口招手', dateKey: '2026-06-05', status: 'acted', ttl: 2, aiTriggered: true },
+      ],
+    };
+    const sections = worldWindow.frontSectionsFromState(state, '2026-06-05', '星海商圈');
+    assert.equal(sections.arrivals.length, 3, '待定与已发生的入镜都要完整展示');
+    assert.equal(sections.rumors.length, 1);
+    const html = worldWindow.buildWorldWindowHtml('ancient', state, '2026-06-05', true, '星海商圈');
+    assert.ok(html.includes('码头对账'));
+    assert.ok(html.includes('茶馆口信'));
+    assert.ok(html.includes('码头加派'));
+    assert.equal(state.pendingIntrusions.length, 3, 'UI 渲染不得增删状态');
+  } finally {
+    if (prevWindow === undefined) delete globalThis.window;
+    else globalThis.window = prevWindow;
+    if (prevDocument === undefined) delete globalThis.document;
+    else globalThis.document = prevDocument;
+  }
+});

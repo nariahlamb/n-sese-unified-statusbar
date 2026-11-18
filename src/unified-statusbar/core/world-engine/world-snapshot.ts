@@ -12,18 +12,23 @@ import { sillyTavernContext } from '../env';
 import { getCurrentStoryChatKey, isStoryStorageReady } from '../story-floor-store';
 import { getTodayDateKey } from '../calendar-core';
 import { loadWorldState } from './world-store';
-import { buildFrontDigest, normalizeRegion } from './world-state';
+import { buildFrontDigest, isRumorVisibleInFront, isSeedTerminal, normalizeRegion } from './world-state';
 import {
   assessIntrusionSceneGuard,
+  isEventCooledDown,
+  rankEligibleArrivals,
   selectIntrusionCandidates,
   type IntrusionCandidate,
 } from './world-intrusion';
+import { ledgerHandlesWorldFrontEvents } from '../ledger-takeover';
 import { getWorldProjectionRuntimeContext, type WorldProjectionRuntimeContext } from './world-worldbook';
 import {
   INTRUSION_CANDIDATE_PRIMARY_MAX,
   INTRUSION_CANDIDATE_REF_MAX,
   KNOWN_FACTS_MAX,
   WORLD_SNAPSHOT_VERSION,
+  type Rumor,
+  type WorldEventPoolItem,
   type WorldState,
 } from './world-types';
 
@@ -82,11 +87,17 @@ export interface WorldCognitionSnapshot {
     blockReason: string;
     worldEnabled: boolean;
   };
+  /** 在场角色名（供台账/驱动判断谁已在台前，缺项＝空数组）。 */
+  onStageNames: string[];
   characters: Record<string, WorldCharacterKnowledgeSnapshot>;
   candidates: {
     primary: WorldIntrusionCandidateSnapshot | null;
     references: WorldIntrusionCandidateSnapshot[];
   };
+  /** 世界动态是否已由推进驱动接管（双开收敛判据；单开恒 false）。 */
+  worldbookDelegated: boolean;
+  /** v2：结构化事件池（arrival/encounter/rumor/ambient；只含公开入口，严禁 pending desc 等秘密）。 */
+  eventPool: WorldEventPoolItem[];
   frontDigest: string;
 }
 
@@ -98,6 +109,10 @@ export interface WorldCognitionSnapshotDeps {
   loadState?: () => WorldState;
   getDateKey?: () => string;
   getRuntimeContext?: () => WorldProjectionRuntimeContext;
+  /** v2：当前聊天轮次（事件冷却判据；缺省读宿主 chat.length / lastEvolveRound）。 */
+  getCurrentRound?: () => number;
+  /** v2：世界动态是否由推进驱动接管（缺省读 ledgerHandlesWorldFrontEvents）。 */
+  isWorldbookDelegated?: () => boolean;
 }
 
 export interface WorldCognitionReadOnlyBridge {
@@ -176,6 +191,169 @@ function toCandidateSnapshot(c: IntrusionCandidate, fallbackChatKey: string): Wo
   };
 }
 
+const EVENT_POOL_MAX = 8;
+const EVENT_POOL_MAX_ARRIVAL = 4;
+const EVENT_POOL_MAX_ENCOUNTER = 3;
+const EVENT_POOL_MAX_RUMOR = 3;
+const EVENT_POOL_MAX_AMBIENT = 1;
+
+function poolText(value: unknown, max: number): string {
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+}
+
+/** v2 事件池：台前可挑选事件的公开入口集合（总量 ≤8，绝不携带 pending desc / hiddenGoal 等秘密）。
+ *  - arrival：合格 pending 入镜按评分降序（skipped 冷却 -50 降权），场景守护命中时 0 条；
+ *  - encounter：encounter 信号 + 未收场且非 hidden 的活跃伏线；
+ *  - rumor：过台前可见闸的传闻（同地区 + known 优先），再补未重复的 rumor 信号；
+ *  - ambient：ambient 信号最多 1 条。
+ *  冷却期内：encounter/rumor/ambient 暂不进池；arrival 仅 skipped 冷却降权（不删事件）。 */
+function buildWorldEventPool(
+  state: WorldState,
+  params: {
+    dateKey: string;
+    playerRegion: string;
+    onStageNames: string[];
+    sceneGuardBlocked: boolean;
+    currentRound: number;
+  },
+): WorldEventPoolItem[] {
+  const cooldowns = state.eventCooldowns;
+  const { dateKey, playerRegion, currentRound } = params;
+  const cooled = (id: string) => isEventCooledDown(cooldowns, id, currentRound);
+  const seen = new Set<string>();
+
+  const arrivals: WorldEventPoolItem[] = [];
+  if (!params.sceneGuardBlocked) {
+    const ranked = rankEligibleArrivals(state, {
+      dateKey,
+      playerRegion,
+      onStageNames: params.onStageNames,
+      cooldowns,
+      currentRound,
+    });
+    for (const it of ranked) {
+      if (arrivals.length >= EVENT_POOL_MAX_ARRIVAL) break;
+      const cue = poolText(it.hook, 120) || poolText(it.title, 120);
+      if (!cue || seen.has(it.id)) continue;
+      seen.add(it.id);
+      const region = normalizeRegion(it.region || '');
+      const expiresAtDay = poolText(it.expiresAtDay, 32);
+      const publicInfo = poolText(it.publicInfo, 160);
+      const reason = poolText(it.reason, 120);
+      const condition = poolText(it.condition, 120);
+      const epistemicBoundary = poolText(it.epistemicBoundary, 160);
+      arrivals.push({
+        id: it.id,
+        kind: 'arrival',
+        title: poolText(it.title, 60) || cue.slice(0, 40),
+        cue,
+        refId: it.refId,
+        ...(region ? { region } : {}),
+        ...(expiresAtDay ? { expiresAtDay } : {}),
+        ...(publicInfo ? { publicInfo } : {}),
+        ...(reason ? { reason } : {}),
+        ...(condition ? { condition } : {}),
+        ...(epistemicBoundary ? { epistemicBoundary } : {}),
+        threadDriven: !it.freeArrival,
+      });
+    }
+  }
+
+  const signals = state.guidance?.signals || [];
+  const encounter: WorldEventPoolItem[] = [];
+  for (let i = 0; i < signals.length; i++) {
+    const g = signals[i];
+    if (!g || g.voice !== 'encounter') continue;
+    if (encounter.length >= EVENT_POOL_MAX_ENCOUNTER) break;
+    const body = poolText(g.text, 160);
+    if (!body) continue;
+    const sourceId = poolText(g.sourceId, 80);
+    const id = sourceId && sourceId !== 'clock' && !seen.has(sourceId) ? sourceId : `sig_enc_${i}`;
+    if (seen.has(id) || cooled(id)) continue;
+    seen.add(id);
+    encounter.push({ id, kind: 'encounter', title: body.slice(0, 30), cue: body });
+  }
+  for (const s of state.seeds || []) {
+    if (encounter.length >= EVENT_POOL_MAX_ENCOUNTER) break;
+    if (!s || !s.id || isSeedTerminal(s.status) || s.visibility === 'hidden') continue;
+    if (seen.has(s.id) || cooled(s.id)) continue;
+    const seedTitle = poolText(s.title, 60);
+    if (!seedTitle) continue;
+    seen.add(s.id);
+    const region = normalizeRegion(s.region || '');
+    encounter.push({
+      id: s.id,
+      kind: 'encounter',
+      title: seedTitle,
+      cue: poolText(s.catalyst, 160) || `「${seedTitle}」这条线正在暗中发酵`,
+      ...(region ? { region } : {}),
+      level: Number(s.level) || 0,
+    });
+  }
+
+  const curRegion = normalizeRegion(playerRegion || '');
+  const rumor: WorldEventPoolItem[] = [];
+  const visibleRumors = (state.rumors || [])
+    .filter(r => r && r.id && !seen.has(r.id) && !cooled(r.id) && isRumorVisibleInFront(r, dateKey, playerRegion))
+    .slice()
+    .sort((a: Rumor, b: Rumor) => {
+      const aLocal = curRegion && normalizeRegion(a.region || '') === curRegion ? 2 : 0;
+      const bLocal = curRegion && normalizeRegion(b.region || '') === curRegion ? 2 : 0;
+      const aLv = a.level === 'known' ? 1 : 0;
+      const bLv = b.level === 'known' ? 1 : 0;
+      return (bLocal + bLv) - (aLocal + aLv);
+    });
+  for (const r of visibleRumors) {
+    if (rumor.length >= EVENT_POOL_MAX_RUMOR) break;
+    if (seen.has(r.id)) continue;
+    seen.add(r.id);
+    const region = normalizeRegion(r.region || '');
+    rumor.push({
+      id: r.id,
+      kind: 'rumor',
+      title: poolText(r.topic, 60) || r.id,
+      cue: poolText(r.content, 200),
+      ...(region ? { region } : {}),
+      level: r.level,
+    });
+  }
+  for (let i = 0; i < signals.length; i++) {
+    if (rumor.length >= EVENT_POOL_MAX_RUMOR) break;
+    const g = signals[i];
+    if (!g || g.voice !== 'rumor') continue;
+    const body = poolText(g.text, 160);
+    if (!body) continue;
+    const sourceId = poolText(g.sourceId, 80);
+    const linked = sourceId && sourceId !== 'clock' ? sourceId : '';
+    if (linked && seen.has(linked)) continue; // 传闻本体已进池，信号不重复
+    const id = linked || `sig_rumor_${i}`;
+    if (seen.has(id) || cooled(id)) continue;
+    seen.add(id);
+    rumor.push({ id, kind: 'rumor', title: body.slice(0, 30), cue: body });
+  }
+
+  const ambient: WorldEventPoolItem[] = [];
+  for (let i = 0; i < signals.length; i++) {
+    if (ambient.length >= EVENT_POOL_MAX_AMBIENT) break;
+    const g = signals[i];
+    if (!g || g.voice !== 'ambient') continue;
+    const body = poolText(g.text, 160);
+    if (!body) continue;
+    const id = `sig_ambient_${i}`;
+    if (seen.has(id) || cooled(id)) continue;
+    seen.add(id);
+    ambient.push({ id, kind: 'ambient', title: body.slice(0, 30), cue: body });
+  }
+
+  // 总上限 8：溢出先裁传闻尾部，再裁 encounter 尾部，最后才动 arrival（ambient 保留）。
+  let overflow = arrivals.length + encounter.length + rumor.length + ambient.length - EVENT_POOL_MAX;
+  while (overflow > 0 && rumor.length) { rumor.pop(); overflow -= 1; }
+  while (overflow > 0 && encounter.length) { encounter.pop(); overflow -= 1; }
+  while (overflow > 0 && arrivals.length) { arrivals.pop(); overflow -= 1; }
+
+  return [...arrivals, ...encounter, ...rumor, ...ambient];
+}
+
 /** 构造只读世界认知与候选事件快照（每次返回全新深拷贝副本，防调用方篡改内部状态）。 */
 export function buildWorldCognitionSnapshot(deps: WorldCognitionSnapshotDeps = {}): WorldCognitionSnapshot {
   const chatKey = (() => {
@@ -227,8 +405,11 @@ export function buildWorldCognitionSnapshot(deps: WorldCognitionSnapshotDeps = {
         blockReason: sceneGuard.reason,
         worldEnabled,
       },
+      onStageNames: [],
       characters: {},
       candidates: { primary: null, references: [] },
+      worldbookDelegated: false,
+      eventPool: [],
       frontDigest: '',
     });
   }
@@ -237,12 +418,38 @@ export function buildWorldCognitionSnapshot(deps: WorldCognitionSnapshotDeps = {
   const effectiveDate = dateKey || state.lastEvolveDateKey || '';
   const onStageNames = Array.isArray(rt.onStageNames) ? rt.onStageNames : [];
   const onStageSet = new Set(onStageNames);
+  const currentRound = (() => {
+    try {
+      if (deps.getCurrentRound) {
+        const explicit = Number(deps.getCurrentRound());
+        if (Number.isFinite(explicit)) return explicit;
+      }
+      const live = getLiveStContext();
+      if (live && Array.isArray(live.chat)) return live.chat.length;
+      const stored = Number(state.lastEvolveRound);
+      return Number.isFinite(stored) ? stored : 0;
+    } catch (_e) { return 0; }
+  })();
+  const worldbookDelegated = (() => {
+    try {
+      return deps.isWorldbookDelegated ? Boolean(deps.isWorldbookDelegated()) : ledgerHandlesWorldFrontEvents();
+    } catch (_e) { return false; }
+  })();
 
   const view = selectIntrusionCandidates(state, {
     dateKey: effectiveDate,
     playerRegion,
     onStageNames,
     sceneGuard,
+    cooldowns: state.eventCooldowns,
+    currentRound,
+  });
+  const eventPool = buildWorldEventPool(state, {
+    dateKey: effectiveDate,
+    playerRegion,
+    onStageNames,
+    sceneGuardBlocked: view.blocked,
+    currentRound,
   });
 
   const candidateNames = new Set<string>();
@@ -283,11 +490,14 @@ export function buildWorldCognitionSnapshot(deps: WorldCognitionSnapshotDeps = {
       blockReason: view.blockReason,
       worldEnabled: true,
     },
+    onStageNames: [...onStageNames],
     characters,
     candidates: {
       primary: view.primary ? toCandidateSnapshot(view.primary, chatKey) : null,
       references: view.references.map(r => toCandidateSnapshot(r, chatKey)),
     },
+    worldbookDelegated,
+    eventPool,
     frontDigest: buildFrontDigest(state, effectiveDate, { playerRegion }),
   };
 
