@@ -1,6 +1,6 @@
 import { readStoryClockRaw } from './calendar-core';
 import { getTavernHelper, getToastr } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { extractAppContent } from './app-content';
 // ===== 大采访功能核心模块 =====
 
@@ -404,28 +404,15 @@ export async function performInterview(config: InterviewConfig, btnElement?: HTM
       should_scan: true,
     }], { once: true });
 
+    const dossierBlocks: string[] = [];
     const location = config.locationNodeId ? buildLocationInjection(await readMapNode(config.locationNodeId)) : '';
     if (location) {
-      await th.injectPrompts([{
-        id: injectionId('location', config.primaryInterviewee),
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: `【采访地点参考】\n${location}`,
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(`【采访地点参考】\n${location}`);
     }
 
     const dossier = config.readDossier ? await buildDossierInjection(config.interviewees) : '';
     if (dossier) {
-      await th.injectPrompts([{
-        id: injectionId('dossier', config.primaryInterviewee),
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: `【被采访者状态参考（供保持表现一致，非剧中人所知）】\n${dossier}`,
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(`【被采访者状态参考（供保持表现一致，非剧中人所知）】\n${dossier}`);
     }
 
     const relationRef = buildRelationInjection(
@@ -433,28 +420,14 @@ export async function performInterview(config: InterviewConfig, btnElement?: HTM
       parseCharacterRelationRows(getSheetByName('人物关系表')),
     );
     if (relationRef) {
-      await th.injectPrompts([{
-        id: injectionId('relations', config.primaryInterviewee),
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: relationRef,
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(relationRef);
     }
 
     if (config.continueRefs?.length) {
-      await th.injectPrompts([{
-        id: injectionId('continue', config.primaryInterviewee),
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: buildContinueInjection(config.continueRefs),
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(buildContinueInjection(config.continueRefs));
     }
 
-    // 资料块注入（after_system，发给 AI 不参与扫描）：人物纪要（完整）在前、剧情上下文在后（用户定案顺序）。
+    // 资料块内联（发给 AI 不参与扫描）：人物纪要（完整）在前、剧情上下文在后（用户定案顺序）。
     const dossierParts: string[] = [];
     if (chronicleBlocks) {
       dossierParts.push('【人物纪要（从旧到新，供了解被采访者既往经历）】\n' + chronicleBlocks);
@@ -463,14 +436,7 @@ export async function performInterview(config: InterviewConfig, btnElement?: HTM
       dossierParts.push('【剧情上下文（最近剧情的 AI 回复节选，供与既有剧情保持一致）】\n' + storyContext);
     }
     if (dossierParts.length) {
-      await th.injectPrompts([{
-        id: injectionId('context', config.primaryInterviewee),
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: dossierParts.join('\n\n'),
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(dossierParts.join('\n\n'));
     }
 
     // 进行中提示由统一 AI 活动注册表负责，这里不再单独弹 toast
@@ -484,7 +450,7 @@ export async function performInterview(config: InterviewConfig, btnElement?: HTM
       user_input: rawInstruction,
       ordered_prompts: [
         ...getJailbreakHeadPrompts({ antiCliche: true }),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(dossierBlocks),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

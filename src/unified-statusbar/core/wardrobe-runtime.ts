@@ -1,5 +1,5 @@
 import { getTavernHelper } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { makeUniqueId } from './id';
 // ===== 衣柜运行时：AI 设计、CRUD 资源补偿与聊天级串行生图队列 =====
 import { getCustomApiConfig, validateCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
@@ -639,18 +639,8 @@ async function generateWardrobeDesignText(
           should_scan: true,
         }], { once: true });
       }
-      const dossier = buildWardrobeDesignDossier(context);
-      if (dossier) {
-        helper.injectPrompts([{
-          id: 'wardrobe_design_context',
-          position: 'after_system',  // 发给 AI，不参与扫描
-          depth: 0,
-          role: 'system',
-          content: dossier,
-          should_scan: false,
-        }], { once: true });
-      }
     }
+    const dossier = buildWardrobeDesignDossier(context);
     let userInput = `${request.system}\n\n${request.userInput}`;
     try {
       if (typeof helper.substitudeMacros === 'function') userInput = helper.substitudeMacros(userInput);
@@ -661,7 +651,7 @@ async function generateWardrobeDesignText(
       user_input: userInput,
       ordered_prompts: [
         ...getJailbreakHeadPrompts({ antiCliche: true }),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(dossier),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

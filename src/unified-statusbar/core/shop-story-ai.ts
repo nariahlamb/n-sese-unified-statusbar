@@ -1,5 +1,5 @@
 import { getTavernHelper, getToastr } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY, injectTriggerAndContext } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY, injectTriggerAndContext } from './ai-request-pipeline';
 import { setButtonBusy } from './busy-state';
 // ===== 剧情特卖 AI 生成 =====
 // 照搬 core/calendar-ai.ts 模式：generateRaw + <sale> 标签 + 手写 YAML 解析。
@@ -142,8 +142,8 @@ export async function performStorySaleGeneration(
     // 每次尝试都要重做「一次性注入 + 扫描准备 + 生成」：once:true 只在下一次生成生效，
     // 重试若在注入之内会丢掉资料块与触发素材。
     const runShopStoryRequest = async (ctx: TextAiContext) => {
-    injectTriggerAndContext(th, {
-      triggerId: 'shop_story_gen_trigger', contextId: 'shop_story_gen_context',
+    const storyDossier = injectTriggerAndContext(th, {
+      triggerId: 'shop_story_gen_trigger',
       storyContext: getAiReplyContext(config.shopStoryContextCount || 10), extraPrompt, charNames: getRandomCharNames(),
     });
 
@@ -153,7 +153,7 @@ export async function performStorySaleGeneration(
       user_input: instruction,
       ordered_prompts: [
         ...getJailbreakHeadPrompts({ antiCliche: true }),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(storyDossier),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

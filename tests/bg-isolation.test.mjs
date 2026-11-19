@@ -227,3 +227,33 @@ test('宅仙 assistant-sources 3.A 口径：保留用户手选世界书范围，
   assert.ok(text.includes('CoT思维链规范（正文向规则已跳过）'));
   assert.ok(text.includes('<场景美化>（正文向规则已跳过）'));
 });
+
+test('buildStandardPromptMiddle + injectTriggerAndContext：资料块内联于 dialogue_examples 与 user_input 之间，绝不再走 after_system', async () => {
+  const mod = await loadBundle(`export * from './src/unified-statusbar/core/ai-request-pipeline.ts';`);
+  // 无有效资料块时保持原 8 槽
+  assert.deepEqual([...mod.buildStandardPromptMiddle('')], [...mod.STANDARD_PROMPT_MIDDLE]);
+  assert.deepEqual([...mod.buildStandardPromptMiddle(['  ', null, undefined])], [...mod.STANDARD_PROMPT_MIDDLE]);
+
+  // 多资料块按顺序内联在 dialogue_examples 与 user_input 之间
+  const middle = mod.buildStandardPromptMiddle(['资料块A', '', '资料块B']);
+  assert.equal(middle.includes('chat_history'), false);
+  const deIdx = middle.indexOf('dialogue_examples');
+  const uiIdx = middle.indexOf('user_input');
+  assert.equal(uiIdx, deIdx + 3);
+  assert.deepEqual(middle[deIdx + 1], { role: 'system', content: '资料块A' });
+  assert.deepEqual(middle[deIdx + 2], { role: 'system', content: '资料块B' });
+
+  // injectTriggerAndContext 仅发送 position:'none' 绿灯触发，并返回上下文资料块供内联
+  const injected = [];
+  const fakeTh = { injectPrompts: (prompts) => { injected.push(...prompts); } };
+  const dossier = mod.injectTriggerAndContext(fakeTh, {
+    triggerId: 'test_trigger',
+    storyContext: '最近正文片段',
+    extraPrompt: '额外提示',
+    charNames: ['白鸟'],
+  });
+  assert.equal(injected.length, 1);
+  assert.equal(injected[0].position, 'none');
+  assert.equal(injected[0].should_scan, true);
+  assert.ok(dossier.includes('最近正文片段'));
+});

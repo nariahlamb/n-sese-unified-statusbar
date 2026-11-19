@@ -15,7 +15,7 @@ import { getTavernHelper } from './env';
 import { parseJsonWith } from './safe-json';
 import { getAssistantApiConfig, validateAssistantApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { withNativeScanWorldbook } from './worldbook-entry';
 import { getAiReplyContext } from './map-system';
 import { CURRENCY_ICONS, type CurrencyIcon, type CurrencyMeta, makeCurrencyId } from './currency';
@@ -106,25 +106,16 @@ export async function requestCurrencyProposals(signal?: AbortSignal): Promise<Cu
         content: CURRENCY_SCAN_TERMS,
         should_scan: true,
       }], { once: true });
-      const storyContext = getAiReplyContext(CURRENCY_CONTEXT_TURNS);
-      if (storyContext) {
-        helper.injectPrompts([{
-          id: 'currency_gen_context',
-          position: 'after_system', // 发给 AI，不参与扫描
-          depth: 0,
-          role: 'system',
-          content: '【剧情上下文】\n' + storyContext,
-          should_scan: false,
-        }], { once: true });
-      }
     }
+    const storyContext = getAiReplyContext(CURRENCY_CONTEXT_TURNS);
+    const storyDossier = storyContext ? '【剧情上下文】\n' + storyContext : '';
     const result = await withNativeScanWorldbook({}, () => helper.generateRaw({
       should_silence: true,
       generation_id: ctx.generationId,
       user_input: instruction,
       ordered_prompts: [
         ...getJailbreakHeadPrompts(),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(storyDossier),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

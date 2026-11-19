@@ -7,7 +7,9 @@
 
 /** 精简中段：world_info_before → user_input（全部 1A generateRaw 站共用）。
  *  已移除 'chat_history'：max_chat_history=0 时保留 'chat_history' 仍会被酒馆/TT 自动塞入
- *  at_depth 深度条目（如 <场景美化>）与 in_chat 扩展注入；剧情上下文一律走 after_system 资料块。 */
+ *  at_depth 深度条目（如 <场景美化>）与 in_chat 扩展注入；
+ *  资料块不再走 injectPrompts(after_system)（无 chat_history 时兼容层会跳过 in_chat/after_system 注入），
+ *  统一经 buildStandardPromptMiddle() 内联在 dialogue_examples 与 user_input 之间。 */
 export const STANDARD_PROMPT_MIDDLE = [
   'world_info_before',
   'persona_description',
@@ -19,22 +21,42 @@ export const STANDARD_PROMPT_MIDDLE = [
   'user_input',
 ] as const;
 
-/** 标准请求的 max_chat_history：0 上下文（原生 chat_history 不带楼层，剧情上下文走资料块注入）。 */
+export type StandardPromptMiddleEntry =
+  | (typeof STANDARD_PROMPT_MIDDLE)[number]
+  | { role: 'system'; content: string };
+
+/**
+ * 组装含内联资料块的标准中段槽位：将非空资料块作为 { role: 'system', content }
+ * 插入 dialogue_examples 与 user_input 之间（无有效资料块时直接返回 STANDARD_PROMPT_MIDDLE）。
+ */
+export function buildStandardPromptMiddle(
+  dossiers?: string | readonly (string | undefined | null)[],
+): readonly StandardPromptMiddleEntry[] {
+  const list = (Array.isArray(dossiers) ? dossiers : [dossiers])
+    .map(d => (typeof d === 'string' ? d.trim() : ''))
+    .filter(Boolean);
+  if (list.length === 0) return STANDARD_PROMPT_MIDDLE;
+  return [
+    ...STANDARD_PROMPT_MIDDLE.slice(0, -1),
+    ...list.map(content => ({ role: 'system' as const, content })),
+    STANDARD_PROMPT_MIDDLE[STANDARD_PROMPT_MIDDLE.length - 1],
+  ];
+}
+
+/** 标准请求的 max_chat_history：0 上下文（原生 chat_history 不带楼层，剧情上下文走资料块内联）。 */
 export const STANDARD_MAX_CHAT_HISTORY = 0;
 
 /**
- * 一次性「触发注入 + 剧情上下文资料块」（calendar / shop-story 孪生站逐字节同形，收编为共享件）：
- * triggerId/position:none/should_scan:true 喂激活素材；contextId/after_system/should_scan:false
- * 走资料块（发给 AI 不参与扫描）。storyContext 由调用方解析后传入（各站上下文条数配置不同）。
- * 必须放在每次重试尝试内执行：once:true 只对下一次生成生效，重试若在注入之外会丢素材。
+ * 一次性「触发注入」并返回待内联的剧情上下文资料块（calendar / shop-story 孪生站共用）：
+ * triggerId/position:none/should_scan:true 喂激活素材（必须在每次重试尝试内执行）；
+ * 返回的上下文资料块文本由调用方传给 buildStandardPromptMiddle() 内联进 ordered_prompts。
  */
 export function injectTriggerAndContext(
   th: { injectPrompts?: (prompts: unknown[], opts?: { once?: boolean }) => unknown },
-  opts: { triggerId: string; contextId: string; storyContext: string; extraPrompt?: string; charNames: string[] },
-): void {
-  if (typeof th?.injectPrompts !== 'function') return;
-  const { triggerId, contextId, storyContext, extraPrompt, charNames } = opts;
-  if (charNames.length > 0 || storyContext) {
+  opts: { triggerId: string; contextId?: string; storyContext: string; extraPrompt?: string; charNames: string[] },
+): string {
+  const { triggerId, storyContext, extraPrompt, charNames } = opts;
+  if (typeof th?.injectPrompts === 'function' && (charNames.length > 0 || storyContext)) {
     th.injectPrompts([{
       id: triggerId,
       position: 'none',
@@ -44,15 +66,7 @@ export function injectTriggerAndContext(
       should_scan: true,
     }], { once: true });
   }
-  // 资料块注入（after_system，发给 AI 不参与扫描）：与触发注入共用同一份剧情上下文（1A 三段式统一结构）。
-  if (storyContext) {
-    th.injectPrompts([{
-      id: contextId,
-      position: 'after_system',
-      depth: 0,
-      role: 'system',
-      content: '【剧情上下文（最近剧情的 AI 回复节选，供与既有剧情保持一致）】\n' + storyContext,
-      should_scan: false,
-    }], { once: true });
-  }
+  return storyContext
+    ? '【剧情上下文（最近剧情的 AI 回复节选，供与既有剧情保持一致）】\n' + storyContext
+    : '';
 }

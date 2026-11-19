@@ -5,7 +5,7 @@
 // API 走 'nsfwGuidance' scope（与瑟瑟指导共用独立预设，不设独立 scope）。
 import { readStoryClockRaw } from './calendar-core';
 import { extractFencedJson } from './text-fence';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { getTavernHelper } from './env';
 import { getCustomApiConfig, validateCustomApiConfig, withTextAiRetry, type TextAiContext } from './api-config';
 import { getJailbreakHeadPrompts, getJailbreakTailPrompts } from './jailbreak-config';
@@ -272,16 +272,6 @@ export async function generateMemoGoals(
         should_scan: true,
       }], { once: true });
     }
-    if (dossier && typeof helper.injectPrompts === 'function') {
-      helper.injectPrompts([{
-        id: 'memo_goals_context',
-        position: 'after_system',  // 发给 AI，不参与扫描
-        depth: 0,
-        role: 'system',
-        content: dossier,
-        should_scan: false,
-      }], { once: true });
-    }
     let userInput = `${request.system}\n\n${request.userInput}`;
     try {
       if (typeof helper.substitudeMacros === 'function') userInput = helper.substitudeMacros(userInput);
@@ -294,7 +284,7 @@ export async function generateMemoGoals(
         user_input: userInput,
         ordered_prompts: [
           ...getJailbreakHeadPrompts({ antiCliche: true }),
-          ...STANDARD_PROMPT_MIDDLE,
+          ...buildStandardPromptMiddle(dossier),
           ...getJailbreakTailPrompts(),
         ],
         max_chat_history: STANDARD_MAX_CHAT_HISTORY,

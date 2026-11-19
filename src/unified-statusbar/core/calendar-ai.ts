@@ -1,5 +1,5 @@
 import { getTavernHelper, getToastr } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY, injectTriggerAndContext } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY, injectTriggerAndContext } from './ai-request-pipeline';
 // ===== 日历 AI 生成模块 =====
 import { getConfig } from './config-store';
 import { setButtonBusy } from './busy-state';
@@ -339,8 +339,8 @@ export async function performCalendarGeneration(
     // 每次尝试都要重做「一次性注入 + 扫描准备 + 生成」：once:true 只在下一次生成生效，
     // 重试若在注入之内会丢掉资料块与触发素材。
     const runCalendarRequest = async (ctx: TextAiContext) => {
-    injectTriggerAndContext(th, {
-      triggerId: 'calendar_gen_trigger', contextId: 'calendar_gen_context',
+    const storyDossier = injectTriggerAndContext(th, {
+      triggerId: 'calendar_gen_trigger',
       storyContext: getAiReplyContext(contextCount), extraPrompt, charNames: getRandomCharNames(),
     });
 
@@ -350,7 +350,7 @@ export async function performCalendarGeneration(
       user_input: instruction,
       ordered_prompts: [
         ...getJailbreakHeadPrompts({ antiCliche: true }),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(storyDossier),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

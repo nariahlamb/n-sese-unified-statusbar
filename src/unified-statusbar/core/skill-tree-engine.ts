@@ -1,5 +1,5 @@
 import { getTavernHelper, getToastr } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 // core/skill-tree-engine.ts
 // 天赋树 AI 生成编排：批量（单请求多树）+ 单棵重生 + 解析存储。镜像 map-system.ts。
 import {
@@ -90,16 +90,6 @@ async function callGenerateRaw(parts: SkillTreePromptParts): Promise<string | nu
         content: parts.trigger,
         should_scan: true,
       }], { once: true });
-      if (parts.dossier) {
-        await th.injectPrompts([{
-          id: 'ub_skill_tree_dossier',
-          position: 'after_system',
-          depth: 0,
-          role: 'system',
-          content: sub(parts.dossier),
-          should_scan: false,
-        }], { once: true });
-      }
     }
     const result = await th.generateRaw({
       should_silence: true,
@@ -107,7 +97,7 @@ async function callGenerateRaw(parts: SkillTreePromptParts): Promise<string | nu
       user_input: sub(parts.userInput),
       ordered_prompts: [
         ...parts.head,
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(parts.dossier ? sub(parts.dossier) : ''),
         ...getJailbreakTailPrompts(),
       ],
       max_chat_history: STANDARD_MAX_CHAT_HISTORY,

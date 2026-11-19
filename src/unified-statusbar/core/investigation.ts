@@ -1,6 +1,6 @@
 import { readStoryClockRaw } from './calendar-core';
 import { getTavernHelper, getToastr } from './env';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from './ai-request-pipeline';
 import { escapeHtml } from './html-escape';
 import { extractAppContent } from './app-content';
 // ===== 大调查功能核心模块 =====
@@ -543,17 +543,13 @@ export async function performInvestigation(charName: string, btnElement?: HTMLBu
       should_scan: true,         // 加入世界书绿灯条目扫描
     }], { once: true });
 
-    // 接续调查：注入基线档案全文（after_system，供 AI 增量更新参考，不参与扫描）
+    const dossierBlocks: string[] = [];
+    // 接续调查：基线档案全文（供 AI 增量更新参考，不参与扫描）
     if (continueRef) {
-      th.injectPrompts([{
-        id: 'investigation_continue_' + charName.replace(/[^a-zA-Z0-9一-鿿_-]/g, '_'),
-        position: 'after_system', depth: 0, role: 'system',
-        content: buildContinueInjection(continueRef),
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(buildContinueInjection(continueRef));
     }
 
-    // 资料块注入（after_system，发给 AI 不参与扫描）：人物纪要（完整）在前、剧情上下文在后（用户定案顺序）。
+    // 资料块内联（发给 AI 不参与扫描）：人物纪要（完整）在前、剧情上下文在后（用户定案顺序）。
     const dossierParts: string[] = [];
     if (chronicleBlocks) {
       dossierParts.push('【人物纪要（从旧到新，供了解该角色既往经历）】\n' + chronicleBlocks);
@@ -562,12 +558,7 @@ export async function performInvestigation(charName: string, btnElement?: HTMLBu
       dossierParts.push('【剧情上下文（最近剧情的 AI 回复节选，供与既有剧情保持一致）】\n' + storyContext);
     }
     if (dossierParts.length) {
-      th.injectPrompts([{
-        id: 'investigation_context_' + charName.replace(/[^a-zA-Z0-9一-鿿_-]/g, '_'),
-        position: 'after_system', depth: 0, role: 'system',
-        content: dossierParts.join('\n\n'),
-        should_scan: false,
-      }], { once: true });
+      dossierBlocks.push(dossierParts.join('\n\n'));
     }
     // ═══════════════════════════════════════════════════════════
     // 阶段G：调用 generateRaw
@@ -599,7 +590,7 @@ export async function performInvestigation(charName: string, btnElement?: HTMLBu
       user_input: instruction,
       ordered_prompts: [
         ...getJailbreakHeadPrompts({ antiCliche: true }),
-        ...STANDARD_PROMPT_MIDDLE,
+        ...buildStandardPromptMiddle(dossierBlocks),
         ...getJailbreakTailPrompts(),
       ],
       // 0 上下文：原生 chat_history 不带楼层（剧情上下文走资料块注入），世界书扫描靠上方触发注入

@@ -1,7 +1,7 @@
 // core/world-engine/world-evolution.ts
 // 演化指令组装（纯函数）+ 演化编排（doEvolve/parse/apply/chronicle）。I/O 走 configureWorldEvolutionSources 注入点。
 import { ubIcon } from '../icons';
-import { STANDARD_PROMPT_MIDDLE, STANDARD_MAX_CHAT_HISTORY } from '../ai-request-pipeline';
+import { buildStandardPromptMiddle, STANDARD_MAX_CHAT_HISTORY } from '../ai-request-pipeline';
 import { plainClone } from '../deep-clone';
 import type {
   WorldState, CharProfile, EvolveKind, EvolveConfig,
@@ -1606,15 +1606,6 @@ export async function doEvolve(kind: EvolveKind): Promise<boolean> {
         content: parts.trigger,
         should_scan: true,
       }], { once: true });
-      // ② 资料块注入：纪要/世界状态/近期剧情（发给 AI，不参与扫描）
-      await th.injectPrompts([{
-        id: 'ub_world_evolve_dossier',
-        position: 'after_system',
-        depth: 0,
-        role: 'system',
-        content: sub(parts.dossier),
-        should_scan: false,
-      }], { once: true });
     }
 
     return await withNativeScanWorldbook(
@@ -1636,11 +1627,11 @@ export async function doEvolve(kind: EvolveKind): Promise<boolean> {
         generation_id: ctx.generationId,
         user_input: sub(parts.userInput),
         // 1A 同构三段式：结构头(破限+防八股+角色与任务) → 原生世界书槽位（触发注入激活绿灯条目，
-        // 扫描前经 withNativeScanWorldbook 暂停自投影并预渲染 EJS）→ 角色卡上下文 → 资料块(after_system 注入)
+        // 扫描前经 withNativeScanWorldbook 暂停自投影并预渲染 EJS）→ 角色卡上下文 → 资料块(内联进 ordered_prompts)
         // → user_input(规则/格式) → 结构尾(防截断)。max_chat_history:0——上下文只走资料块。
         ordered_prompts: [
           ...getJailbreakHeadPrompts({ antiCliche: true, task: sub(parts.task) }),
-          ...STANDARD_PROMPT_MIDDLE,
+          ...buildStandardPromptMiddle(sub(parts.dossier)),
           ...getJailbreakTailPrompts(),
         ],
         max_chat_history: STANDARD_MAX_CHAT_HISTORY,
