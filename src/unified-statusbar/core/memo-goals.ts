@@ -1,6 +1,6 @@
 // ===== 备忘录「AI 规划目标」（1A 三段式同构，对照 wardrobe-runtime 设计请求形态） =====
 // 触发注入（position:'none'，仅世界书绿灯扫描）= 玩家要求 + 随机 3 人物名；
-// 资料块（after_system，不参与扫描）= 最近 20 条纪要（免名过滤）+ 最近 1 段处理后正文；
+// 资料块（内联进 ordered_prompts，不参与扫描）= 最近 20 条纪要（免名过滤）+ 最近 1 段处理后正文；
 // 设置项组合成规则段；输出 <MEMO_GOALS_JSON> 由前端解析，用户勾选后写入备忘录表。
 // API 走 'nsfwGuidance' scope（与瑟瑟指导共用独立预设，不设独立 scope）。
 import { readStoryClockRaw } from './calendar-core';

@@ -45,7 +45,7 @@ export interface WardrobeDesignContext {
   storyContext: string;
 }
 
-/** 资料块注入内容（after_system，不参与扫描）：在场角色穿着 + 剧情上下文；全空返回空串省略注入。 */
+/** 资料块内联内容（不参与扫描）：在场角色穿着 + 剧情上下文；全空返回空串省略。 */
 export function buildWardrobeDesignDossier(context: WardrobeDesignContext): string {
   const parts: string[] = [];
   if (context.presentClothing.length) {

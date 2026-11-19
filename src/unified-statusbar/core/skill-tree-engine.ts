@@ -77,7 +77,7 @@ async function callGenerateRaw(parts: SkillTreePromptParts): Promise<string | nu
   const sub = (s: string): string => (typeof th.substitudeMacros === 'function' ? th.substitudeMacros(s) : s);
   // 1A 同构三段式：结构头(破限+防八股+设计师规则) → 原生世界书槽位（触发注入激活绿灯；扫描前经
   // withNativeScanWorldbook 暂停「主角当前技能」自投影条目并预渲染 EJS）→ 角色卡上下文 → 资料块
-  // (after_system 注入：主角信息+剧情上下文) → user_input(清单/规则) → 结构尾(防截断)。max_chat_history:0。
+  // (内联资料块：主角信息+剧情上下文) → user_input(清单/规则) → 结构尾(防截断)。max_chat_history:0。
   // 重试包在扫描准备之外：一次性注入（once:true）与扫描钩配置都只在「下一次生成」生效，
   // 放在里面的话重试那一发会丢掉触发注入与资料块。错误处理口径不变（抛错→记日志返回 null）。
   const attempt = (ctx: TextAiContext) => withNativeScanWorldbook({ suspend: isManagedSkillEntry }, async () => {

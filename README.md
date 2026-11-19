@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.13`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.14`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **宿主设置键**：`extensionSettings.kei_unified_global_v22`（详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）
 - **安装使用**：
   1. 先安装并启用[酒馆助手（JS-Slash-Runner）](https://gitlab.com/novi028/JS-Slash-Runner)。
@@ -116,6 +116,7 @@ npm run check   # scripts/check-release.mjs：清单、产物及 src/ SHA-256 �
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
+| 2026-11-19 | `0.1.0-alpha.14` | 清理 `currency-ai.ts` / `investigation.ts` / `memo-goals.ts` / `skill-prompts.ts` / `skill-tree-engine.ts` / `wardrobe-prompts.ts` / `wardrobe-runtime.ts` 遗留 `after_system` 注释与内联口径对齐 | `build` / `test` 115/115 / `check` 全绿；待真机验收 |
 | 2026-11-19 | `0.1.0-alpha.13` | 修复移除 `'chat_history'` 后 `injectPrompts({ position: 'after_system' })` 资料块被宿主 `generateRaw` 跳过的问题：[ai-request-pipeline.ts](src/unified-statusbar/core/ai-request-pipeline.ts) 新增 `buildStandardPromptMiddle`，并将 `injectTriggerAndContext` 改为仅负责 `position:'none'` 绿灯扫描触发；全线迁移 `world-evolution` / `calendar-ai` / `shop-story-ai` / `currency-ai` / `interview` / `investigation` / `memo-goals` / `skill-tree-engine` / `wardrobe-runtime` 9 处站点改为直接内联资料块进 `ordered_prompts`（`dialogue_examples` 与 `user_input` 之间）；扩展 `tests/bg-isolation.test.mjs` | `build` / `test` 115/115 / `check` 全绿；已推仓待 TT 拉取真机验收 |
 | 2026-11-19 | `0.1.0-alpha.12` | 升级世界认知快照桥至 v2 并打通台账魔改推进双向闭环：`ledger-takeover.ts` 新增 `ledgerHandlesWorldFrontEvents`；`world-snapshot.ts` 输出分级 `eventPool`（`arrival`/`encounter`/`rumor`/`ambient`）与 `worldbookDelegated`；`world-worldbook.ts` 在双开推进激活时收敛世界动态为 `acted` 余波+极短暗流并屏蔽 `pending` 待入镜线索（状态栏世界窗口 UI 原样完整保留）；`world-intrusion.ts`/`world-sources.ts`/`world-store.ts`/`world-types.ts` 新增 `sl_world_ack` 确定性承接、`eventCooldowns` 冷却及删楼/Swipe 回退；扩展 `tests/world-snapshot-p4.test.mjs` 与 `tests/world-p1-p2.test.mjs` | `build` / `test` 114/114 / `check` 全绿；待真机验收 |
 | 2026-11-18 | `0.1.0-alpha.11` | 精简设置页「上下文标签剥离」与「条目黑名单与后台净化」界面冗余提示文本，移除无关第三方引用词 | `build` / `test` 104/104 / `check` 全绿；已推仓 |

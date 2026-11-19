@@ -149,7 +149,7 @@ const CONTINUE_INSTRUCTION_BLOCK = `
 - 仍须遵循上述全部描写与格式要求。
 `;
 
-/** 接续调查：构建基线档案全文的 after_system 注入块（不裁剪，AI 必须看到才能 diff） */
+/** 接续调查：构建基线档案全文的内联资料块（不裁剪，AI 必须看到才能 diff） */
 // 参数名勿用裸 ref：会被 unplugin-auto-import 误注入 import {ref} from 'vue' → 全局 Vue 外部引用
 export function buildContinueInjection(baseline: InvestigationContinueRef): string {
   const ts = baseline.timestamp || '时间未记录';
@@ -435,7 +435,7 @@ function fallbackHTML(content: string, charName: string, isInvestigating?: boole
 //
 // 当前策略（1A 三段式统一结构）：
 // 1. 结构头（破限+防八股）= ordered_prompts 首个 system；系统指令拼入 user_input，确保出现在消息末尾
-// 2. 剧情上下文不进 chat_history（max_chat_history 置 0），走 after_system 资料块注入：
+// 2. 剧情上下文不进 chat_history（max_chat_history 置 0），经 buildStandardPromptMiddle 内联进 ordered_prompts：
 //    最近 N 条 AI 回复（N=用户设置 contextCount，过上下文标签剥离）
 // 3. 纪要统一走资料块（用户定案）：完整纪要在前、剧情上下文在后（chronicle-blocks 共享层，
 //    取多少条/要不要概览与原逻辑一致——大调查取「内容含名」最新 N 条全部完整，无概览拆分）；

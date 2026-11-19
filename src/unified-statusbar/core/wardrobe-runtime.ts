@@ -609,7 +609,7 @@ async function generateWardrobeText(
 
 /** 「AI 设计穿搭」生成（1A 三段式同构，对照 calendar-ai/investigation 形态）：
  *  1. 结构头 = 破限头（+反八股）；结构尾 = 尾部破限（无害化收尾）；
- *  2. 资料块（after_system，不参与扫描）= 在场角色穿着资料 + 剧情上下文（处理后的上下文）；
+ *  2. 资料块（内联进 ordered_prompts，不参与扫描）= 在场角色穿着资料 + 剧情上下文（处理后的上下文）；
  *  3. 触发注入（position:'none'，只参与世界书绿灯扫描）= 设计指令全文——指令点名的角色/地点/物件条目由酒馆原生扫描激活；
  *  4. 原生 world_info 槽位 + max_chat_history:0（原生 chat_history 不带楼层、user_input 不参与绿灯扫描）；
  *  5. 不做过滤豁免（不传 suspend/keep）：[UBS手机] 前缀条目（消息记录/窥私记录/正文联动格式）按内置规则全族剔除，

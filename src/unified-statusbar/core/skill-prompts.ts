@@ -48,7 +48,7 @@ export interface SkillTreePromptParts {
   head: JailbreakPromptEntry[];
   /** 规则与任务（user_input 槽位；不参与绿灯扫描）。 */
   userInput: string;
-  /** 资料块（after_system 注入：主角信息+剧情上下文；不参与扫描）。 */
+  /** 资料块（内联进 ordered_prompts：主角信息+剧情上下文；不参与扫描）。 */
   dossier: string;
   /** 绿灯触发文本（position:'none' 注入；仅扫描，不发给 AI）。 */
   trigger: string;

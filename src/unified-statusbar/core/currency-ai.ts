@@ -7,7 +7,7 @@
 // 扫描——激活素材只由注入喂入。注入内容（用户定案 2026-10-05）：
 //   触发注入 = 仅扫描词「货币 金钱」两个词（position:none，只扫描不发给 AI）；
 //   资料块   = 最近 2 层 AI 回复正文（过上下文标签剥离，标题仅【剧情上下文】，
-//              position:after_system）。
+//              经 buildStandardPromptMiddle 内联进 ordered_prompts）。
 // 触发与资料两块内容不同源，不走共享的孪生注入件，按 interview 站先例手工双注入。
 // API 独立设置与宅仙小助手共用一个绑定（assistantApiPresetId，不走全局 apiMode 分配），
 // 重试作用域同为 assistant。
