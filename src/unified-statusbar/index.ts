@@ -1394,6 +1394,11 @@ function bindEvents(): void {
     const char = (window as any)._activeChar;
     if (char) showDiaryPopup(char, currentStyle);
   });
+  // 心路档案直达按钮（6 动态主题）
+  $ac.off('click.ac-mind-profile').on('click.ac-mind-profile', '#ac-mind-profile-btn', function () {
+    const char = String($(this).data('name') || (window as any)._activeChar || '').trim();
+    if (char) showDiaryPopup(char, currentStyle, 'mind');
+  });
 
   // 详情面板切换
   $ac.off('click.ac-switch-clothes').on('click.ac-switch-clothes', '#ac-switch-clothes', function () {
@@ -1729,6 +1734,12 @@ function bindEvents(): void {
     e.stopPropagation();
     const charName = $(this).data('name');
     if (charName) showDiaryPopup(charName, 'minimal');
+  });
+  // 心路档案直达按钮（萦绕主题）
+  $mc.off('click', '.mind-profile-entry-btn').on('click', '.mind-profile-entry-btn', function (e) {
+    e.stopPropagation();
+    const charName = String($(this).data('name') || '').trim();
+    if (charName) showDiaryPopup(charName, 'minimal', 'mind');
   });
 
   // 大调查按钮 - 萦绕风格（U10：统一走 long-press）：短按调查，长按弹额外提示词输入框

@@ -15,6 +15,7 @@ const pairs = new Set(items.map(item => key(item.table, item.column)));
 const optional = new Set([
   ['主角信息表', '年龄'], ['恋爱对象表', '年龄'], ['重要角色表', '年龄'], ['全局数据表', '当前位置'],
   ...['体位', '多人体位', '侍奉', '场景', '附加玩法'].map(column => ['玩法表', column]),
+  ...['姓名', '人格底色与筹码', '已知事实与盲点', '四向关系认知', '个人进度与打算', '核心纠结与情绪惯性', '蝴蝶效应留痕'].map(column => ['角色心路档案表', column]),
 ].map(([table, column]) => key(table, column)));
 
 async function sourceFiles(url) {

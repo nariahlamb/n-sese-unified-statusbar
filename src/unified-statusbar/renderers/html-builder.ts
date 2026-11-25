@@ -44,6 +44,7 @@ import { escapeHtml, escapeAttr, escapeHtmlAttr } from '../core/html-escape';
 import { walletEntryHtml } from './currency-entry';
 import { parseProtagonistAttitude, relationCategory, relationCategoryClass } from '../core/character-relation-model';
 import { diaryPlainText } from '../core/diary-sanitizer';
+import { hasCharMindProfile } from '../core/mind-profile-view';
 import { NOVELAI_SAMPLERS, NOVELAI_SCHEDULERS, ASPECT_RATIO_OPTIONS } from '../core/portrait-config';
 import type { ImageGenRecord, ImageGenRegenPatch } from '../core/image-gen';
 
@@ -869,6 +870,7 @@ function buildFlirtatiousCharPanel(activeChar: string, config: StatusBarConfig):
   if (config.interviewEnabled) html += '<button class="investigate-btn interview-btn" id="ac-interview-btn" data-name="' + escapeAttr(activeChar) + '">采访</button>';
   html += buildPastExpButton(activeChar, '过往经历');
   html += '<button class="icon-btn" id="ac-diary-btn">日记</button>';
+  html += '<button class="icon-btn mind-profile-btn' + (hasCharMindProfile(activeChar) ? ' is-ready' : '') + '" id="ac-mind-profile-btn" data-name="' + escapeAttr(activeChar) + '">心路</button>';
   html += '</div>';  html += '</div>';
   if (charInnerThought) {
     html += '<div class="char-inner-thought"><span class="inner-thought-text">' + escapeHtml(charInnerThought) + '</span>';
@@ -1046,15 +1048,16 @@ function buildMinimalCharCard(name: string, config: StatusBarConfig): string {
   html += '</div>';
   html += '<div class="note-content">' + escapeHtml(innerThought) + '</div>';
   html += '</div>';
-  // 日记预览
+  // 日记预览（重要角色与恋爱对象共用入口 + 心路档案直达）
+  const hasMindProfile = hasCharMindProfile(name);
   html += '<div class="diary-preview diary-preview-clickable" data-name="' + escapeAttr(name) + '">';
-  html += '<div class="diary-preview-title">日记</div>';
+  html += '<div class="diary-preview-title"><span>日记</span><button type="button" class="mind-profile-entry-btn' + (hasMindProfile ? ' is-ready' : '') + '" data-name="' + escapeAttr(name) + '">心路档案</button></div>';
   if (latestDiary) {
     html += '<div class="diary-preview-content">' + escapeHtml(diaryPlainText(latestDiary.content)) + '</div>';
     if (latestDiary.time) html += '<div class="diary-preview-time">' + escapeHtml(latestDiary.time) + '</div>';
     if (diaryCount > 1) html += '<div class="diary-preview-ellipsis">...共' + diaryCount + '篇</div>';
   } else {
-    html += '<div class="diary-preview-empty">暂无日记</div>';
+    html += '<div class="diary-preview-empty">暂无心路日记</div>';
   }
   html += '</div>';
   html += '</div>';
@@ -1228,7 +1231,8 @@ function buildSweetCharPanel(activeChar: string, config: StatusBarConfig): strin
   if (config.investigationEnabled) html += '<button class="investigate-btn ub-lp-hint" id="ac-investigate-btn" data-name="' + escapeAttr(activeChar) + '">🔍 大调查</button>';
   if (config.interviewEnabled) html += '<button class="investigate-btn interview-btn" id="ac-interview-btn" data-name="' + escapeAttr(activeChar) + '">💌 采访</button>';
   html += buildPastExpButton(activeChar, '💌 过往经历');
-  html += '<button class="icon-btn" id="ac-diary-btn">📔 恋爱日记</button>';
+  html += '<button class="icon-btn" id="ac-diary-btn">📔 心路日记</button>';
+  html += '<button class="icon-btn mind-profile-btn' + (hasCharMindProfile(activeChar) ? ' is-ready' : '') + '" id="ac-mind-profile-btn" data-name="' + escapeAttr(activeChar) + '">🪞 心路</button>';
   html += '</div></div>';
   if (charInnerThought) {
     html += '<div class="char-inner-thought"><span class="inner-thought-text">' + escapeHtml(charInnerThought) + '</span></div>';

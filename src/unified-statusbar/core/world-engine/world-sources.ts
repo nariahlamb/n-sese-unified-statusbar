@@ -25,6 +25,8 @@ import { isRefillMode } from '../refill-mode';
 import { resolveWorldEvolveStyleForCurrentCard } from './world-style-library';
 import { selectedMessageAnchor } from '../external-story-store';
 import { getCurrentStoryChatKey, isStoryStorageReady } from '../story-floor-store';
+import { diaryPlainText } from '../diary-sanitizer';
+import { MIND_PROFILE_DIMENSIONS, readCharMindProfile } from '../mind-profile-view';
 
 function readRosterCandidates(): RosterCandidate[] {
   const seen = new Set<string>();
@@ -170,6 +172,73 @@ function describeTimeGap(a: string, b: string): string {
   return `${Math.round(days / 30)} 月`;
 }
 
+const MIND_PROFILE_MAX_CHARS = 450;
+const DIARY_SNIPPET_MAX_CHARS = 120;
+
+function truncateInlineText(text: string, maxChars: number): string {
+  const clean = String(text || '').trim();
+  if (!clean) return '';
+  if (clean.length <= maxChars) return clean;
+  return clean.slice(0, Math.max(0, maxChars - 1)) + '…';
+}
+
+/** 读取焦点角色在「角色心路档案表」的非空心路维度（单人总长 ≤450 字）+「恋爱日记表」最近 1 篇日记（去 <span> 纯文本 ≤120 字）。 */
+export function readMindProfilesForFocus(names: string[]): string {
+  const uniqueNames: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of names) {
+    const name = String(raw || '').trim();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    uniqueNames.push(name);
+  }
+  if (!uniqueNames.length) return '';
+
+  const diarySheet = getSheetByName('恋爱日记表');
+  const latestDiaryByName = new Map<string, { time: string; text: string }>();
+  if (diarySheet && Array.isArray(diarySheet.content) && diarySheet.content.length > 1) {
+    const targetSet = new Set(uniqueNames);
+    for (let i = 1; i < diarySheet.content.length; i++) {
+      const writer = String(getCellByHeader('恋爱日记表', i, '写作角色') || '').trim();
+      if (!writer || !targetSet.has(writer)) continue;
+      const rawContent = String(getCellByHeader('恋爱日记表', i, '日记内容') || '');
+      const plain = diaryPlainText(rawContent).replace(/\s+/g, ' ').trim();
+      if (!plain) continue;
+      const time = String(getCellByHeader('恋爱日记表', i, '发生时间') || '').trim();
+      latestDiaryByName.set(writer, {
+        time,
+        text: truncateInlineText(plain, DIARY_SNIPPET_MAX_CHARS),
+      });
+    }
+  }
+
+  const blocks: string[] = [];
+  for (const name of uniqueNames) {
+    const parts: string[] = [];
+    const profile = readCharMindProfile(name);
+    if (profile) {
+      const dimSegments: string[] = [];
+      for (const dim of MIND_PROFILE_DIMENSIONS) {
+        const val = String(profile.fields[dim.key] || '').replace(/\s+/g, ' ').trim();
+        if (!val || val === '无') continue;
+        dimSegments.push(`${dim.label}：${val}`);
+      }
+      if (dimSegments.length) {
+        parts.push(`  心路档案：${truncateInlineText(dimSegments.join('；'), MIND_PROFILE_MAX_CHARS)}`);
+      }
+    }
+    const diary = latestDiaryByName.get(name);
+    if (diary) {
+      const timeTag = diary.time ? `（${diary.time}）` : '';
+      parts.push(`  近期独白日记${timeTag}：${diary.text}`);
+    }
+    if (parts.length) {
+      blocks.push(`- ${name}\n${parts.join('\n')}`);
+    }
+  }
+  return blocks.join('\n');
+}
+
 export async function readEvolutionSources(focus: CharProfile[], _state: WorldState): Promise<EvolutionSources> {
   const cfg = getConfig();
   const chronicleTotal = cfg.worldChronicleTotal ?? DEFAULT_CHRONICLE_TOTAL;
@@ -183,7 +252,13 @@ export async function readEvolutionSources(focus: CharProfile[], _state: WorldSt
     parseCharacterRelationRows(getSheetByName('人物关系表')),
     { involve: focus.map(p => p.name), limit: 20 },
   );
-  return { chronicleBlocks, recentChat, relations: relationLines };
+  const mindProfiles = readMindProfilesForFocus(focus.map(p => p.name));
+  return {
+    chronicleBlocks,
+    recentChat,
+    relations: relationLines,
+    ...(mindProfiles ? { mindProfiles } : {}),
+  };
 }
 
 /** 读取推进驱动写在用户楼上的确定性回执（sl_world_ack）；形状非法/版本不符一律返回 null。

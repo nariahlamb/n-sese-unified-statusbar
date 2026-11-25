@@ -832,5 +832,47 @@
     "column": "年龄",
     "feature": "旧模板兼容读取",
     "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "姓名",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "人格底色与筹码",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "已知事实与盲点",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "四向关系认知",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "个人进度与打算",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "核心纠结与情绪惯性",
+    "feature": "角色心路档案",
+    "required": false
+  },
+  {
+    "table": "角色心路档案表",
+    "column": "蝴蝶效应留痕",
+    "feature": "角色心路档案",
+    "required": false
   }
 ]

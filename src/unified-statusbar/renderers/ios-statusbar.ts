@@ -11,6 +11,7 @@ import { getCellByHeader, getSheetByName, findRowByColumn, isNsfwPlayActive } fr
 import { aiActivityBarHtml } from './ai-activity-bar';
 import { getConfig, type StatusBarConfig } from '../core/config-store';
 import { ubIcon } from '../core/icons';
+import { hasCharMindProfile } from '../core/mind-profile-view';
 import { currencyDataSnapshot, currencyIconSvg, fmtQtyShort } from '../core/currency';
 // eslint-disable-next-line import-x/no-cycle -- cycle-debt: 08 待修：同上（主题状态栏 ←→ html-builder 共享零件/装配分派）
 import {
@@ -194,6 +195,7 @@ function buildIOSProfile(config: StatusBarConfig, activeCharacter: string): stri
   }
   html += buildPastExpButton(activeCharacter, '过往记录');
   html += '<button class="ios-act-btn" id="ac-diary-btn" type="button">私人日记</button>';
+  html += '<button class="ios-act-btn mind-profile-btn' + (hasCharMindProfile(activeCharacter) ? ' is-ready' : '') + '" id="ac-mind-profile-btn" data-name="' + escapeHtml(activeCharacter) + '" type="button">心路档案</button>';
   html += '</div>';
 
   html += '<div class="ios-group-title">角色动态</div>';

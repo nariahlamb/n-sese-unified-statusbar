@@ -17,6 +17,7 @@ import {
 } from './html-builder';
 import { PROTAGONIST_CYCLE_SECTION, cycleMoodVariantClass, cyclePhaseBar } from './cycle-ui';
 import { escapeAttr, escapeHtml } from '../core/html-escape';
+import { hasCharMindProfile } from '../core/mind-profile-view';
 import { currencyDataSnapshot, currencyIconSvg, fmtQtyShort } from '../core/currency';
 import { buildBeyondTabButton, beyondViewActive, beyondAvailable } from './beyond-lens';
 
@@ -292,6 +293,7 @@ export function buildLiteraryProfile(theme: LiteraryTheme, profile: CharProfile,
     html += pastBtn.replace('class="investigate-btn"', 'class="ub-ctx-btn investigate-btn"').replace('style="margin-left:4px;"', '');
   }
   html += `<button class="ub-ctx-btn" id="ac-diary-btn" aria-label="${ctx.diary}">${literaryIcon('diary', ctx.diary)}${ctx.diary}</button>`;
+  html += `<button class="ub-ctx-btn mind-profile-btn${hasCharMindProfile(profile.charName) ? ' is-ready' : ''}" id="ac-mind-profile-btn" data-name="${escapeAttr(profile.charName)}" aria-label="心路档案">${theme === 'xianxia' ? '◇ 心路' : '心路'}</button>`;
   html += '</div>';
   html += '</div>';
   if (emotion) {

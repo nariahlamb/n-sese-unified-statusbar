@@ -330,6 +330,10 @@ export function buildFrontDigest(
   for (const s of publicSeeds) {
     under.push(`- ${s.title}（${SEED_STATUS_LABEL[s.status]}）`);
   }
+  for (const ms of collectRecentMissedSeeds(state, dateKey, 1)) {
+    if (ms.visibility !== 'public') continue;
+    under.push(`- ${ms.title}（已错过时限：${ms.missedOutcome || '已成定局'}）`);
+  }
 
   const lines: string[] = [];
   if (here.length) lines.push(DIGEST_SECTION_HERE, ...here);
@@ -624,9 +628,37 @@ export function sweepExpiredSeeds(state: WorldState, today: string): { state: Wo
     if (isSeedTerminal(seed.status) || !isSeedExpired(seed, today)) return seed;
     const outcome = String(seed.missedOutcome || '').trim() || `${seed.title}不了了之`;
     missed.push({ seedId: seed.id, title: seed.title, summary: `[错过] ${outcome}` });
-    return { ...seed, status: 'retired' as const, retiredReason: 'missed', revision: (Number(seed.revision) || 0) + 1 };
+    return { ...seed, status: 'retired' as const, retiredReason: 'missed', settledAtDay: today, revision: (Number(seed.revision) || 0) + 1 };
   });
   return { state: next, missed };
+}
+
+/** 收集最近已因过期错过而结算的既成事实（供下一轮演化 dossier 回流衍生蝴蝶效应余波，避免静默蒸发）。 */
+export function collectRecentMissedSeeds(state: WorldState, today: string, maxDays = 2): WorldSeed[] {
+  const seeds = state.seeds || [];
+  if (!seeds.length) return [];
+  const windowDays = Math.max(0, Math.floor(maxDays));
+  const matched: WorldSeed[] = [];
+  for (const s of seeds) {
+    if (s.status !== 'retired' || s.retiredReason !== 'missed') continue;
+    if (!String(s.missedOutcome || s.title || '').trim()) continue;
+    if (!today) {
+      matched.push(s);
+      continue;
+    }
+    const anchorDay = String(s.settledAtDay || '').trim();
+    if (anchorDay) {
+      if (compareDateKey(today, anchorDay) >= 0 && gapDaysBetween(anchorDay, today) <= windowDays) {
+        matched.push(s);
+      }
+      continue;
+    }
+    // 兼容无 settledAtDay 的历史数据：回退按 expiresAtDay + 1 天窗口判定
+    if (s.expiresAtDay && isSeedExpired(s, today) && gapDaysBetween(s.expiresAtDay, today) <= windowDays + 1) {
+      matched.push(s);
+    }
+  }
+  return matched.slice(-6);
 }
 
 /** 刻度单轮变化量：压力型不限；积累型涨幅 ≤ DIM_GROWTH_DELTA_MAX（跌幅不限）。非数字按 0。 */

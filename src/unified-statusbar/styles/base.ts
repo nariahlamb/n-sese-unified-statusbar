@@ -1584,4 +1584,137 @@ background:var(--card,var(--sweet-card,var(--jade-surface-1,#222)));color:var(--
 
 /* 帮助提示气泡置顶（必须高于一切弹窗与悬浮件） */
 .help-tooltip-global{z-index:999999!important;}
+
+/* ===== 心路日记弹窗双 Tab 与心路档案只读视图（全风格 + 深浅主题 + 字号缩放兼容） ===== */
+.diary-preview-title{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mind-profile-entry-btn{
+  border:1px solid var(--border-color,rgba(128,128,128,.28));
+  background:var(--bg-color,rgba(255,255,255,.7));
+  color:var(--secondary-text,var(--text-muted,#666));
+  border-radius:999px;padding:1px 8px;cursor:pointer;
+  font-size:var(--ub-ui-font-10,10px);line-height:1.5;font-family:inherit;
+  transition:border-color .18s,color .18s,background-color .18s;
+}
+.mind-profile-entry-btn:hover{
+  border-color:var(--accent,var(--lust,var(--sweet-pink-deep,var(--mn-matcha,#7b4b58))));
+  color:var(--accent,var(--lust,var(--sweet-pink-deep,var(--mn-matcha-ink,#7b4b58))));
+}
+.mind-profile-btn.is-ready,.mind-profile-entry-btn.is-ready{font-weight:600}
+.mind-profile-btn.is-ready::after,.mind-profile-entry-btn.is-ready::after{
+  content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
+  margin-left:4px;vertical-align:middle;
+  background:var(--accent,var(--lust,var(--sweet-pink-deep,var(--mn-matcha,#7b4b58))));
+}
+
+.diary-popup-tabs{
+  display:flex;align-items:center;gap:6px;
+  padding:0 0 10px;margin:0 0 10px;
+  border-bottom:1px solid var(--divider,var(--border-color,rgba(128,128,128,.22)));
+}
+.diary-popup-tab{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border-color,rgba(128,128,128,.26));
+  background:transparent;
+  color:var(--text-muted,var(--secondary-text,#777));
+  font-size:var(--ub-ui-font-12,12px);font-weight:500;font-family:inherit;
+  transition:background-color .16s,border-color .16s,color .16s;
+}
+.diary-popup-tab:hover{color:var(--text-color,var(--text,#222))}
+.diary-popup-tab.is-active{
+  background:var(--accent,var(--lust,var(--sweet-pink-deep,var(--jade-primary,var(--ios-accent,#7b4b58)))));
+  border-color:transparent;color:#fff;font-weight:600;
+}
+.diary-tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:16px;height:16px;padding:0 5px;border-radius:999px;
+  font-size:var(--ub-ui-font-10,10px);line-height:1;
+  background:rgba(128,128,128,.16);color:inherit;
+}
+.diary-popup-tab.is-active .diary-tab-count{background:rgba(255,255,255,.24);color:#fff}
+.diary-tab-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent,var(--lust,var(--sweet-pink-deep,#7b4b58)));
+}
+.diary-popup-tab.is-active .diary-tab-dot{background:#fff}
+
+.diary-tab-panel[hidden]{display:none!important}
+
+.mind-profile-card{display:flex;flex-direction:column;gap:10px}
+.mind-profile-header{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding-bottom:6px;
+  border-bottom:1px dashed var(--divider,var(--border-color,rgba(128,128,128,.25)));
+}
+.mind-profile-name{
+  font-size:var(--ub-ui-font-14,14px);font-weight:700;
+  color:var(--text-color,var(--text,var(--ios-label,inherit)));
+}
+.mind-profile-badge{
+  font-size:var(--ub-ui-font-10,10px);padding:2px 8px;border-radius:999px;
+  border:1px solid var(--border-color,rgba(128,128,128,.25));
+  color:var(--text-muted,var(--secondary-text,#777));
+}
+.mind-profile-grid{display:flex;flex-direction:column;gap:8px}
+.mind-profile-dim{
+  padding:9px 11px;border-radius:8px;
+  border:1px solid var(--border-color,rgba(128,128,128,.22));
+  border-left:3px solid var(--accent,var(--lust,var(--sweet-pink-deep,var(--jade-primary,var(--ios-accent,#7b4b58)))));
+  background:var(--card,var(--mn-card,var(--bg-card,rgba(128,128,128,.06))));
+}
+.mind-profile-dim.is-empty{opacity:.72;border-left-color:var(--border-color,rgba(128,128,128,.3))}
+.mind-profile-dim-head{
+  display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  margin-bottom:4px;
+}
+.mind-profile-dim-label{
+  font-size:var(--ub-ui-font-12,12px);font-weight:700;
+  color:var(--accent,var(--lust,var(--sweet-pink-deep,var(--jade-primary,var(--ios-accent,#7b4b58)))));
+}
+.mind-profile-dim-hint{
+  font-size:var(--ub-ui-font-10,10px);
+  color:var(--text-muted,var(--secondary-text,#888));
+}
+.mind-profile-dim-body{
+  font-size:var(--ub-ui-font-12,12px);line-height:1.6;
+  color:var(--text-color,var(--text,var(--ios-label,inherit)));
+  white-space:pre-wrap;word-break:break-word;
+}
+.mind-profile-dim-none{font-style:italic;color:var(--text-muted,var(--secondary-text,#888))}
+
+.mind-profile-empty{
+  padding:20px 14px;text-align:center;border-radius:8px;
+  border:1px dashed var(--border-color,rgba(128,128,128,.3));
+  background:var(--card,var(--mn-card,rgba(128,128,128,.04)));
+}
+.mind-profile-empty-title{
+  font-size:var(--ub-ui-font-13,13px);font-weight:600;margin-bottom:6px;
+  color:var(--text-color,var(--text,var(--ios-label,inherit)));
+}
+.mind-profile-empty-desc{
+  font-size:var(--ub-ui-font-11-5,11.5px);line-height:1.6;
+  color:var(--text-muted,var(--secondary-text,#777));
+}
+
+/* bridge 风格适配：方正线框档案语言 + 信号色 */
+.bridge-window .diary-popup-tabs{border-bottom:2px solid var(--bridge-line-strong,#3a3f4b)}
+.bridge-window .diary-popup-tab{border-radius:0;border-color:var(--bridge-line,#3a3f4b);color:var(--bridge-muted,#999)}
+.bridge-window .diary-popup-tab.is-active{
+  background:var(--bridge-signal,#d4af37);color:var(--bridge-ink,#111);border-color:var(--bridge-signal,#d4af37);
+}
+.bridge-window .mind-profile-dim{
+  border-radius:0;background:var(--bridge-panel-alt,rgba(255,255,255,.04));
+  border-color:var(--bridge-line,#3a3f4b);border-left:4px solid var(--bridge-signal,#d4af37);
+}
+.bridge-window .mind-profile-dim-label{color:var(--bridge-signal,#d4af37)}
+.bridge-window .mind-profile-empty{border-radius:0;border-color:var(--bridge-line-strong,#3a3f4b)}
+
+/* 深色模式兜底提升对比度 */
+.dark .mind-profile-dim,.dark-mode .mind-profile-dim{
+  background:var(--card,rgba(255,255,255,.05));border-color:var(--border-color,rgba(255,255,255,.14));
+}
+.dark .mind-profile-dim-body,.dark-mode .mind-profile-dim-body{color:var(--text,var(--text-color,#e6e2da))}
+.dark .mind-profile-empty,.dark-mode .mind-profile-empty{
+  background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.16);
+}
 `;

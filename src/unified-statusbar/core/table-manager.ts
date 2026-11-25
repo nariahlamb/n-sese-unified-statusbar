@@ -31,6 +31,7 @@ const INITIAL_GROUP_ID: Record<string, number> = {
   '在场角色表': 2,
   '即时生理反应表': 2,
   '恋爱日记表': 2,
+  '角色心路档案表': 2,
   '全局数据表': 1,
   '备忘录': 1,
   '物品表': 1,
@@ -69,12 +70,23 @@ function resolveOpenGroupId(name: string): number {
   return getConfig().tableGroupMode === 'flat' ? 1 : getInitialGroupId(name);
 }
 
+/** 默认绝对不注入正文世界书的表清单（与模板 exportConfig.injectIntoWorldbook=false 同级兜底，防标准模板尚未收录或脏数据导致全知泄漏）。 */
+export const DEFAULT_NON_INJECTED_TABLES = new Set<string>([
+  '即时生理反应表',
+  '恋爱日记表',
+  '角色心路档案表',
+  '检定建议表',
+  '瑟瑟任务表',
+  '主角技能表',
+]);
+
 /** 该表在标准模板里的默认「注入到世界书条目」状态。
- *  exportConfig.injectIntoWorldbook 缺省（undefined）或 true 视为默认注入；显式 false 才算默认不注入。
- *  供 setTableClosed 判定开关时是否同步切换注入（默认不注入的表保持原仅改 updateConfig 的逻辑）。
- *  ⚠ 依赖标准模板已装载（惰性装载 O39）：未就绪时按表名查不到 sheet，会把「默认不注入」误判为默认注入。
+ *  exportConfig.injectIntoWorldbook 缺省（undefined）或 true 视为默认注入；显式 false 或命中默认禁注名单才算默认不注入。
+ *  供 setTableClosed 判定开关时是否同步切换注入（默认不注入的表保持仅改 updateConfig，绝不擅自打开世界书注入）。
+ *  ⚠ 依赖标准模板已装载（惰性装载 O39）：未就绪时按表名查不到 sheet，会把非名单内的「默认不注入」误判为默认注入。
  *  同步函数无法等待装载，故调用方（setTableClosed）必须先 `await ensureStandardTemplate()`。 */
-function isDefaultInjected(name: string): boolean {
+export function isDefaultInjected(name: string): boolean {
+  if (DEFAULT_NON_INJECTED_TABLES.has(name)) return false;
   const std = getStandardSheetByName(name);
   return std?.exportConfig?.injectIntoWorldbook !== false;
 }
@@ -130,6 +142,11 @@ const CLOSE_IMPACT: Record<string, string[]> = {
     '恋爱日记弹窗空白',
     '状态栏日记列表不显示',
     '相关成就（日记篇数统计）无法计算',
+  ],
+  '角色心路档案表': [
+    '心路档案只读视图无法展示角色 7 维心路快照',
+    '世界演化将失去焦点角色的筹码、盲点与蝴蝶效应留痕参考',
+    '该表默认不注入正文世界书，关闭不影响正文的防全知隔离',
   ],
   '全局数据表': [
     '状态栏时间/当前位置/当前详细地点/NSFW场景 全部空白',
@@ -338,12 +355,14 @@ export async function setTableClosed(sheetKey: string, closed: boolean): Promise
   data[sheetKey].updateConfig.updateFrequency = newFreq;
 
   // 默认注入的表：开关时同步切换「注入到世界书条目」（关闭→不注入，开启→注入）。
-  // 默认不注入的表（即时生理反应表/恋爱日记表/检定建议表/瑟瑟任务表/主角技能表）
-  // 不动 exportConfig，保持原仅改 updateConfig 的逻辑。
+  // 默认不注入的表（即时生理反应表/恋爱日记表/角色心路档案表/检定建议表/瑟瑟任务表/主角技能表）
+  // 保持不注入世界书，且对强隔离名单强行纠偏为 false，防止脏数据打开全员心路注入破坏防全知。
   const toggledInject = isDefaultInjected(name);
   if (toggledInject) {
     if (!data[sheetKey].exportConfig) data[sheetKey].exportConfig = {};
     data[sheetKey].exportConfig.injectIntoWorldbook = !closed;
+  } else if (DEFAULT_NON_INJECTED_TABLES.has(name) && data[sheetKey].exportConfig?.injectIntoWorldbook === true) {
+    data[sheetKey].exportConfig.injectIntoWorldbook = false;
   }
 
   // 持久化到 V2 checkpoint

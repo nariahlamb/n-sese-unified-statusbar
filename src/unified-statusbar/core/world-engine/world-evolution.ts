@@ -17,7 +17,7 @@ import {
 } from './world-types';
 import { loadWorldState, saveWorldState } from './world-store';
 import {
-  advanceCharThread, advanceSeed, buildFrontDigest, buildKnownSet, charThreadStage, clampDimensionDelta, decideEvolve, findSameSourceRumor, gapDaysBetween, isRumorRestatingKnown, isRumorVisibleInFront, isSeedCollided, isSeedTerminal, normalizeRegion, repairCollisionSignals, rollTwistTag, selectFocusSubset, sweepExpiredSeeds, syncWorldRoster, tickRumor,
+  advanceCharThread, advanceSeed, buildFrontDigest, buildKnownSet, charThreadStage, clampDimensionDelta, collectRecentMissedSeeds, decideEvolve, findSameSourceRumor, gapDaysBetween, isRumorRestatingKnown, isRumorVisibleInFront, isSeedCollided, isSeedTerminal, normalizeRegion, repairCollisionSignals, rollTwistTag, selectFocusSubset, sweepExpiredSeeds, syncWorldRoster, tickRumor,
   RUMOR_LEVEL_LABEL,
   type FocusContext, type KnownSet, type RosterCandidate, type TwistTag,
 } from './world-state';
@@ -69,6 +69,8 @@ export interface EvolutionSources {
   recentChat: string;
   /** 焦点人物之间的成对关系行（人物关系表紧凑行，world-sources 组装）；缺省/空不注入。 */
   relations?: string[];
+  /** 焦点人物在「角色心路档案表」的 7 维快照 + 最近 1 篇独白日记（仅幕后演化使用，严禁泄漏进正文世界书）。 */
+  mindProfiles?: string;
 }
 
 export interface ParsedWorldDelta {
@@ -280,6 +282,8 @@ export function buildEvolutionInstructionParts(
       }
     }
   }
+  // 3.6.2 场外抢跑与既成事实蝴蝶效应
+  rulesParts.push('场外独立推进与蝴蝶效应：参照焦点角色的「个人进度与打算」与「核心纠结与情绪惯性」自主推进其幕后行动，禁止让未在场角色围绕主角停滞挂机；对有时限的筹码或关键机会积极设置 <seeds> 的期限（expiresAtDay）与错过后果（missedOutcome）。若【近期已成既成事实】列出了刚到期错过的事件，务必承认它已经发生并转化为 <dimensions> 局势刻度变化、<signals> 台前余波、<rumors> 风声或 <phone> 小手机反应——不得装作未发生，也不得向不知情角色剧透幕后全貌。');
   // WS8 11.2：文案质量引导段（Stitches 提炼）
   rulesParts.push('文案质量（角色动向/打算/暗中打算/传闻均适用）：\n'
     + '- 反标签与流水账：从角色的生活细节出发，具体到「因为什么、在哪儿、正在做什么」；空洞套话（"处理事务/一切如常/有条不紊"）不算内容，宁缺毋滥。\n'
@@ -295,6 +299,14 @@ export function buildEvolutionInstructionParts(
   // 焦点人物之间的既有关系（人物关系表）：动向/打算/暗中打算须与关系现状自洽
   const relationBlock = src.relations?.length
     ? `【人物关系】（焦点人物之间的既有关系，演化须与之自洽）\n${src.relations.join('\n')}`
+    : '';
+  const mindProfilesBlock = src.mindProfiles?.trim()
+    ? `【焦点角色心路档案与近期独白】（仅作幕后推演依据，严禁直接剧透给无关角色或主角）\n${src.mindProfiles.trim()}`
+    : '';
+  const recentMissedSeeds = collectRecentMissedSeeds(state, dateKey);
+  const missedFactsBlock = recentMissedSeeds.length
+    ? `【近期已成既成事实（可衍生蝴蝶效应余波）】\n`
+      + recentMissedSeeds.map(s => `- ${s.id}「${s.title}」（${s.region ? `地区：${s.region}；` : ''}期限已过）：${s.missedOutcome || `${s.title}不了了之`}`).join('\n')
     : '';
 
   const task = '## 角色与任务\n你是世界演化引擎。以下世界书条目是世界观设定，当前世界状态与最近剧情是演化素材：请据此推进幕后世界。只输出结构化内容，不写闲话。';
@@ -319,9 +331,11 @@ export function buildEvolutionInstructionParts(
     '## 当前世界状态\n'
       + `【时空】${clockLine}`
       + `\n\n【焦点角色】\n${focusBlock}`
+      + (mindProfilesBlock ? `\n\n${mindProfilesBlock}` : '')
       + (relationBlock ? `\n\n${relationBlock}` : '')
       + `\n\n【传闻】\n${rumorsBlock}`
       + `\n\n【伏线】（世界某处正在发生、还没收场的事）\n${seedsBlock}`
+      + (missedFactsBlock ? `\n\n${missedFactsBlock}` : '')
       + `\n\n【局势刻度】\n${dimsBlock}`
       + pendingBlock
       + `\n\n【台前摘要（主角已知）】\n${state.frontDigest || '（暂无）'}`

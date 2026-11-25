@@ -71,6 +71,8 @@ export interface WorldSeed {
   retiredReason?: string;
   /** 上次推进状态的日期键（冷却用）。 */
   lastAdvanceDay?: string;
+  /** 到期错过的结算日期键（用于下一轮演化回流既成事实与蝴蝶效应余波）。 */
+  settledAtDay?: string;
   revision: number;
 }
 

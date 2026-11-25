@@ -77,7 +77,13 @@ import { bindBatchSelect } from './batch-select-ui';
 import { showMemoGoalsDialog } from './memo-goals-popup';
 import { isPopupOpen, replacePopupBody, rememberPopupScroll, recallPopupScroll, captureScroll } from './dom-update';
 import { escapeHtml, escapeHtmlAttr } from '../core/html-escape';
-import { diaryPlainText, sanitizeDiaryHtml } from '../core/diary-sanitizer';
+import { sanitizeDiaryHtml } from '../core/diary-sanitizer';
+import {
+  getDiaryPopupLabels,
+  readCharMindProfile,
+  renderDiaryPopupBodyHtml,
+  type DiaryPopupTab,
+} from '../core/mind-profile-view';
 import { readExtraPromptCache, writeExtraPromptCache, EXTRA_PROMPT_CACHE_KEYS } from '../core/extra-prompt-cache';
 import { NSFW_GUIDANCE_PRESETS } from '../core/nsfw-guidance-prompts';
 import { showCharacterHubPopup } from './character-hub-popup';
@@ -1199,7 +1205,7 @@ export function showWarehouseDetail(uid: number, style: StyleType, groupId?: num
 // ===== 日记弹窗 =====
 
 
-export function showDiaryPopup(charName: string, style: StyleType): void {
+export function showDiaryPopup(charName: string, style: StyleType, defaultTab: DiaryPopupTab = 'diary'): void {
   const overlay = document.getElementById('panelOverlay')!;
   const sheet = getSheetByName('恋爱日记表');
   const count = sheet ? (sheet.content.length - 1) : 0;
@@ -1218,22 +1224,13 @@ export function showDiaryPopup(charName: string, style: StyleType): void {
     }
   }
 
+  const mindProfile = readCharMindProfile(charName);
+  const labels = getDiaryPopupLabels(style);
   const isMinimal = style === 'minimal';
-  let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('diary','m') : 'panel-popup ub-popup--m') + '">';
-  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + escapeHtml(charName) + (style === 'ancient' ? ' 的情笺' : style === 'bridge' ? ' 的日记' : ' 的恋爱日记') + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
+  let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('diary', 'm') : 'panel-popup ub-popup--m') + ' diary-mind-popup">';
+  html += '<div class="panel-popup-head"><div class="panel-popup-title">' + escapeHtml(charName) + ' ' + labels.titleSuffix + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="panel-popup-body">';
-  if (diaries.length === 0) {
-    html += '<div class="panel-empty">' + (style === 'ancient' ? '暂无情笺' : '暂无恋爱日记') + '</div>';
-  } else {
-    for (let j = diaries.length - 1; j >= 0; j--) {
-      const d = diaries[j];
-      html += '<div class="diary-list-item" data-row="' + d.row + '">';
-      html += '<div class="diary-item-top"><span class="diary-time">' + escapeHtml(d.time) + '</span></div>';
-      const plainText = diaryPlainText(d.content);
-      html += '<div class="diary-item-content">' + escapeHtml(plainText.length > 60 ? plainText.substring(0, 60) + '...' : plainText) + '</div>';
-      html += '</div>';
-    }
-  }
+  html += renderDiaryPopupBodyHtml(charName, diaries, mindProfile, style, defaultTab);
   html += '</div></div>';
 
   if (isMinimal) syncDarkClassMinimal(overlay);
@@ -1245,6 +1242,23 @@ export function showDiaryPopup(charName: string, style: StyleType): void {
   recallPopupScroll(overlay, 'diary');
   overlay.onclick = function (e) {
     if (popupDismissHit(e)) { dismissPopupShell(overlay); return; }
+    const tabBtn = (e.target as HTMLElement).closest('.diary-popup-tab') as HTMLElement | null;
+    if (tabBtn) {
+      const nextTab = tabBtn.dataset.diaryTab === 'mind' ? 'mind' : 'diary';
+      overlay.querySelectorAll('.diary-popup-tab').forEach(btn => {
+        const el = btn as HTMLElement;
+        const active = el.dataset.diaryTab === nextTab;
+        el.classList.toggle('is-active', active);
+        el.setAttribute('aria-selected', String(active));
+      });
+      overlay.querySelectorAll('.diary-tab-panel').forEach(panel => {
+        const el = panel as HTMLElement;
+        const active = el.dataset.tabPanel === nextTab;
+        el.classList.toggle('is-active', active);
+        el.hidden = !active;
+      });
+      return;
+    }
     const item = (e.target as HTMLElement).closest('.diary-list-item');
     if (item) {
       const row = parseInt((item as HTMLElement).dataset.row!);
@@ -1275,14 +1289,16 @@ export function showDiaryDetail(row: number, style: StyleType, animate = false):
   const content = getCellByHeader('恋爱日记表', curRow, '日记内容') || '';
   const time = getCellByHeader('恋爱日记表', curRow, '发生时间') || '';
   const isMinimal = style === 'minimal';
+  const labels = getDiaryPopupLabels(style);
   const hasNav = rows.length > 1;
+  const detailHeadTitle = style === 'ancient' ? '情笺' : style === 'bridge' ? '日记' : '心路日记';
 
   let html = '<div class="' + (style === 'bridge' ? bridgeWindowClass('diary','l') + ' diary-detail-popup' : 'panel-popup diary-detail-popup ub-popup--l') + '">';
-  html += '<div class="panel-popup-head"><button class="panel-popup-back" id="panelBack">← 返回</button><div class="panel-popup-title">恋爱日记</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
+  html += '<div class="panel-popup-head"><button class="panel-popup-back" id="panelBack">← 返回</button><div class="panel-popup-title">' + detailHeadTitle + '</div><button class="panel-popup-close" id="panelClose">&times;</button></div>';
   html += '<div class="panel-popup-body' + (animate ? ' diary-detail-fade' : '') + '">';
   html += '<div class="diary-detail-writer">';
   if (hasNav) html += '<button class="diary-nav-btn diary-nav-prev" data-dir="-1"' + (cur === 0 ? ' disabled' : '') + '>◀</button>';
-  html += '<span>' + escapeHtml(writer) + (style === 'ancient' ? ' 的手记' : ' 的日记') + '</span>';
+  html += '<span>' + escapeHtml(writer) + labels.detailSuffix + '</span>';
   if (hasNav) html += '<button class="diary-nav-btn diary-nav-next" data-dir="1"' + (cur === rows.length - 1 ? ' disabled' : '') + '>▶</button>';
   html += '</div>';
   html += detailRow('时间', time, isMinimal);

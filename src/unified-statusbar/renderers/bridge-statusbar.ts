@@ -20,6 +20,7 @@ import {
 } from './html-builder';
 import { PROTAGONIST_CYCLE_SECTION, cycleMoodVariantClass, cyclePhaseBar } from './cycle-ui';
 import { escapeHtml } from '../core/html-escape';
+import { hasCharMindProfile } from '../core/mind-profile-view';
 import { buildBeyondTabButton, buildBeyondLensHtml, beyondViewActive, beyondBatchNames, beyondAvailable } from './beyond-lens';
 import { loadWorldState } from '../core/world-engine/world-store';
 import { getTodayDateKey } from '../core/calendar-core';
@@ -215,6 +216,7 @@ function buildBridgePersonnelGrid(config: StatusBarConfig, activeCharacter: stri
   }
   html += buildPastExpButton(activeCharacter, '过往');
   html += '<button class="bridge-btn" id="ac-diary-btn" type="button">日记</button>';
+  html += '<button class="bridge-btn mind-profile-btn' + (hasCharMindProfile(activeCharacter) ? ' is-ready' : '') + '" id="ac-mind-profile-btn" data-name="' + escapeHtml(activeCharacter) + '" type="button">心路档案</button>';
   html += '</div>';
   html += '</div>';
   html += '</div>';
