@@ -1,8 +1,8 @@
 {
   "sourceSnapshot": "2026-10-25",
   "files": {
-    "src/README.md": "101dd448c5b46185b0f68a924edce0293b78f49429bacb99a0b51401f0edfd92",
-    "src/unified-statusbar/README.md": "f3e282ae1797889dacdb6bac17da9aba155065c3e956fc25dc321fedfd218466",
+    "src/README.md": "4528826a9d7c9a0e0251233419d6354189e4caebe3ca1115b9d9f4869f3c5a31",
+    "src/unified-statusbar/README.md": "98fe0ff46b616b53c778305395cc56d00c0a7e1fa01054e22649a6d838215718",
     "src/unified-statusbar/achievements/achievements.json": "881b1bfe80522c56744a206608f1e2fa5700fb6a6036d5decac6c3a43afcfe79",
     "src/unified-statusbar/chrome/floating-chrome.ts": "4247481aaef69ff5efb7d0d32904b19b08cf47822269c6c1be76c8d3199f0737",
     "src/unified-statusbar/chrome/floating-drag.ts": "c0c1aa7cc27bfac88c25bda2dec08c0b883fdba176c2bfa93fa88ebdc905f969",
