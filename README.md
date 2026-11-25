@@ -10,7 +10,7 @@
 ## 1. 定位与运行依赖
 
 - **扩展名称**：`瑟瑟灵感状态栏`（`manifest.json` `loading_order: 200`，早于 `n-sese-ledger` `210` 与 `n-sese-phone` `220`）
-- **当前版本**：`0.1.0-alpha.15`（基于 `5c229b4` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
+- **当前版本**：`0.1.0-alpha.16`（基于 `ee52015` 推进，功能性改动均递增版本并推仓供 TT 拉取测）
 - **设置持久化（当前真实方案，详见 [core/config-store.ts](src/unified-statusbar/core/config-store.ts)）**：
   - **偏好本体**：写入酒馆 `/api/files` 的 `usb_g_preferences_*`（snapshot + segment 协议），跨浏览器/设备同步，清缓存不丢；
   - **宿主命名空间**：`extensionSettings.__userscripts.unified_statusbar__settings_v1`，只存 secrets 影子（API 密钥等）与元数据，不存偏好本体；
@@ -28,7 +28,7 @@
 
 ---
 
-## 2. 当前改造状态与未完成项（截至 2026-11-26，当前 `0.1.0-alpha.15`）
+## 2. 当前改造状态与未完成项（截至 2026-11-26，当前 `0.1.0-alpha.16`）
 
 | 模块 / 阶段 | 当前状态 | 关键证据与说明 |
 |---|---|---|
@@ -46,7 +46,8 @@
 | **资料块内联直传（修复无 `chat_history` 后 `after_system` 资料块丢失）** | ✅ 代码+单测完成 | [ai-request-pipeline.ts](src/unified-statusbar/core/ai-request-pipeline.ts) 新增 `buildStandardPromptMiddle` 并将 `injectTriggerAndContext` 收敛为仅注入 `position:'none'` 绿灯触发，全线迁移 `world-evolution` / `calendar-ai` / `shop-story-ai` / `currency-ai` / `interview` / `investigation` / `memo-goals` / `skill-tree-engine` / `wardrobe-runtime` 9 处站点改为直接将资料块内联进 `ordered_prompts`（`dialogue_examples` 与 `user_input` 之间）；扩展 `tests/bg-isolation.test.mjs`（`v0.1.0-alpha.13`） |
 | **注释与内联口径清理（alpha.14）** | ✅ 代码+单测完成 | 清理 `currency-ai.ts` / `investigation.ts` / `memo-goals.ts` / `skill-prompts.ts` / `skill-tree-engine.ts` / `wardrobe-prompts.ts` / `wardrobe-runtime.ts` 中 `after_system` 遗留注释与文案，统一为「资料块内联进 `ordered_prompts`」口径（`v0.1.0-alpha.14`） | `build` / `test` 115/115 / `check` 全绿；真机未验 |
 | **角色心路档案适配、既成事实回流与多皮肤入口（alpha.15）** | ✅ 代码+单测完成 | [table-manager.ts](src/unified-statusbar/core/table-manager.ts) 将 `角色心路档案表` 纳入 `DEFAULT_NON_INJECTED_TABLES` 默认不注入世界书，[field-contracts.json](src/unified-statusbar/core/field-contracts.json) 登记 7 列只读契约；[world-sources.ts](src/unified-statusbar/core/world-engine/world-sources.ts) / [world-evolution.ts](src/unified-statusbar/core/world-engine/world-evolution.ts) / [world-state.ts](src/unified-statusbar/core/world-engine/world-state.ts) / [world-types.ts](src/unified-statusbar/core/world-engine/world-types.ts) 将焦点心路与去标签日记喂入幕后演化，强化 `Pool_1` 独立抢跑与 `missedOutcome` 到期既成事实 2 日回流（`collectRecentMissedSeeds`）；新增 [mind-profile-view.ts](src/unified-statusbar/core/mind-profile-view.ts) 与双 Tab 弹窗（[popup-manager.ts](src/unified-statusbar/renderers/popup-manager.ts)），全皮肤（modern/minimal/flirtatious/sweet/ancient/xianxia/bridge/ios）开放重要角色与恋爱对象的心路/日记直达入口，文案去狭隘化并全字段转义；新增 [tests/mind-profile.test.mjs](tests/mind-profile.test.mjs) | `build` / `test` 120/120 / `check` 全绿；待真机验收 |
-| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **120/120 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性 + 后台世界书净化实机日志 + v2 事件池台账按需推选 + 心路档案双 Tab 弹窗与到期 `missedOutcome` 蝴蝶效应」在 TT Static/Managed 与手机端待持续实机观察 |
+| **V3.3.4 模板瑟瑟任务 1+4 同步（alpha.16）** | ✅ 代码+单测完成 | 同步更新 [色色灵感数据库模板V3.3.4.json](src/unified-statusbar/docs/色色灵感数据库模板V3.3.4.json) 中 `瑟瑟任务表`（`sheet_k7gp2gbw7`）的 `note`/`initNode`/`insertNode`/`updateNode`（与台账仓字节一致）：改为固定 **1 条瑟瑟 + 4 条高趣味有阻碍的日常/社交/探索任务**，明确禁止流水账，保留全部表名/列名/DDL 不变 | `build` / `test` 120/120 / `check` 全绿；待真机验收 |
+| **真机全量回归验收** | ⏳ 待继续验证 | 离线条目：`npm test` **120/120 通过**，`npm run check` 通过；`v0.1.0-alpha.4` 小手机去强制已通过，剩余「长聊多轮自然入镜 + 亲密拦截 + Swipe 回退 + 双开三轮认知一致性 + 后台世界书净化实机日志 + v2 事件池台账按需推选 + 心路档案双 Tab 弹窗、1+4 趣味任务与到期 `missedOutcome` 蝴蝶效应」在 TT Static/Managed 与手机端待持续实机观察 |
 
 ---
 
@@ -158,7 +159,8 @@ node -e "const c=require('crypto'),f=require('fs');console.log(c.createHash('sha
 
 | 日期 | 版本 / Commit | 改动范围与摘要 | 验证状态 |
 |---|---|---|---|
-| 2026-11-26 | `0.1.0-alpha.15` | 接入角色心路档案与场外蝴蝶效应闭环：[table-manager.ts](src/unified-statusbar/core/table-manager.ts) 新增 `DEFAULT_NON_INJECTED_TABLES`（保护 `角色心路档案表` 默认不注入世界书）并扩展 [data-manager.ts](src/unified-statusbar/core/data-manager.ts) / [field-contracts.json](src/unified-statusbar/core/field-contracts.json)；[world-sources.ts](src/unified-statusbar/core/world-engine/world-sources.ts) 新增 `readMindProfilesForFocus` 喂入焦点角色心路与近期日记，[world-state.ts](src/unified-statusbar/core/world-engine/world-state.ts) / [world-types.ts](src/unified-statusbar/core/world-engine/world-types.ts) 新增 `settledAtDay` 与 `collectRecentMissedSeeds` 2 日既成事实回流通道，[world-evolution.ts](src/unified-statusbar/core/world-engine/world-evolution.ts) 融入 `Pool_1` 独立抢跑与蝴蝶效应余波规则；新增 [mind-profile-view.ts](src/unified-statusbar/core/mind-profile-view.ts) 并在 [popup-manager.ts](src/unified-statusbar/renderers/popup-manager.ts) / 全皮肤渲染器开放恋爱对象与重要角色「心路档案 / 心路日记」双 Tab 弹窗；新增 [tests/mind-profile.test.mjs](tests/mind-profile.test.mjs) | `build` / `test` 120/120 / `check` 全绿；待真机验收 |
+| 2026-11-26 | `0.1.0-alpha.16` | 同步更新 [色色灵感数据库模板V3.3.4.json](src/unified-statusbar/docs/色色灵感数据库模板V3.3.4.json) 中 `瑟瑟任务表`（`sheet_k7gp2gbw7`）的 `note` / `initNode` / `insertNode` / `updateNode` 为 **1 条瑟瑟 + 4 条高趣味有阻碍日常/社交/探索任务**（禁流水账，与台账仓完全字节一致）；表名/列名/DDL 保持兼容不变 | `build` / `test` 120/120 / `check` 全绿；待真机验收 |
+| 2026-11-26 | `0.1.0-alpha.15` (`ee52015`) | 接入角色心路档案与场外蝴蝶效应闭环：[table-manager.ts](src/unified-statusbar/core/table-manager.ts) 新增 `DEFAULT_NON_INJECTED_TABLES`（保护 `角色心路档案表` 默认不注入世界书）并扩展 [data-manager.ts](src/unified-statusbar/core/data-manager.ts) / [field-contracts.json](src/unified-statusbar/core/field-contracts.json)；[world-sources.ts](src/unified-statusbar/core/world-engine/world-sources.ts) 新增 `readMindProfilesForFocus` 喂入焦点角色心路与近期日记，[world-state.ts](src/unified-statusbar/core/world-engine/world-state.ts) / [world-types.ts](src/unified-statusbar/core/world-engine/world-types.ts) 新增 `settledAtDay` 与 `collectRecentMissedSeeds` 2 日既成事实回流通道，[world-evolution.ts](src/unified-statusbar/core/world-engine/world-evolution.ts) 融入 `Pool_1` 独立抢跑与蝴蝶效应余波规则；新增 [mind-profile-view.ts](src/unified-statusbar/core/mind-profile-view.ts) 并在 [popup-manager.ts](src/unified-statusbar/renderers/popup-manager.ts) / 全皮肤渲染器开放恋爱对象与重要角色「心路档案 / 心路日记」双 Tab 弹窗；新增 [tests/mind-profile.test.mjs](tests/mind-profile.test.mjs) | `build` / `test` 120/120 / `check` 全绿；待真机验收 |
 | 2026-11-26 | `0.1.0-alpha.14 (docs)` | 补全并更新 README / AGENTS / SOURCE_NOTICE / `src` 说明以适配 Antigravity 交接，同步刷新 `src/*.md` SHA-256 清单 | 仅文档；`build` / `test` 115/115 / `check` 全绿 |
 | 2026-11-19 | `0.1.0-alpha.14` | 清理 `currency-ai.ts` / `investigation.ts` / `memo-goals.ts` / `skill-prompts.ts` / `skill-tree-engine.ts` / `wardrobe-prompts.ts` / `wardrobe-runtime.ts` 遗留 `after_system` 注释与内联口径对齐 | `build` / `test` 115/115 / `check` 全绿；待真机验收 |
 | 2026-11-19 | `0.1.0-alpha.13` | 修复移除 `'chat_history'` 后 `injectPrompts({ position: 'after_system' })` 资料块被宿主 `generateRaw` 跳过的问题：[ai-request-pipeline.ts](src/unified-statusbar/core/ai-request-pipeline.ts) 新增 `buildStandardPromptMiddle`，并将 `injectTriggerAndContext` 改为仅负责 `position:'none'` 绿灯扫描触发；全线迁移 `world-evolution` / `calendar-ai` / `shop-story-ai` / `currency-ai` / `interview` / `investigation` / `memo-goals` / `skill-tree-engine` / `wardrobe-runtime` 9 处站点改为直接内联资料块进 `ordered_prompts`（`dialogue_examples` 与 `user_input` 之间）；扩展 `tests/bg-isolation.test.mjs` | `build` / `test` 115/115 / `check` 全绿；已推仓待 TT 拉取真机验收 |
